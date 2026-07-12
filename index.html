@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnet Muscu</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<aside>
+
+    <a href="#" class="logo">
+        Carnet<br>Muscu
+    </a>
+
+    <nav>
+
+        <a href="#" data-page="dashboard">🏠 Dashboard</a>
+
+        <a href="#" data-page="programme">💪 Programme</a>
+
+        <a href="#" data-page="log">➕ Ajouter une séance</a>
+
+        <a href="#" data-page="history">📖 Historique</a>
+
+        <a href="#" data-page="progress">📈 Progression</a>
+
+    </nav>
+
+    <small>
+
+        Carnet Muscu V1
+
+        <br><br>
+
+        Toutes les données sont enregistrées
+        automatiquement dans ton navigateur.
+
+    </small>
+
+</aside>
+
+<main>
+
+<header>
+
+<div>
+
+<p class="eyebrow">
+TABLEAU DE BORD
+</p>
+
+<h1>
+Bienvenue 👋
+</h1>
+
+<p class="sub">
+Retrouve ton programme, ajoute une séance réalisée
+et suis ta progression.
+</p>
+
+</div>
+
+<button
+class="btn lime"
+id="quickAdd">
+
+Ajouter une séance
+
+</button>
+
+</header>
+
+<!-- ================= DASHBOARD ================= -->
+
+<section id="dashboard">
+
+<div class="next">
+
+<div>
+
+<p class="eyebrow">
+
+PROCHAINE SÉANCE
+
+</p>
+
+<h2 id="nextWorkout">
+
+Pecs + Biceps
+
+</h2>
+
+<p>
+
+Séance recommandée
+
+</p>
+
+</div>
+
+<button
+class="btn lime"
+data-page="log">
+
+Ajouter cette séance
+
+</button>
+
+</div>
+
+<div class="stats">
+
+<div class="card stat">
+
+<b id="weekSessions">
+
+0
+
+</b>
+
+<span>
+
+Séances cette semaine
+
+</span>
+
+</div>
+
+<div class="card stat">
+
+<b id="lastWorkout">
+
+-
+
+</b>
+
+<span>
+
+Dernière séance
+
+</span>
+
+</div>
+
+<div class="card stat">
+
+<b id="weekVolume">
+
+0 kg
+
+</b>
+
+<span>
+
+Volume semaine
+
+</span>
+
+</div>
+
+<div class="card stat">
+
+<b id="records">
+
+0
+
+</b>
+
+<span>
+
+Records
+
+</span>
+
+</div>
+
+</div>
+
+<div class="grid">
+
+<div class="card">
+
+<h2>
+
+Dernière activité
+
+</h2>
+
+<div
+id="lastActivity"
+class="empty">
+
+Aucune séance enregistrée.
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>
+
+Activité hebdomadaire
+
+</h2>
+
+<div class="bars">
+
+<div class="bar">
+
+<i></i>
+
+L
+
+</div>
+
+<div class="bar">
+
+<i></i>
+
+M
+
+</div>
+
+<div class="bar">
+
+<i></i>
+
+M
+
+</div>
+
+<div class="bar">
+
+<i></i>
+
+J
+
+</div>
+
+<div class="bar">
+
+<i></i>
+
+V
+
+</div>
+
+<div class="bar">
+
+<i></i>
+
+S
+
+</div>
+
+<div class="bar">
+
+<i class="active"></i>
+
+D
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ================= PROGRAMME ================= -->
+
+<section
+id="programme"
+class="hidden">
+
+<header>
+
+<div>
+
+<p class="eyebrow">
+
+PROGRAMME
+
+</p>
+
+<h1>
+
+Ton programme
+
+</h1>
+
+<p class="sub">
+
+Les séances servent de modèle lorsque tu ajoutes
+une séance réalisée.
+
+</p>
+
+</div>
+
+<button
+class="btn lime"
+id="editProgram">
+
+Modifier
+
+</button>
+
+</header>
+
+<div
+class="templates"
+id="programContainer">
+
+<!-- rempli par JS -->
+
+</div>
+
+</section>
+<!-- ================= AJOUT SEANCE ================= -->
+
+<section
+id="log"
+class="hidden">
+
+<header>
+
+<div>
+
+<p class="eyebrow">
+SÉANCE RÉALISÉE
+</p>
+
+<h1>
+Ajouter une séance
+</h1>
+
+<p class="sub">
+Remplis tes performances après ton entraînement.
+</p>
+
+</div>
+
+</header>
+
+
+<div class="log">
+
+<div class="card form">
+
+
+<label>
+
+Choisir une séance
+
+<select id="sessionSelect">
+
+</select>
+
+</label>
+
+
+<div id="exerciseLogger">
+
+</div>
+
+
+<label>
+
+Note générale
+
+<textarea
+id="sessionNote"
+placeholder="Énergie, sensations, douleurs, remarques...">
+
+</textarea>
+
+</label>
+
+
+<div class="footer">
+
+<button
+class="btn"
+id="cancelLog">
+
+Annuler
+
+</button>
+
+
+<button
+class="btn lime"
+id="saveSession">
+
+Enregistrer la séance
+
+</button>
+
+</div>
+
+
+</div>
+
+
+
+<div class="card summary">
+
+<h2>
+
+Résumé
+
+</h2>
+
+
+<p>
+
+Exercices :
+
+<b id="summaryExercises">
+
+0
+
+</b>
+
+</p>
+
+
+<p>
+
+Séries :
+
+<b id="summarySets">
+
+0
+
+</b>
+
+</p>
+
+
+<p>
+
+Volume :
+
+<b id="summaryVolume">
+
+0 kg
+
+</b>
+
+</p>
+
+
+<hr>
+
+
+<p>
+
+Le programme reste inchangé.
+Cette séance sera ajoutée à ton historique.
+
+</p>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+<!-- ================= HISTORIQUE ================= -->
+
+
+<section
+id="history"
+class="hidden">
+
+
+<header>
+
+<div>
+
+<p class="eyebrow">
+HISTORIQUE
+</p>
+
+
+<h1>
+
+Tes séances
+
+</h1>
+
+
+<p class="sub">
+
+Toutes tes séances réalisées.
+
+</p>
+
+
+</div>
+
+</header>
+
+
+
+<div
+class="card history"
+id="historyContainer">
+
+<div class="empty">
+
+Aucune séance enregistrée.
+
+</div>
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+<!-- ================= PROGRESSION ================= -->
+
+
+<section
+id="progress"
+class="hidden">
+
+
+<header>
+
+<div>
+
+<p class="eyebrow">
+
+PROGRESSION
+
+</p>
+
+
+<h1>
+
+Évolution
+
+</h1>
+
+
+<p class="sub">
+
+Suis tes charges et ton volume.
+
+</p>
+
+
+</div>
+
+</header>
+
+
+
+<div class="card chart">
+
+
+<label>
+
+Choisir un exercice
+
+
+<select id="exerciseProgress">
+
+</select>
+
+
+</label>
+
+
+
+<div
+class="chartBox"
+id="chartBox">
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+
+
+</main>
+
+
+
+
+
+<!-- ================= MODAL PROGRAMME ================= -->
+
+
+<dialog id="programModal">
+
+
+<form method="dialog">
+
+
+<button
+class="close">
+
+×
+
+</button>
+
+
+<h2>
+
+Modifier le programme
+
+</h2>
+
+
+<p class="sub">
+
+Ajoute ou modifie tes exercices.
+
+</p>
+
+
+
+<div id="programEditor">
+
+</div>
+
+
+
+<div class="actions">
+
+
+<button
+class="btn"
+value="cancel">
+
+Annuler
+
+</button>
+
+
+
+<button
+class="btn lime"
+id="saveProgram">
+
+Sauvegarder
+
+</button>
+
+
+</div>
+
+
+</form>
+
+
+</dialog>
+
+
+
+<script src="app.js"></script>
+
+
+</body>
+
+</html>
