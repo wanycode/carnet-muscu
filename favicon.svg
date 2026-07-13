@@ -1,0 +1,36 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" fill="white"/>
+  
+  <!-- Disque gauche avec pattern -->
+  <circle cx="130" cy="256" r="60" fill="none" stroke="black" stroke-width="16"/>
+  <line x1="130" y1="256" x2="130" y2="316" stroke="black" stroke-width="8"/>
+  <line x1="130" y1="256" x2="190" y2="256" stroke="black" stroke-width="8"/>
+  <line x1="130" y1="256" x2="130" y2="196" stroke="black" stroke-width="8"/>
+  <line x1="130" y1="256" x2="70" y2="256" stroke="black" stroke-width="8"/>
+  <!-- Pattern diagonal -->
+  <line x1="130" y1="256" x2="175" y2="301" stroke="black" stroke-width="8"/>
+  <line x1="130" y1="256" x2="85" y2="211" stroke="black" stroke-width="8"/>
+  
+  <!-- Barre centrale avec grip -->
+  <rect x="190" y="226" width="132" height="60" fill="black" rx="8"/>
+  <!-- Rainures sur la barre -->
+  <line x1="210" y1="216" x2="210" y2="296" stroke="black" stroke-width="6"/>
+  <line x1="240" y1="216" x2="240" y2="296" stroke="black" stroke-width="6"/>
+  <line x1="270" y1="216" x2="270" y2="296" stroke="black" stroke-width="6"/>
+  <line x1="300" y1="216" x2="300" y2="296" stroke="black" stroke-width="6"/>
+  
+  <!-- Disque droit avec pattern différent -->
+  <circle cx="382" cy="256" r="60" fill="none" stroke="black" stroke-width="16"/>
+  <!-- Pattern diagonal (45 degrés) -->
+  <line x1="382" y1="256" x2="427" y2="301" stroke="black" stroke-width="8"/>
+  <line x1="382" y1="256" x2="427" y2="211" stroke="black" stroke-width="8"/>
+  <line x1="382" y1="256" x2="337" y2="301" stroke="black" stroke-width="8"/>
+  <line x1="382" y1="256" x2="337" y2="211" stroke="black" stroke-width="8"/>
+  
+  <!-- Cercles concentriques au centre -->
+  <circle cx="256" cy="256" r="40" fill="none" stroke="black" stroke-width="4"/>
+  <circle cx="256" cy="256" r="20" fill="none" stroke="black" stroke-width="4"/>
+  
+  <!-- Petit accent en haut au centre -->
+  <rect x="246" y="200" width="20" height="20" fill="black" rx="3"/>
+</svg>
