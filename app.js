@@ -281,11 +281,17 @@ function getWeekSessions(){
         now.getDate() - ((now.getDay()+6)%7)
     );
 
+    monday.setHours(0, 0, 0, 0);
+
 
     return data.sessions.filter(session=>{
 
 
-        return new Date(session.date) >= monday;
+        const sessionDate = new Date(session.date);
+
+        sessionDate.setHours(0, 0, 0, 0);
+
+        return sessionDate >= monday;
 
 
     });
@@ -379,6 +385,8 @@ function showPage(page){
 
         if(page === "stats") renderAdvancedStats();
         if(page === "gallery") renderPhotos();
+
+        if(page === "history") renderHistory();
 
     }
 
