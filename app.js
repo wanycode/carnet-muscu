@@ -377,6 +377,9 @@ function showPage(page){
 
         target.classList.remove("hidden");
 
+        if(page === "stats") renderAdvancedStats();
+        if(page === "gallery") renderPhotos();
+
     }
 
 
