@@ -28,7 +28,15 @@
         Carnet<br>Muscu
     </a>
 
-    
+    <nav>
+        <a href="#" data-page="dashboard">Dashboard</a>
+        <a href="#" data-page="programme">Programme</a>
+        <a href="#" data-page="log">Ajouter</a>
+        <a href="#" data-page="history">Historique</a>
+        <a href="#" data-page="calendar">Calendrier</a>
+        <a href="#" data-page="stats">Stats</a>
+        <a href="#" data-page="gallery">Galerie</a>
+    </nav>
 
     <small>
 
@@ -536,9 +544,71 @@ Aucune séance enregistrée.
 
 
 
+<!-- ================= CALENDRIER ================= -->
+
+<section
+id="calendar"
+class="hidden">
+
+<header>
+
+<div>
+
+<p class="eyebrow">
+
+CALENDRIER
+
+</p>
+
+<h1>
+
+Mon calendrier
+
+</h1>
+
+<p class="sub">
+
+Clique sur un jour pour voir ta séance et l’emoji muscle.
+
+</p>
+
+</div>
+
+</header>
+
+<div class="card calendar-card">
+
+<div class="calendar-header">
+
+<button class="btn" id="prevMonth">Précédent</button>
+
+<h2 id="calendarTitle">Juillet 2026</h2>
+
+<button class="btn" id="nextMonth">Suivant</button>
+
+</div>
+
+<div class="calendar-grid" id="calendarGrid"></div>
+
+<div class="calendar-legend">
+
+<span>🦵 Legday</span>
+
+<span>💪 Pecs + Biceps</span>
+
+<span>🦾 Triceps + Dos</span>
+
+<span>🛡️ Épaules + Abdos</span>
+
+</div>
+
+</div>
+
+</section>
+
+
 
 <!-- ================= PROGRESSION ================= -->
-
 
 <section
 id="progress"
@@ -691,6 +761,7 @@ id="chartBox">
   <a href="#" data-page="programme">Programme</a>
   <a href="#" data-page="log">Ajouter</a>
   <a href="#" data-page="history">Historique</a>
+  <a href="#" data-page="calendar">Calendrier</a>
   <a href="#" data-page="stats">Stats</a>
   <a href="#" data-page="gallery">Galerie</a>
 </nav>
@@ -767,7 +838,21 @@ Sauvegarder
 
 </dialog>
 
+<dialog id="calendarModal">
 
+<form method="dialog">
+
+<button class="close">
+
+×
+
+</button>
+
+<div id="calendarModalContent"></div>
+
+</form>
+
+</dialog>
 
 <script src="app.js"></script>
 <script src="stats-gallery.js"></script>

@@ -190,6 +190,21 @@ let data = {
 
 };
 
+const monthNames = [
+    "Janvier","Février","Mars","Avril","Mai","Juin",
+    "Juillet","Août","Septembre","Octobre","Novembre","Décembre"
+];
+
+const calendarIcons = {
+    "LEGDAY": "🦵",
+    "PECS + BICEPS": "💪",
+    "TRICEPS + DOS": "🦾",
+    "ÉPAULES + ABDOS": "🛡️"
+};
+
+const calendarState = {
+    date: new Date()
+};
 
 
 function loadData(){
@@ -327,6 +342,43 @@ document.addEventListener(
     fillProgressExercises();
 
 
+    renderCalendar();
+
+
+    const prevButton = document.getElementById("prevMonth");
+    const nextButton = document.getElementById("nextMonth");
+    const calendarModal = document.getElementById("calendarModal");
+
+    if(prevButton){
+        prevButton.addEventListener("click", ()=>{
+            const date = calendarState.date;
+            calendarState.date = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+            renderCalendar();
+        });
+    }
+
+    if(nextButton){
+        nextButton.addEventListener("click", ()=>{
+            const date = calendarState.date;
+            calendarState.date = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+            renderCalendar();
+        });
+    }
+
+    if(calendarModal){
+        calendarModal.addEventListener("click", e=>{
+            if(e.target === calendarModal){
+                calendarModal.close();
+            }
+        });
+        const closeBtn = calendarModal.querySelector(".close");
+        if(closeBtn){
+            closeBtn.addEventListener("click", ()=>{
+                calendarModal.close();
+            });
+        }
+    }
+
 });
 function initNavigation(){
 
@@ -388,6 +440,8 @@ function showPage(page){
 
         if(page === "history") renderHistory();
 
+        if(page === "calendar") renderCalendar();
+
     }
 
 
@@ -426,11 +480,114 @@ function showPage(page){
 
     }
 
+    if(page==="calendar"){
+
+        renderCalendar();
+
+    }
+
 }
 
 
 
 
+
+function getSessionsForDay(date){
+    const normalized = new Date(date);
+    normalized.setHours(0,0,0,0);
+
+    return data.sessions.filter(session=>{
+        const sessionDate = new Date(session.date);
+        sessionDate.setHours(0,0,0,0);
+        return sessionDate.getTime() === normalized.getTime();
+    });
+}
+
+function getDayEmojiForSession(session){
+    if(!session) return "";
+    return calendarIcons[session.name] || "🏋️";
+}
+
+function renderCalendar(){
+    const title = document.getElementById("calendarTitle");
+    const grid = document.getElementById("calendarGrid");
+    if(!title || !grid) return;
+
+    const year = calendarState.date.getFullYear();
+    const month = calendarState.date.getMonth();
+
+    title.textContent = `${monthNames[month]} ${year}`;
+
+    const firstOfMonth = new Date(year, month, 1);
+    const startWeekday = (firstOfMonth.getDay() + 6) % 7;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const weekdays = ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
+    let html = weekdays.map(day => `<div class="weekday">${day}</div>`).join("");
+
+    for(let i = 0; i < startWeekday; i++){
+        html += `<div class="day-cell empty"></div>`;
+    }
+
+    for(let day = 1; day <= daysInMonth; day++){
+        const currentDate = new Date(year, month, day);
+        const sessions = getSessionsForDay(currentDate);
+        const session = sessions[0];
+        const emoji = session ? getDayEmojiForSession(session) : "";
+
+        html += `
+            <div class="day-cell">
+                <button class="day-button" data-day="${day}" ${sessions.length === 0 ? "disabled" : ""}>
+                    <span class="day-number">${day}</span>
+                    <span class="day-emoji">${emoji}</span>
+                </button>
+            </div>
+        `;
+    }
+
+    grid.innerHTML = html;
+
+    grid.querySelectorAll(".day-button").forEach(button=>{
+        button.addEventListener("click", ()=>{
+            const day = Number(button.dataset.day);
+            const selectedDate = new Date(year, month, day);
+            const sessions = getSessionsForDay(selectedDate);
+            openCalendarModal(selectedDate, sessions);
+        });
+    });
+}
+
+function openCalendarModal(date, sessions){
+    const modal = document.getElementById("calendarModal");
+    const content = document.getElementById("calendarModalContent");
+    if(!modal || !content) return;
+
+    const dateLabel = date.toLocaleDateString("fr-FR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+    let html = `<h2>${dateLabel}</h2>`;
+
+    if(sessions.length === 0){
+        html += `<p>Aucune séance enregistrée.</p>`;
+    } else {
+        sessions.forEach(session => {
+            html += `
+                <div class="card" style="margin-bottom:14px;">
+                    <h3>${getDayEmojiForSession(session)} ${session.name}</h3>
+                    <p style="margin:6px 0 10px;color:var(--muted);">Volume: ${formatNumber(calculateVolume(session))} kg</p>
+                    <p style="margin:0 0 10px;font-size:13px;color:var(--muted);">${session.note || "Aucune note"}</p>
+                    <div style="font-size:13px;line-height:1.5;">
+                        ${session.exercises.map(ex => `
+                            <strong>${ex.name}</strong><br>
+                            ${ex.sets.map((set,i)=>`Série ${i+1}: ${set.weight}kg x ${set.reps}`).join("<br>")}<br><br>
+                        `).join("")}
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    content.innerHTML = html;
+    modal.showModal();
+}
 
 function renderDashboard(){
 
