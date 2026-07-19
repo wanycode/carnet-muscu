@@ -35,7 +35,6 @@
         <a href="#" data-page="history">Historique</a>
         <a href="#" data-page="calendar">Calendrier</a>
         <a href="#" data-page="stats">Stats</a>
-        <a href="#" data-page="gallery">Galerie</a>
     </nav>
 
     <small>
@@ -188,10 +187,13 @@ Records
 
 </div>
 
-<div class="grid">
+<div class="card coach-card">
 
-<div class="card">
+<div class="coach-header">
 
+<div>
+
+<
 <h2>
 
 Dernière activité
@@ -366,6 +368,15 @@ Remplis tes performances après ton entraînement.
 
 <label>
 
+Date de la séance
+
+<input type="date" id="sessionDate">
+
+</label>
+
+
+<label>
+
 Choisir une séance
 
 <select id="sessionSelect">
@@ -522,6 +533,10 @@ Toutes tes séances réalisées.
 </div>
 
 </header>
+
+
+
+<div class="card coach-mini" id="historyCoachInsight"></div>
 
 
 
@@ -725,35 +740,6 @@ id="chartBox">
 
 </section>
 
-<!-- ================= GALERIE PHOTOS ================= -->
-
-<section id="gallery" class="hidden">
-
-<header>
-<div>
-<p class="eyebrow">PROGRESSION</p>
-<h1>Galerie photos</h1>
-<p class="sub">Avant / Après et progression</p>
-</div>
-</header>
-
-<div id="photoSection">
-
-<div class="card">
-<h2>Ajouter une photo</h2>
-<input type="file" id="photoInput" accept="image/*" style="margin:15px 0;cursor:pointer">
-<input type="text" id="photoDate" placeholder="Date (ex: Janvier 2025)" style="width:100%;margin-bottom:10px">
-<button class="btn lime" id="uploadPhoto" style="width:100%">Télécharger photo</button>
-</div>
-
-<div id="photoGallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:15px;margin-top:20px">
-<!-- rempli par JS -->
-</div>
-
-</div>
-
-</section>
-
 </main>
 
 <nav class="mobile-nav">
@@ -763,7 +749,6 @@ id="chartBox">
   <a href="#" data-page="history">Historique</a>
   <a href="#" data-page="calendar">Calendrier</a>
   <a href="#" data-page="stats">Stats</a>
-  <a href="#" data-page="gallery">Galerie</a>
 </nav>
 
 
@@ -854,8 +839,42 @@ Sauvegarder
 
 </dialog>
 
-<script src="app.js"></script>
+<dialog id="sessionEditModal">
+
+<form method="dialog" id="sessionEditForm">
+
+<button type="button" class="close" id="closeSessionEdit">
+
+×
+
+</button>
+
+<h2>Modifier la séance</h2>
+
+<div id="sessionEditContent"></div>
+
+<div class="actions">
+
+<button type="button" class="btn" id="cancelSessionEdit">
+
+Annuler
+
+</button>
+
+<button type="submit" class="btn lime" id="saveSessionEdit">
+
+Enregistrer
+
+</button>
+
+</div>
+
+</form>
+
+</dialog>
+
 <script src="stats-gallery.js"></script>
+<script src="app.js"></script>
 
 
 </body>

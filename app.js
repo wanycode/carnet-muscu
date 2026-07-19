@@ -251,6 +251,39 @@ function formatNumber(number){
 
 }
 
+function getTodayDateInputValue(){
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${now.getFullYear()}-${month}-${day}`;
+}
+
+function sessionDateFromInput(value){
+    const [year, month, day] = value.split("-").map(Number);
+    return new Date(year, month - 1, day, 12, 0, 0).toISOString();
+}
+
+function formatDateInputFromSession(sessionDate){
+    const date = new Date(sessionDate);
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${date.getFullYear()}-${month}-${day}`;
+}
+
+function initSessionDateField(){
+    const input = document.getElementById("sessionDate");
+    if(!input) return;
+    if(!input.value){
+        input.value = getTodayDateInputValue();
+    }
+}
+
+function refreshSessionViews(){
+    renderDashboard();
+    renderHistory();
+    renderCalendar();
+}
+
 
 
 function calculateVolume(session){
@@ -341,6 +374,9 @@ document.addEventListener(
 
     fillProgressExercises();
 
+    initSessionDateField();
+
+    initAiAssistant();
 
     renderCalendar();
 
@@ -378,6 +414,8 @@ document.addEventListener(
             });
         }
     }
+
+    initSessionEditModal();
 
 });
 function initNavigation(){
@@ -470,6 +508,7 @@ function showPage(page){
     if(page==="log"){
 
         fillSessionSelect();
+        initSessionDateField();
 
     }
 
@@ -523,7 +562,10 @@ function renderCalendar(){
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     const weekdays = ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
-    let html = weekdays.map(day => `<div class="weekday">${day}</div>`).join("");
+    const mobileWeekdays = ["L","M","M","J","V","S","D"];
+    const useShortWeekdays = window.matchMedia("(max-width: 760px)").matches;
+    const weekdayLabels = useShortWeekdays ? mobileWeekdays : weekdays;
+    let html = weekdayLabels.map(day => `<div class="weekday">${day}</div>`).join("");
 
     for(let i = 0; i < startWeekday; i++){
         html += `<div class="day-cell empty"></div>`;
@@ -580,13 +622,120 @@ function openCalendarModal(date, sessions){
                             ${ex.sets.map((set,i)=>`Série ${i+1}: ${set.weight}kg x ${set.reps}`).join("<br>")}<br><br>
                         `).join("")}
                     </div>
+                    <button type="button" class="btn lime edit-session-btn" data-session-id="${session.id}" style="margin-top:10px;">
+                        Modifier
+                    </button>
                 </div>
             `;
         });
     }
 
     content.innerHTML = html;
+
+    content.querySelectorAll(".edit-session-btn").forEach(button=>{
+        button.addEventListener("click", ()=>{
+            const session = data.sessions.find(item => item.id === Number(button.dataset.sessionId));
+            if(!session) return;
+            modal.close();
+            openSessionEditor(session);
+        });
+    });
+
     modal.showModal();
+}
+
+function escapeHtml(value){
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function buildAiAdvice(prompt = ""){
+    const recentSessions = data.sessions.slice(-4);
+    const lastSession = recentSessions[recentSessions.length - 1];
+    const previousSession = recentSessions[recentSessions.length - 2];
+
+    if(!lastSession){
+        return {
+            title: "Coach IA prêt",
+            text: "Ajoute 2 à 3 séances pour que l’assistant puisse analyser tes progrès et te proposer des conseils concrets.",
+            bullets: [
+                "Objectif recommandé : 3 séances cette semaine",
+                "Focus : technique et récupération",
+                "Prochaine action : enregistrer une séance"
+            ]
+        };
+    }
+
+    const lastVolume = calculateVolume(lastSession);
+    const previousVolume = previousSession ? calculateVolume(previousSession) : lastVolume;
+    const delta = lastVolume - previousVolume;
+    const trend = delta > 0 ? "Tu progresses" : delta < 0 ? "Le volume est un peu plus bas" : "Le volume est stable";
+    const nextWorkout = getNextWorkoutName(lastSession.name);
+    const avgVolume = recentSessions.reduce((sum, session) => sum + calculateVolume(session), 0) / recentSessions.length;
+
+    const normalizedPrompt = (prompt || "").toLowerCase();
+    let advice = `Le meilleur prochain pas est d’enchaîner ${nextWorkout} avec une progression progressive : 1 série supplémentaire ou +2,5 kg sur un exercice de base si la technique reste propre.`;
+
+    if(normalizedPrompt.includes("objectif") || normalizedPrompt.includes("semaine")){
+        advice = `Objectif réaliste : viser ${Math.round(avgVolume / 1000)} à ${Math.round(avgVolume / 1000 + 1)}k de volume cette semaine en gardant la technique propre.`;
+    } else if(normalizedPrompt.includes("repos") || normalizedPrompt.includes("récup") || normalizedPrompt.includes("recovery")){
+        advice = "Pour récupérer, garde 1 à 2 jours sans surcharge, dors bien et privilégie l’hydratation et une mobilité légère.";
+    } else if(normalizedPrompt.includes("jambes") || normalizedPrompt.includes("périm") || normalizedPrompt.includes("perim")){
+        advice = `Comme tu as travaillé ${lastSession.name.toLowerCase()}, concentre-toi sur la qualité des séries et ajoute 1 répétition ou 2,5 kg sur un exercice de base si la forme reste propre.`;
+    }
+
+    return {
+        title: "Analyse IA locale",
+        text: `${trend}. Le dernier volume est d’environ ${formatNumber(lastVolume)} kg, contre ${formatNumber(previousVolume)} kg avant.`,
+        bullets: [
+            `Prochaine séance conseillée : ${nextWorkout}`,
+            advice,
+            `Niveau de charge : ${delta >= 0 ? "à maintenir ou légèrement augmenter" : "à ajuster avec plus de récupération"}`
+        ]
+    };
+}
+
+function renderAiAssistant(){
+    const reply = document.getElementById("aiReply");
+    if(!reply) return;
+
+    const advice = buildAiAdvice();
+    reply.innerHTML = `
+        <div>
+            <strong>${escapeHtml(advice.title)}</strong>
+            <p>${escapeHtml(advice.text)}</p>
+            <ul>
+                ${advice.bullets.map(bullet => `<li>${escapeHtml(bullet)}</li>`).join("")}
+            </ul>
+        </div>
+    `;
+}
+
+function initAiAssistant(){
+    const askButton = document.getElementById("askAi");
+    const aiPrompt = document.getElementById("aiPrompt");
+    const reply = document.getElementById("aiReply");
+
+    if(!askButton || !aiPrompt || !reply) return;
+
+    askButton.addEventListener("click", ()=>{
+        const advice = buildAiAdvice(aiPrompt.value);
+        reply.innerHTML = `
+            <div>
+                <strong>${escapeHtml(advice.title)}</strong>
+                <p>${escapeHtml(advice.text)}</p>
+                <ul>
+                    ${advice.bullets.map(bullet => `<li>${escapeHtml(bullet)}</li>`).join("")}
+                </ul>
+            </div>
+        `;
+    });
+
+    renderAiAssistant();
 }
 
 function renderDashboard(){
@@ -712,6 +861,8 @@ function renderDashboard(){
         nextWorkout.textContent =
             getNextWorkoutName(last ? last.name : null);
     }
+
+    renderAiAssistant();
 
 }
 
@@ -1098,6 +1249,9 @@ document.getElementById("saveSession")?.addEventListener(
     const select =
         document.getElementById("sessionSelect");
 
+    const dateInput =
+        document.getElementById("sessionDate");
+
 
     const workout =
         data.program.find(
@@ -1108,6 +1262,11 @@ document.getElementById("saveSession")?.addEventListener(
 
     if(!workout) return;
 
+    if(!dateInput?.value){
+        alert("Choisis une date pour la séance.");
+        return;
+    }
+
 
 
     const session = {
@@ -1116,7 +1275,7 @@ document.getElementById("saveSession")?.addEventListener(
 
         name: workout.name,
 
-        date: new Date().toISOString(),
+        date: sessionDateFromInput(dateInput.value),
 
         note:
         document.getElementById("sessionNote").value,
@@ -1187,11 +1346,10 @@ document.getElementById("saveSession")?.addEventListener(
 
     saveData();
 
+    document.getElementById("sessionNote").value = "";
+    initSessionDateField();
 
-
-    renderDashboard();
-
-    renderHistory();
+    refreshSessionViews();
 
 
 
@@ -1323,11 +1481,21 @@ function renderHistory(){
 
 
 
+        <div class="history-actions">
+
+        <button class="edit">
+
+        Modifier
+
+        </button>
+
         <button class="delete">
 
         Supprimer
 
         </button>
+
+        </div>
 
 
         `;
@@ -1338,10 +1506,19 @@ function renderHistory(){
         item.querySelector(".delete")
         .addEventListener(
         "click",
-        ()=>{
-
-
+        e=>{
+            e.stopPropagation();
             deleteSession(session.id);
+
+
+        });
+
+        item.querySelector(".edit")
+        .addEventListener(
+        "click",
+        e=>{
+            e.stopPropagation();
+            openSessionEditor(session);
 
 
         });
@@ -1353,11 +1530,11 @@ function renderHistory(){
         e=>{
 
 
-            if(e.target.classList.contains("delete"))
+            if(e.target.classList.contains("delete") || e.target.classList.contains("edit"))
             return;
 
 
-            showSessionDetails(session);
+            openSessionEditor(session);
 
 
         });
@@ -1393,67 +1570,133 @@ function deleteSession(id){
 
     saveData();
 
-
-    renderHistory();
-
-
-    renderDashboard();
+    refreshSessionViews();
 
 
 
 }
 
+function openSessionEditor(session){
+    const modal = document.getElementById("sessionEditModal");
+    const content = document.getElementById("sessionEditContent");
+    if(!modal || !content) return;
 
+    modal.dataset.sessionId = String(session.id);
 
+    let html = `
+        <label>
+            Date de la séance
+            <input type="date" id="editSessionDate" value="${formatDateInputFromSession(session.date)}">
+        </label>
+        <label>
+            Note générale
+            <textarea id="editSessionNote" placeholder="Énergie, sensations, douleurs, remarques...">${escapeHtml(session.note || "")}</textarea>
+        </label>
+        <p class="sub" style="margin:0 0 12px;">${escapeHtml(session.name)}</p>
+    `;
 
-
-
-
-
-function showSessionDetails(session){
-
-
-    let details="";
-
-
-
-    session.exercises.forEach(ex=>{
-
-
-        details +=
-        `${ex.name}\n`;
-
-
-        ex.sets.forEach((set,i)=>{
-
-
-            details +=
-            ` Série ${i+1}: ${set.weight}kg x ${set.reps}\n`;
-
-
+    session.exercises.forEach((exercise, exerciseIndex)=>{
+        let rows = "";
+        exercise.sets.forEach((set, setIndex)=>{
+            rows += `
+                <tr>
+                    <td>Série ${setIndex + 1}</td>
+                    <td>
+                        <input
+                            class="edit-set-weight"
+                            data-ex="${exerciseIndex}"
+                            type="number"
+                            step="0.5"
+                            value="${set.weight}">
+                    </td>
+                    <td>
+                        <input
+                            class="edit-set-reps"
+                            data-ex="${exerciseIndex}"
+                            type="number"
+                            value="${set.reps}">
+                    </td>
+                </tr>
+            `;
         });
 
-
-        details+="\n";
-
-
+        html += `
+            <div class="logged">
+                <h3>${escapeHtml(exercise.name)}</h3>
+                <table>
+                    <tr>
+                        <th>Série</th>
+                        <th>Charge</th>
+                        <th>Reps</th>
+                    </tr>
+                    ${rows}
+                </table>
+            </div>
+        `;
     });
 
-
-
-    alert(
-
-        `${session.name}\n\n${details}\nNote:\n${session.note || "Aucune"}`
-
-    );
-
-
-
+    content.innerHTML = html;
+    modal.showModal();
 }
 
+function initSessionEditModal(){
+    const modal = document.getElementById("sessionEditModal");
+    const form = document.getElementById("sessionEditForm");
+    const closeBtn = document.getElementById("closeSessionEdit");
+    const cancelBtn = document.getElementById("cancelSessionEdit");
 
+    if(!modal || !form) return;
 
+    closeBtn?.addEventListener("click", ()=> modal.close());
+    cancelBtn?.addEventListener("click", ()=> modal.close());
 
+    modal.addEventListener("click", e=>{
+        if(e.target === modal){
+            modal.close();
+        }
+    });
+
+    form.addEventListener("submit", e=>{
+        e.preventDefault();
+        saveEditedSession();
+    });
+}
+
+function saveEditedSession(){
+    const modal = document.getElementById("sessionEditModal");
+    const sessionId = Number(modal?.dataset.sessionId);
+    const session = data.sessions.find(item => item.id === sessionId);
+    if(!session) return;
+
+    const dateInput = document.getElementById("editSessionDate");
+    const noteInput = document.getElementById("editSessionNote");
+
+    if(!dateInput?.value){
+        alert("Choisis une date pour la séance.");
+        return;
+    }
+
+    session.date = sessionDateFromInput(dateInput.value);
+    session.note = noteInput?.value || "";
+
+    session.exercises.forEach((exercise, exerciseIndex)=>{
+        const weights = document.querySelectorAll(`.edit-set-weight[data-ex="${exerciseIndex}"]`);
+        const reps = document.querySelectorAll(`.edit-set-reps[data-ex="${exerciseIndex}"]`);
+
+        exercise.sets.forEach((set, setIndex)=>{
+            set.weight = Number(weights[setIndex]?.value) || 0;
+            set.reps = Number(reps[setIndex]?.value) || 0;
+        });
+    });
+
+    const editedDate = new Date(session.date);
+    calendarState.date = new Date(editedDate.getFullYear(), editedDate.getMonth(), 1);
+
+    saveData();
+    refreshSessionViews();
+    modal.close();
+    alert("Séance modifiée ✅");
+}
 
 
 
