@@ -654,7 +654,7 @@ function escapeHtml(value){
 }
 
 function buildAiAdvice(prompt = ""){
-    const recentSessions = data.sessions.slice(-6);
+    const recentSessions = data.sessions.slice(-10);
     const lastSession = recentSessions[recentSessions.length - 1];
     const previousSession = recentSessions[recentSessions.length - 2];
 
