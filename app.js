@@ -765,24 +765,16 @@ function renderAiAssistant(){
 }
 
 function initAiAssistant(){
-    const askButton = document.getElementById("askAi");
-    const aiPrompt = document.getElementById("aiPrompt");
     const reply = document.getElementById("aiReply");
+    const refreshButton = document.getElementById("refreshAi");
 
-    if(!askButton || !aiPrompt || !reply) return;
+    if(!reply) return;
 
-    askButton.addEventListener("click", ()=>{
-        const advice = buildAiAdvice(aiPrompt.value);
-        reply.innerHTML = `
-            <div>
-                <strong>${escapeHtml(advice.title)}</strong>
-                <p>${escapeHtml(advice.text)}</p>
-                <ul>
-                    ${advice.bullets.map(bullet => `<li>${escapeHtml(bullet)}</li>`).join("")}
-                </ul>
-            </div>
-        `;
-    });
+    if(refreshButton){
+        refreshButton.addEventListener("click", ()=>{
+            renderAiAssistant();
+        });
+    }
 
     renderAiAssistant();
 }
@@ -1408,6 +1400,103 @@ function updateSummary() {
     summarySets.textContent = totalSets;
     summaryVolume.textContent = formatNumber(totalVolume) + " kg";
 }
+
+// Gestion des exercices supplémentaires
+let extraExerciseCounter = 0;
+
+function addExtraExercise() {
+    const container = document.getElementById("extraExercisesContainer");
+    if(!container) return;
+
+    const exerciseId = extraExerciseCounter++;
+    
+    const exerciseDiv = document.createElement("div");
+    exerciseDiv.className = "extra-exercise";
+    exerciseDiv.dataset.exerciseId = exerciseId;
+    exerciseDiv.style.cssText = "border-top:1px solid var(--line);padding:12px 0;margin-top:8px;";
+    
+    exerciseDiv.innerHTML = `
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <input type="text" class="extra-exercise-name" placeholder="Nom (ex: Boxe, Vélo...)" style="flex:2;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+            <select class="extra-exercise-mode" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                <option value="sets">Séries/Reps</option>
+                <option value="time">Temps</option>
+            </select>
+            <button type="button" class="remove-extra-exercise" style="border:none;background:none;color:#ad4238;font-size:16px;cursor:pointer;padding:4px;">×</button>
+        </div>
+        <div class="extra-exercise-details">
+            <!-- Sera rempli selon le mode choisi -->
+        </div>
+    `;
+    
+    container.appendChild(exerciseDiv);
+    
+    // Initialiser les détails par défaut (mode séries)
+    updateExtraExerciseDetails(exerciseDiv.querySelector(".extra-exercise-mode"));
+    
+    // Attacher les événements
+    exerciseDiv.querySelector(".extra-exercise-mode").addEventListener("change", (e) => {
+        updateExtraExerciseDetails(e.target);
+    });
+    
+    exerciseDiv.querySelector(".remove-extra-exercise").addEventListener("click", () => {
+        exerciseDiv.remove();
+    });
+}
+
+function updateExtraExerciseDetails(modeSelect) {
+    const detailsDiv = modeSelect.closest(".extra-exercise").querySelector(".extra-exercise-details");
+    const mode = modeSelect.value;
+    
+    if(mode === "time") {
+        detailsDiv.innerHTML = `
+            <div style="display:flex;gap:8px;">
+                <input type="number" class="extra-exercise-duration" placeholder="Durée (min)" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                <input type="text" class="extra-exercise-intensity" placeholder="Intensité (ex: légère, intense)" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+            </div>
+        `;
+    } else {
+        detailsDiv.innerHTML = `
+            <div style="display:flex;gap:8px;">
+                <input type="number" class="extra-exercise-sets" placeholder="Séries" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                <input type="number" class="extra-exercise-reps" placeholder="Reps" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                <input type="number" class="extra-exercise-weight" placeholder="Charge (kg)" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+            </div>
+        `;
+    }
+}
+
+function getExtraExercises() {
+    const container = document.getElementById("extraExercisesContainer");
+    if(!container) return [];
+    
+    const extraExercises = [];
+    container.querySelectorAll(".extra-exercise").forEach(div => {
+        const name = div.querySelector(".extra-exercise-name")?.value || "";
+        const mode = div.querySelector(".extra-exercise-mode")?.value || "sets";
+        
+        if(!name) return;
+        
+        const exercise = {
+            name: name,
+            mode: mode,
+            isExtra: true
+        };
+        
+        if(mode === "time") {
+            exercise.duration = Number(div.querySelector(".extra-exercise-duration")?.value) || 0;
+            exercise.intensity = div.querySelector(".extra-exercise-intensity")?.value || "";
+        } else {
+            exercise.sets = Number(div.querySelector(".extra-exercise-sets")?.value) || 0;
+            exercise.reps = Number(div.querySelector(".extra-exercise-reps")?.value) || 0;
+            exercise.weight = Number(div.querySelector(".extra-exercise-weight")?.value) || 0;
+        }
+        
+        extraExercises.push(exercise);
+    });
+    
+    return extraExercises;
+}
 document.getElementById("saveSession")?.addEventListener(
 "click",
 ()=>{
@@ -1448,7 +1537,9 @@ document.getElementById("saveSession")?.addEventListener(
         document.getElementById("sessionNote").value,
 
 
-        exercises: []
+        exercises: [],
+
+        extraExercises: []
 
     };
 
@@ -1510,6 +1601,9 @@ document.getElementById("saveSession")?.addEventListener(
     });
 
 
+
+    // Ajouter les exercices supplémentaires
+    session.extraExercises = getExtraExercises();
 
     data.sessions.push(session);
 

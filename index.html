@@ -284,11 +284,11 @@ D
 
 <div class="card ai-coach" style="margin-top:16px;">
 
-<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
 
 <h2 style="margin:0;">🤖 Coach IA</h2>
 
-<span style="font-size:11px;color:var(--muted);background:#eef1eb;padding:4px 8px;border-radius:6px;">100% local</span>
+<button class="btn" id="refreshAi" style="padding:8px 12px;font-size:11px;">🔄 Nouveau conseil</button>
 
 </div>
 
@@ -405,6 +405,12 @@ Choisir une séance
 
 
 <div id="exerciseLogger">
+
+</div>
+
+
+
+</div>
 
 </div>
 
@@ -891,9 +897,9 @@ Enregistrer
 
 </dialog>
 
-<script src="ai-improved.js"></script>
 <script src="stats-gallery.js"></script>
 <script src="app.js"></script>
+<script src="ai-improved.js"></script>
 
 
 </body>
