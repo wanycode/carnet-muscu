@@ -654,18 +654,18 @@ function escapeHtml(value){
 }
 
 function buildAiAdvice(prompt = ""){
-    const recentSessions = data.sessions.slice(-4);
+    const recentSessions = data.sessions.slice(-6);
     const lastSession = recentSessions[recentSessions.length - 1];
     const previousSession = recentSessions[recentSessions.length - 2];
 
     if(!lastSession){
         return {
-            title: "Coach IA prêt",
+            title: "🎯 Coach IA prêt",
             text: "Ajoute 2 à 3 séances pour que l’assistant puisse analyser tes progrès et te proposer des conseils concrets.",
             bullets: [
-                "Objectif recommandé : 3 séances cette semaine",
-                "Focus : technique et récupération",
-                "Prochaine action : enregistrer une séance"
+                "📌 Objectif recommandé : 3 séances cette semaine",
+                "💡 Focus : technique et récupération",
+                "🚀 Prochaine action : enregistrer une séance"
             ]
         };
     }
@@ -673,9 +673,27 @@ function buildAiAdvice(prompt = ""){
     const lastVolume = calculateVolume(lastSession);
     const previousVolume = previousSession ? calculateVolume(previousSession) : lastVolume;
     const delta = lastVolume - previousVolume;
-    const trend = delta > 0 ? "Tu progresses" : delta < 0 ? "Le volume est un peu plus bas" : "Le volume est stable";
+    const trend = delta > 0 ? "📈 Tu progresses bien !" : delta < 0 ? "📉 Le volume est un peu plus bas" : "➡️ Le volume est stable";
     const nextWorkout = getNextWorkoutName(lastSession.name);
     const avgVolume = recentSessions.reduce((sum, session) => sum + calculateVolume(session), 0) / recentSessions.length;
+    const weekSessions = getWeekSessions().length;
+
+    // Analyse des records personnels
+    let newRecords = [];
+    const best = {};
+    data.sessions.forEach(session => {
+        session.exercises.forEach(ex => {
+            ex.sets.forEach(set => {
+                const weight = Number(set.weight) || 0;
+                if(!best[ex.name] || weight > best[ex.name]) {
+                    if(best[ex.name] && weight > best[ex.name]) {
+                        newRecords.push(ex.name);
+                    }
+                    best[ex.name] = weight;
+                }
+            });
+        });
+    });
 
     const normalizedPrompt = (prompt || "").toLowerCase();
     let advice = `Le meilleur prochain pas est d’enchaîner ${nextWorkout} avec une progression progressive : 1 série supplémentaire ou +2,5 kg sur un exercice de base si la technique reste propre.`;
@@ -689,14 +707,45 @@ function buildAiAdvice(prompt = ""){
     }
 
     return {
-        title: "Analyse IA locale",
+        title: "🤖 Analyse IA locale",
         text: `${trend}. Le dernier volume est d’environ ${formatNumber(lastVolume)} kg, contre ${formatNumber(previousVolume)} kg avant.`,
         bullets: [
-            `Prochaine séance conseillée : ${nextWorkout}`,
+            `🎯 Prochaine séance : ${nextWorkout}`,
             advice,
             `Niveau de charge : ${delta >= 0 ? "à maintenir ou légèrement augmenter" : "à ajuster avec plus de récupération"}`
         ]
     };
+}
+
+function renderWeeklyBars(){
+    const bars = document.querySelectorAll(".bar i");
+    if(bars.length === 0) return;
+
+    const now = new Date();
+    const monday = new Date();
+    monday.setDate(now.getDate() - ((now.getDay()+6)%7));
+    monday.setHours(0, 0, 0, 0);
+
+    const weekDays = [];
+    for(let i = 0; i < 7; i++){
+        const day = new Date(monday);
+        day.setDate(monday.getDate() + i);
+        weekDays.push(day);
+    }
+
+    weekDays.forEach((day, index) => {
+        const hasSession = data.sessions.some(session => {
+            const sessionDate = new Date(session.date);
+            sessionDate.setHours(0, 0, 0, 0);
+            const checkDay = new Date(day);
+            checkDay.setHours(0, 0, 0, 0);
+            return sessionDate.getTime() === checkDay.getTime();
+        });
+
+        if(bars[index]){
+            bars[index].classList.toggle("active", hasSession);
+        }
+    });
 }
 
 function renderAiAssistant(){
@@ -863,6 +912,7 @@ function renderDashboard(){
     }
 
     renderAiAssistant();
+    renderWeeklyBars();
 
 }
 
@@ -1153,6 +1203,8 @@ function renderExerciseLogger(id){
         block.className =
             "logged";
 
+        block.dataset.exerciseIndex = index;
+
 
 
         let rows="";
@@ -1164,7 +1216,7 @@ function renderExerciseLogger(id){
 
             rows += `
 
-            <tr>
+            <tr data-set-index="${i}">
 
             <td>
 
@@ -1179,6 +1231,7 @@ function renderExerciseLogger(id){
             class="set-weight"
             data-ex="${index}"
             type="number"
+            step="0.5"
             value="${exercise.weight}">
 
             </td>
@@ -1194,6 +1247,10 @@ function renderExerciseLogger(id){
 
             </td>
 
+            <td>
+                <button type="button" class="remove-set" data-ex="${index}" data-set="${i}" style="border:none;background:none;color:#ad4238;font-size:16px;cursor:pointer;padding:4px;">×</button>
+            </td>
+
 
             </tr>
 
@@ -1207,7 +1264,12 @@ function renderExerciseLogger(id){
 
         block.innerHTML = `
 
-        <h3>${exercise.name}</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <h3 style="margin:0;">
+                <input type="text" class="exercise-name" data-ex="${index}" value="${exercise.name}" style="font-size:14px;font-weight:700;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;padding:6px 8px;font:inherit;color:inherit;width:auto;">
+            </h3>
+            <button type="button" class="add-set" data-ex="${index}" style="border:0;background:none;color:#426e22;font:700 11px Manrope;padding:6px 8px;cursor:pointer;">+ Ajouter série</button>
+        </div>
 
 
         <table>
@@ -1219,6 +1281,8 @@ function renderExerciseLogger(id){
         <th>Charge</th>
 
         <th>Reps</th>
+
+        <th></th>
 
         </tr>
 
@@ -1238,8 +1302,111 @@ function renderExerciseLogger(id){
 
     });
 
+    // Add event listeners for new buttons
+    container.querySelectorAll(".add-set").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const exerciseIndex = Number(btn.dataset.ex);
+            addSetToExercise(exerciseIndex);
+        });
+    });
 
+    container.querySelectorAll(".remove-set").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const exerciseIndex = Number(btn.dataset.ex);
+            const setIndex = Number(btn.dataset.set);
+            removeSetFromExercise(exerciseIndex, setIndex);
+        });
+    });
 
+    // Add event listeners for real-time summary updates
+    container.querySelectorAll(".set-weight, .set-reps").forEach(input => {
+        input.addEventListener("input", updateSummary);
+    });
+}
+
+function addSetToExercise(exerciseIndex) {
+    const container = document.getElementById("exerciseLogger");
+    const block = container.querySelector(`[data-exercise-index="${exerciseIndex}"]`);
+    if(!block) return;
+
+    const table = block.querySelector("table");
+    const tbody = table.querySelector("tbody") || table;
+    const currentRows = tbody.querySelectorAll("tr[data-set-index]");
+    const newIndex = currentRows.length;
+
+    const newRow = document.createElement("tr");
+    newRow.dataset.setIndex = newIndex;
+    newRow.innerHTML = `
+        <td>Série ${newIndex + 1}</td>
+        <td>
+            <input class="set-weight" data-ex="${exerciseIndex}" type="number" step="0.5" value="0">
+        </td>
+        <td>
+            <input class="set-reps" data-ex="${exerciseIndex}" type="number" value="10">
+        </td>
+        <td>
+            <button type="button" class="remove-set" data-ex="${exerciseIndex}" data-set="${newIndex}" style="border:none;background:none;color:#ad4238;font-size:16px;cursor:pointer;padding:4px;">×</button>
+        </td>
+    `;
+
+    tbody.appendChild(newRow);
+
+    newRow.querySelector(".remove-set").addEventListener("click", () => {
+        removeSetFromExercise(exerciseIndex, newIndex);
+    });
+
+    updateSummary();
+}
+
+function removeSetFromExercise(exerciseIndex, setIndex) {
+    const container = document.getElementById("exerciseLogger");
+    const block = container.querySelector(`[data-exercise-index="${exerciseIndex}"]`);
+    if(!block) return;
+
+    const table = block.querySelector("table");
+    const tbody = table.querySelector("tbody") || table;
+    const row = tbody.querySelector(`tr[data-set-index="${setIndex}"]`);
+    if(row) {
+        row.remove();
+        // Reindex remaining rows
+        tbody.querySelectorAll("tr[data-set-index]").forEach((row, idx) => {
+            row.dataset.setIndex = idx;
+            row.querySelector("td:first-child").textContent = `Série ${idx + 1}`;
+            row.querySelector(".remove-set").dataset.set = idx;
+        });
+    }
+
+    updateSummary();
+}
+
+function updateSummary() {
+    const summaryExercises = document.getElementById("summaryExercises");
+    const summarySets = document.getElementById("summarySets");
+    const summaryVolume = document.getElementById("summaryVolume");
+    
+    if(!summaryExercises || !summarySets || !summaryVolume) return;
+
+    const container = document.getElementById("exerciseLogger");
+    const exerciseBlocks = container.querySelectorAll(".logged");
+    
+    let totalExercises = exerciseBlocks.length;
+    let totalSets = 0;
+    let totalVolume = 0;
+
+    exerciseBlocks.forEach(block => {
+        const rows = block.querySelectorAll("tr[data-set-index]");
+        totalSets += rows.length;
+        
+        rows.forEach(row => {
+            const weight = Number(row.querySelector(".set-weight")?.value) || 0;
+            const reps = Number(row.querySelector(".set-reps")?.value) || 0;
+            totalVolume += weight * reps;
+        });
+    });
+
+    summaryExercises.textContent = totalExercises;
+    summarySets.textContent = totalSets;
+    summaryVolume.textContent = formatNumber(totalVolume) + " kg";
 }
 document.getElementById("saveSession")?.addEventListener(
 "click",
@@ -1327,9 +1494,12 @@ document.getElementById("saveSession")?.addEventListener(
 
 
 
+        const exerciseNameInput = document.querySelector(`.exercise-name[data-ex="${index}"]`);
+        const exerciseName = exerciseNameInput?.value || exercise.name;
+
         session.exercises.push({
 
-            name: exercise.name,
+            name: exerciseName,
 
             sets: sets
 
