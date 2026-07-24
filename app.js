@@ -621,6 +621,15 @@ function openCalendarModal(date, sessions){
                             <strong>${ex.name}</strong><br>
                             ${ex.sets.map((set,i)=>`Série ${i+1}: ${set.weight}kg x ${set.reps}`).join("<br>")}<br><br>
                         `).join("")}
+                        ${session.extraExercises && session.extraExercises.length > 0 ? `
+                            <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);">
+                                <strong style="color:var(--muted);font-size:12px;">🏃 Exercices supplémentaires:</strong><br>
+                                ${session.extraExercises.map(extra => `
+                                    <span style="color:var(--muted);">${extra.name}</span> - 
+                                    ${extra.mode === 'time' ? `${extra.duration} min (${extra.intensity || 'intensité non précisée'})` : `${extra.sets} séries x ${extra.reps} reps @ ${extra.weight}kg`}
+                                `).join("<br>")}
+                            </div>
+                        ` : ""}
                     </div>
                     <button type="button" class="btn lime edit-session-btn" data-session-id="${session.id}" style="margin-top:10px;">
                         Modifier
@@ -1314,6 +1323,9 @@ function renderExerciseLogger(id){
     container.querySelectorAll(".set-weight, .set-reps").forEach(input => {
         input.addEventListener("input", updateSummary);
     });
+    
+    // Initial summary update
+    updateSummary();
 }
 
 function addSetToExercise(exerciseIndex) {
@@ -1346,6 +1358,10 @@ function addSetToExercise(exerciseIndex) {
     newRow.querySelector(".remove-set").addEventListener("click", () => {
         removeSetFromExercise(exerciseIndex, newIndex);
     });
+    
+    // Add event listeners for real-time summary updates
+    newRow.querySelector(".set-weight").addEventListener("input", updateSummary);
+    newRow.querySelector(".set-reps").addEventListener("input", updateSummary);
 
     updateSummary();
 }
@@ -1400,6 +1416,9 @@ function updateSummary() {
     summarySets.textContent = totalSets;
     summaryVolume.textContent = formatNumber(totalVolume) + " kg";
 }
+
+// Attacher l'événement au bouton d'ajout d'exercices supplémentaires
+document.getElementById("addExtraExercise")?.addEventListener("click", addExtraExercise);
 
 // Gestion des exercices supplémentaires
 let extraExerciseCounter = 0;
@@ -1496,6 +1515,67 @@ function getExtraExercises() {
     });
     
     return extraExercises;
+}
+
+function updateEditExtraDetails(modeSelect) {
+    const detailsDiv = modeSelect.closest(".extra-exercise-edit").querySelector(".edit-extra-details");
+    const index = modeSelect.dataset.index;
+    const mode = modeSelect.value;
+    
+    if(mode === "time") {
+        detailsDiv.innerHTML = `
+            <div style="display:flex;gap:8px;">
+                <input type="number" class="edit-extra-duration" data-index="${index}" placeholder="Durée (min)" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                <input type="text" class="edit-extra-intensity" data-index="${index}" placeholder="Intensité" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+            </div>
+        `;
+    } else {
+        detailsDiv.innerHTML = `
+            <div style="display:flex;gap:8px;">
+                <input type="number" class="edit-extra-sets" data-index="${index}" placeholder="Séries" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                <input type="number" class="edit-extra-reps" data-index="${index}" placeholder="Reps" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                <input type="number" class="edit-extra-weight" data-index="${index}" placeholder="Charge (kg)" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+            </div>
+        `;
+    }
+}
+
+function addExtraExerciseEdit(content) {
+    const container = content.querySelector(".card");
+    const extraContainer = container.querySelector("h3").parentElement;
+    const index = extraContainer.querySelectorAll(".extra-exercise-edit").length;
+    
+    const exerciseDiv = document.createElement("div");
+    exerciseDiv.className = "extra-exercise-edit";
+    exerciseDiv.style.cssText = "border-top:1px solid var(--line);padding:12px 0;margin-top:8px;";
+    exerciseDiv.innerHTML = `
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <input type="text" class="edit-extra-name" data-index="${index}" placeholder="Nom" style="flex:2;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+            <select class="edit-extra-mode" data-index="${index}" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                <option value="sets">Séries/Reps</option>
+                <option value="time">Temps</option>
+            </select>
+            <button type="button" class="remove-extra-edit" data-index="${index}" style="border:none;background:none;color:#ad4238;font-size:16px;cursor:pointer;padding:4px;">×</button>
+        </div>
+        <div class="edit-extra-details" data-index="${index}">
+            <div style="display:flex;gap:8px;">
+                <input type="number" class="edit-extra-sets" data-index="${index}" placeholder="Séries" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                <input type="number" class="edit-extra-reps" data-index="${index}" placeholder="Reps" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                <input type="number" class="edit-extra-weight" data-index="${index}" placeholder="Charge (kg)" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+            </div>
+        </div>
+    `;
+    
+    extraContainer.insertBefore(exerciseDiv, extraContainer.querySelector("#addExtraEdit"));
+    
+    // Attacher les événements
+    exerciseDiv.querySelector(".edit-extra-mode").addEventListener("change", (e) => {
+        updateEditExtraDetails(e.target);
+    });
+    
+    exerciseDiv.querySelector(".remove-extra-edit").addEventListener("click", (e) => {
+        exerciseDiv.remove();
+    });
 }
 document.getElementById("saveSession")?.addEventListener(
 "click",
@@ -1740,6 +1820,7 @@ function renderHistory(){
         ${formatNumber(
             calculateVolume(session)
         )} kg
+        ${session.extraExercises && session.extraExercises.length > 0 ? `(+ ${session.extraExercises.length} exo(s) sup.)` : ""}
 
         </span>
 
@@ -1899,8 +1980,67 @@ function openSessionEditor(session){
         `;
     });
 
+    // Ajouter les exercices supplémentaires
+    if(session.extraExercises && session.extraExercises.length > 0){
+        html += `
+            <div class="card" style="margin-top:16px;padding:18px;">
+                <h3 style="margin:0 0 12px;font-size:15px;">🏃 Exercices supplémentaires</h3>
+        `;
+        
+        session.extraExercises.forEach((extra, index)=>{
+            html += `
+                <div class="extra-exercise-edit" style="border-top:1px solid var(--line);padding:12px 0;margin-top:8px;">
+                    <div style="display:flex;gap:8px;margin-bottom:8px;">
+                        <input type="text" class="edit-extra-name" data-index="${index}" value="${escapeHtml(extra.name)}" placeholder="Nom" style="flex:2;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                        <select class="edit-extra-mode" data-index="${index}" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                            <option value="sets" ${extra.mode === 'sets' ? 'selected' : ''}>Séries/Reps</option>
+                            <option value="time" ${extra.mode === 'time' ? 'selected' : ''}>Temps</option>
+                        </select>
+                        <button type="button" class="remove-extra-edit" data-index="${index}" style="border:none;background:none;color:#ad4238;font-size:16px;cursor:pointer;padding:4px;">×</button>
+                    </div>
+                    <div class="edit-extra-details" data-index="${index}">
+                        ${extra.mode === 'time' ? `
+                            <div style="display:flex;gap:8px;">
+                                <input type="number" class="edit-extra-duration" data-index="${index}" value="${extra.duration || 0}" placeholder="Durée (min)" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                                <input type="text" class="edit-extra-intensity" data-index="${index}" value="${escapeHtml(extra.intensity || '')}" placeholder="Intensité" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                            </div>
+                        ` : `
+                            <div style="display:flex;gap:8px;">
+                                <input type="number" class="edit-extra-sets" data-index="${index}" value="${extra.sets || 0}" placeholder="Séries" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                                <input type="number" class="edit-extra-reps" data-index="${index}" value="${extra.reps || 0}" placeholder="Reps" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                                <input type="number" class="edit-extra-weight" data-index="${index}" value="${extra.weight || 0}" placeholder="Charge (kg)" style="flex:1;padding:6px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `
+                <button type="button" id="addExtraEdit" style="margin-top:12px;padding:6px 10px;font-size:11px;">+ Ajouter un exercice</button>
+            </div>
+        `;
+    }
+
     content.innerHTML = html;
     modal.showModal();
+    
+    // Attacher les événements pour les exercices supplémentaires dans l'édition
+    content.querySelectorAll(".edit-extra-mode").forEach(select => {
+        select.addEventListener("change", (e) => {
+            updateEditExtraDetails(e.target);
+        });
+    });
+    
+    content.querySelectorAll(".remove-extra-edit").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.target.closest(".extra-exercise-edit").remove();
+        });
+    });
+    
+    content.querySelector("#addExtraEdit")?.addEventListener("click", () => {
+        addExtraExerciseEdit(content);
+    });
 }
 
 function initSessionEditModal(){
@@ -1952,6 +2092,34 @@ function saveEditedSession(){
             set.reps = Number(reps[setIndex]?.value) || 0;
         });
     });
+
+    // Sauvegarder les exercices supplémentaires modifiés
+    const extraExercises = [];
+    document.querySelectorAll(".extra-exercise-edit").forEach(div => {
+        const name = div.querySelector(".edit-extra-name")?.value || "";
+        const mode = div.querySelector(".edit-extra-mode")?.value || "sets";
+        
+        if(!name) return;
+        
+        const exercise = {
+            name: name,
+            mode: mode,
+            isExtra: true
+        };
+        
+        if(mode === "time") {
+            exercise.duration = Number(div.querySelector(".edit-extra-duration")?.value) || 0;
+            exercise.intensity = div.querySelector(".edit-extra-intensity")?.value || "";
+        } else {
+            exercise.sets = Number(div.querySelector(".edit-extra-sets")?.value) || 0;
+            exercise.reps = Number(div.querySelector(".edit-extra-reps")?.value) || 0;
+            exercise.weight = Number(div.querySelector(".edit-extra-weight")?.value) || 0;
+        }
+        
+        extraExercises.push(exercise);
+    });
+    
+    session.extraExercises = extraExercises;
 
     const editedDate = new Date(session.date);
     calendarState.date = new Date(editedDate.getFullYear(), editedDate.getMonth(), 1);
@@ -2249,7 +2417,7 @@ function renderProgramEditor(){
 
         <h3>
 
-        ${workout.name}
+        <input type="text" class="workout-name-edit" data-workout="${workout.id}" value="${workout.name}" style="font-size:16px;font-weight:700;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;padding:6px 8px;font:inherit;color:inherit;width:100%;">
 
         </h3>
 
@@ -2376,7 +2544,17 @@ document.getElementById("saveProgram")
 
     e.preventDefault();
 
-
+    // Sauvegarder les noms des catégories
+    document.querySelectorAll(".workout-name-edit")
+    .forEach(input=>{
+        const workout =
+        data.program.find(
+        w=>w.id===Number(input.dataset.workout)
+        );
+        if(workout){
+            workout.name = input.value;
+        }
+    });
 
     document.querySelectorAll(".edit-name")
     .forEach(input=>{
