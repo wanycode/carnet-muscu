@@ -774,6 +774,18 @@ id="chartBox">
 </div>
 </div>
 
+<div class="card" style="margin-top:20px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<h2 style="margin:0;">Progression par exercice</h2>
+<select id="exerciseProgressSelect" style="padding:8px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
+<option value="">Choisir un exercice</option>
+</select>
+</div>
+<div id="exerciseProgressChart" style="height:250px;display:flex;gap:8px;align-items:end;border-bottom:1px solid var(--line);padding:0 10px;">
+<div class="empty" style="width:100%;text-align:center;padding:40px;">Sélectionne un exercice pour voir ta progression</div>
+</div>
+</div>
+
 </section>
 
 </main>
@@ -912,6 +924,7 @@ Enregistrer
 <script src="stats-gallery.js"></script>
 <script src="app.js"></script>
 <script src="ai-improved.js"></script>
+<script src="stats-progress.js"></script>
 
 
 </body>

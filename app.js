@@ -716,7 +716,7 @@ function buildAiAdvice(prompt = ""){
     }
 
     return {
-        title: "🤖 Analyse IA locale",
+        title: "🤖 Coach IA",
         text: `${trend}. Le dernier volume est d’environ ${formatNumber(lastVolume)} kg, contre ${formatNumber(previousVolume)} kg avant.`,
         bullets: [
             `🎯 Prochaine séance : ${nextWorkout}`,
@@ -1269,7 +1269,10 @@ function renderExerciseLogger(id){
             <h3 style="margin:0;">
                 <input type="text" class="exercise-name" data-ex="${index}" value="${exercise.name}" style="font-size:14px;font-weight:700;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;padding:6px 8px;font:inherit;color:inherit;width:auto;">
             </h3>
-            <button type="button" class="add-set" data-ex="${index}" style="border:0;background:none;color:#426e22;font:700 11px Manrope;padding:6px 8px;cursor:pointer;">+ Ajouter série</button>
+            <div style="display:flex;gap:8px;">
+                <button type="button" class="add-set" data-ex="${index}" style="border:0;background:none;color:#426e22;font:700 11px Manrope;padding:6px 8px;cursor:pointer;">+ Ajouter série</button>
+                <button type="button" class="remove-exercise" data-ex="${index}" style="border:0;background:none;color:#ad4238;font:700 11px Manrope;padding:6px 8px;cursor:pointer;">Supprimer</button>
+            </div>
         </div>
 
 
@@ -1311,6 +1314,13 @@ function renderExerciseLogger(id){
         });
     });
 
+    container.querySelectorAll(".remove-exercise").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const exerciseIndex = Number(btn.dataset.ex);
+            removeExercise(exerciseIndex);
+        });
+    });
+
     container.querySelectorAll(".remove-set").forEach(btn => {
         btn.addEventListener("click", () => {
             const exerciseIndex = Number(btn.dataset.ex);
@@ -1326,6 +1336,29 @@ function renderExerciseLogger(id){
     
     // Initial summary update
     updateSummary();
+}
+
+function removeExercise(exerciseIndex) {
+    const container = document.getElementById("exerciseLogger");
+    const block = container.querySelector(`[data-exercise-index="${exerciseIndex}"]`);
+    if(block) {
+        block.remove();
+        // Reindex remaining exercises
+        container.querySelectorAll(".logged").forEach((block, idx) => {
+            block.dataset.exerciseIndex = idx;
+            block.querySelector(".exercise-name").dataset.ex = idx;
+            block.querySelectorAll(".set-weight, .set-reps").forEach(input => {
+                input.dataset.ex = idx;
+            });
+            block.querySelectorAll(".add-set, .remove-exercise").forEach(btn => {
+                btn.dataset.ex = idx;
+            });
+            block.querySelectorAll(".remove-set").forEach(btn => {
+                btn.dataset.ex = idx;
+            });
+        });
+        updateSummary();
+    }
 }
 
 function addSetToExercise(exerciseIndex) {
