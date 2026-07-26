@@ -2705,6 +2705,41 @@ document.getElementById("saveProgram")
 });
 
 
+// Logique pour le code secret
+document.getElementById("unlockSecret")?.addEventListener("click", () => {
+    const codeInput = document.getElementById("secretCode");
+    const code = codeInput.value.trim().toLowerCase();
+    
+    if (code === "tony") {
+        // Masquer toutes les sections
+        document.querySelectorAll("main section").forEach(section => {
+            section.classList.add("hidden");
+        });
+        
+        // Afficher la page secrète
+        document.getElementById("secret-page").classList.remove("hidden");
+        
+        // Vider le champ
+        codeInput.value = "";
+    } else {
+        // Code incorrect
+        codeInput.style.borderColor = "#ff4444";
+        codeInput.placeholder = "Code incorrect !";
+        setTimeout(() => {
+            codeInput.style.borderColor = "#dce2d9";
+            codeInput.placeholder = "Entre le code secret...";
+        }, 2000);
+    }
+});
+
+// Permettre l'appui sur Entrée dans le champ de code
+document.getElementById("secretCode")?.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+        document.getElementById("unlockSecret").click();
+    }
+});
+
+
 
 
 
