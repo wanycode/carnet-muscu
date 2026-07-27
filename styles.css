@@ -9,12 +9,17 @@
   align-items: center;
   padding: 12px 0;
   z-index: 1000;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mobile-nav a {
   color: white;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 12px;
+  padding: 0 8px;
+  flex-shrink: 0;
 }
 
 .mobile-nav a:hover {
