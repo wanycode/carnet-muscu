@@ -35,6 +35,7 @@
         <a href="#" data-page="history">Historique</a>
         <a href="#" data-page="calendar">Calendrier</a>
         <a href="#" data-page="stats">Stats</a>
+        <a href="#" data-page="calculator">Calculateur 1RM</a>
     </nav>
 
     <small>
@@ -806,6 +807,110 @@ id="chartBox">
 
 </section>
 
+<!-- ================= CALCULATEUR 1RM ================= -->
+
+<section id="calculator" class="hidden">
+
+<header>
+<div>
+<p class="eyebrow">CALCULATEUR 1RM</p>
+<h1>Estime ton max</h1>
+<p class="sub">Calcule ta répétition maximale à partir de tes séances travaillées</p>
+</div>
+</header>
+
+<div class="card">
+<h2 style="margin-bottom:20px;">🏋️ Calculateur 1RM</h2>
+
+<div style="display:grid;gap:16px;max-width:400px;">
+
+<label>
+Exercice
+<select id="calcExercise" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;font:14px Manrope;">
+<option value="">Sélectionne un exercice</option>
+</select>
+</label>
+
+<label>
+Charge soulevée (kg)
+<input type="number" id="calcWeight" step="0.5" placeholder="Ex: 80" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;font:14px Manrope;">
+</label>
+
+<label>
+Répétitions effectuées
+<input type="number" id="calcReps" placeholder="Ex: 6" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;font:14px Manrope;">
+</label>
+
+<button class="btn lime" id="calculate1RM" style="width:100%;padding:14px;">
+Calculer et sauvegarder
+</button>
+
+</div>
+
+<div id="calcResult" style="display:none;margin-top:24px;padding:20px;background:#f7f8f5;border-radius:12px;">
+
+<h3 style="margin:0 0 12px;font-size:16px;">📊 Résultat</h3>
+
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+
+<div style="text-align:center;padding:12px;background:white;border-radius:8px;">
+<b id="result1RM" style="display:block;font-size:28px;color:var(--lime);font-weight:700;">0 kg</b>
+<span style="font-size:12px;color:var(--muted);">1RM estimé</span>
+</div>
+
+<div style="text-align:center;padding:12px;background:white;border-radius:8px;">
+<b id="resultFormula" style="display:block;font-size:14px;color:var(--ink);font-weight:600;">Epley</b>
+<span style="font-size:12px;color:var(--muted);">Formule utilisée</span>
+</div>
+
+</div>
+
+<div style="margin-top:16px;">
+<h4 style="margin:0 0 8px;font-size:14px;">📈 Pourcentages recommandés</h4>
+<div style="display:grid;gap:8px;font-size:13px;">
+<div style="display:flex;justify-content:space-between;padding:8px;background:white;border-radius:6px;">
+<span>90% (force)</span>
+<b id="p90">0 kg</b>
+</div>
+<div style="display:flex;justify-content:space-between;padding:8px;background:white;border-radius:6px;">
+<span>80% (hypertrophie)</span>
+<b id="p80">0 kg</b>
+</div>
+<div style="display:flex;justify-content:space-between;padding:8px;background:white;border-radius:6px;">
+<span>70% (endurance)</span>
+<b id="p70">0 kg</b>
+</div>
+<div style="display:flex;justify-content:space-between;padding:8px;background:white;border-radius:6px;">
+<span>60% (volume)</span>
+<b id="p60">0 kg</b>
+</div>
+</div>
+</div>
+
+</div>
+
+</div>
+
+<div class="card" style="margin-top:20px;">
+<h2 style="margin-bottom:12px;">📚 Formules utilisées</h2>
+<div style="font-size:13px;line-height:1.6;color:var(--muted);">
+
+<p style="margin:0 0 8px;"><strong>Epley</strong> : 1RM = poids × (1 + reps/30)</p>
+<p style="margin:0 0 8px;"><strong>Brzycki</strong> : 1RM = poids × 36/(37-reps)</p>
+<p style="margin:0;"><strong>Note</strong> : Ces estimations sont approximatives. La vraie 1RM doit être testée avec une répétition maximale stricte.</p>
+
+</div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+<h2 style="margin-bottom:12px;">📈 Historique des 1RM</h2>
+<div id="maxHistory">
+<div class="empty">Aucun 1RM enregistré.</div>
+</div>
+</div>
+
+</section>
+
 <!-- ================= PAGE SECRÈTE ================= -->
 
 <section id="secret-page" class="hidden">
@@ -837,6 +942,7 @@ id="chartBox">
   <a href="#" data-page="history">Historique</a>
   <a href="#" data-page="calendar">Calendrier</a>
   <a href="#" data-page="stats">Stats</a>
+  <a href="#" data-page="calculator">Calculateur 1RM</a>
 </nav>
 
 

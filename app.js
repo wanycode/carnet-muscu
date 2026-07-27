@@ -1,4 +1,5 @@
 const STORAGE_KEY = "carnetMuscuData";
+const MAX_STORAGE_KEY = "carnetMuscuMax";
 
 
 const defaultProgram = [
@@ -190,6 +191,10 @@ let data = {
 
 };
 
+let maxData = {
+    records: []
+};
+
 const monthNames = [
     "Janvier","Février","Mars","Avril","Mai","Juin",
     "Juillet","Août","Septembre","Octobre","Novembre","Décembre"
@@ -224,6 +229,11 @@ function loadData(){
 
     }
 
+    
+    const maxSaved = localStorage.getItem(MAX_STORAGE_KEY);
+    if(maxSaved){
+        maxData = JSON.parse(maxSaved);
+    }
 }
 
 
@@ -235,6 +245,10 @@ function saveData(){
         JSON.stringify(data)
     );
 
+}
+
+function saveMaxData(){
+    localStorage.setItem(MAX_STORAGE_KEY, JSON.stringify(maxData));
 }
 
 
@@ -522,6 +536,12 @@ function showPage(page){
     if(page==="calendar"){
 
         renderCalendar();
+
+    }
+
+    if(page==="calculator"){
+
+        // Calculator page doesn't need specific rendering
 
     }
 
@@ -1046,12 +1066,20 @@ function renderProgram(){
 
         workout.exercises.forEach(ex=>{
 
+            // Trouver le meilleur 1RM pour cet exercice
+            const bestRecord = maxData.records
+                .filter(r => r.exercise === ex.name)
+                .sort((a, b) => b.estimated1RM - a.estimated1RM)[0];
+            
+            const maxDisplay = bestRecord 
+                ? `<span style="color:var(--lime);font-size:11px;margin-left:8px;">🏆 ${formatNumber(bestRecord.estimated1RM)}kg</span>` 
+                : '';
 
             exercises += `
 
             <div class="exercise">
 
-                <b>${ex.name}</b>
+                <b>${ex.name}${maxDisplay}</b>
 
                 <span>
 
@@ -2752,5 +2780,128 @@ window.addEventListener(
 
     renderDashboard();
 
-
 });
+
+// ================= CALCULATEUR 1RM =================
+
+function calculate1RM(weight, reps) {
+    if (reps === 1) return weight;
+    
+    // Formule d'Epley
+    const epley = weight * (1 + reps / 30);
+    
+    // Formule de Brzycki
+    const brzycki = weight * 36 / (37 - reps);
+    
+    // Moyenne des deux formules
+    return (epley + brzycki) / 2;
+}
+
+function initCalculator() {
+    const calculateBtn = document.getElementById("calculate1RM");
+    const weightInput = document.getElementById("calcWeight");
+    const repsInput = document.getElementById("calcReps");
+    const exerciseSelect = document.getElementById("calcExercise");
+    
+    // Remplir le sélecteur d'exercices
+    if (exerciseSelect) {
+        const allExercises = new Set();
+        data.program.forEach(workout => {
+            workout.exercises.forEach(ex => {
+                allExercises.add(ex.name);
+            });
+        });
+        
+        allExercises.forEach(exName => {
+            const option = document.createElement("option");
+            option.value = exName;
+            option.textContent = exName;
+            exerciseSelect.appendChild(option);
+        });
+    }
+    
+    if (calculateBtn) {
+        calculateBtn.addEventListener("click", () => {
+            const exercise = exerciseSelect.value;
+            const weight = parseFloat(weightInput.value);
+            const reps = parseInt(repsInput.value);
+            
+            if (!exercise) {
+                alert("Veuillez sélectionner un exercice");
+                return;
+            }
+            
+            if (!weight || !reps || reps < 1) {
+                alert("Veuillez entrer des valeurs valides");
+                return;
+            }
+            
+            if (reps > 12) {
+                alert("Pour une estimation précise, utilisez une série de 12 reps ou moins");
+            }
+            
+            const estimated1RM = calculate1RM(weight, reps);
+            
+            // Sauvegarder le record
+            const record = {
+                id: Date.now(),
+                exercise: exercise,
+                weight: weight,
+                reps: reps,
+                estimated1RM: estimated1RM,
+                date: new Date().toISOString()
+            };
+            
+            maxData.records.unshift(record);
+            saveMaxData();
+            
+            // Afficher le résultat
+            document.getElementById("result1RM").textContent = formatNumber(estimated1RM) + " kg";
+            document.getElementById("calcResult").style.display = "block";
+            
+            // Calculer les pourcentages
+            document.getElementById("p90").textContent = formatNumber(estimated1RM * 0.9) + " kg";
+            document.getElementById("p80").textContent = formatNumber(estimated1RM * 0.8) + " kg";
+            document.getElementById("p70").textContent = formatNumber(estimated1RM * 0.7) + " kg";
+            document.getElementById("p60").textContent = formatNumber(estimated1RM * 0.6) + " kg";
+            
+            // Afficher l'historique
+            renderMaxHistory();
+        });
+    }
+    
+    renderMaxHistory();
+}
+
+function renderMaxHistory() {
+    const historyContainer = document.getElementById("maxHistory");
+    if (!historyContainer) return;
+    
+    if (maxData.records.length === 0) {
+        historyContainer.innerHTML = '<div class="empty">Aucun 1RM enregistré.</div>';
+        return;
+    }
+    
+    // Grouper par exercice et garder le meilleur
+    const bestByExercise = {};
+    maxData.records.forEach(record => {
+        if (!bestByExercise[record.exercise] || record.estimated1RM > bestByExercise[record.exercise].estimated1RM) {
+            bestByExercise[record.exercise] = record;
+        }
+    });
+    
+    const sortedExercises = Object.values(bestByExercise).sort((a, b) => b.estimated1RM - a.estimated1RM);
+    
+    historyContainer.innerHTML = sortedExercises.map(record => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--line);">
+            <div>
+                <b style="display:block;font-size:14px;">${record.exercise}</b>
+                <span style="font-size:12px;color:var(--muted);">${new Date(record.date).toLocaleDateString("fr-FR")}</span>
+            </div>
+            <b style="font-size:18px;color:var(--lime);">${formatNumber(record.estimated1RM)} kg</b>
+        </div>
+    `).join("");
+}
+
+// Initialiser le calculateur au chargement
+document.addEventListener("DOMContentLoaded", initCalculator);
