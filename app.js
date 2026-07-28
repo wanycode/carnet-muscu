@@ -2,6 +2,81 @@ const STORAGE_KEY = "carnetMuscuData";
 const MAX_STORAGE_KEY = "carnetMuscuMax";
 
 
+// Fonction de normalisation des noms d'exercices pour le suivi de progression
+function normalizeExerciseName(name) {
+    return String(name || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // Supprime les accents
+        .replace(/[^a-z0-9]/g, "") // Garde seulement lettres et chiffres
+        .trim();
+}
+
+// Deux écritures d'un même exercice (accents, majuscules, espaces ou tirets)
+// doivent alimenter la même progression.
+function getExerciseDisplayName(name) {
+    return String(name || "").trim().replace(/\s+/g, " ");
+}
+
+function getWorkoutMuscleKey(workoutName) {
+    const name = normalizeExerciseName(workoutName);
+    const muscles = [];
+    if(name.includes("pec") || name.includes("chest")) muscles.push("pecs");
+    if(name.includes("bicep")) muscles.push("biceps");
+    if(name.includes("tricep")) muscles.push("triceps");
+    if(name.includes("dos") || name.includes("back")) muscles.push("dos");
+    if(name.includes("epaule") || name.includes("shoulder")) muscles.push("epaules");
+    if(name.includes("abdo") || name.includes("core")) muscles.push("abdos");
+    if(name.includes("leg") || name.includes("jambe") || name.includes("quad")) muscles.push("jambes");
+    return muscles.sort().join("-") || name;
+}
+
+function getTipsForWorkout(workoutName) {
+    const muscleKey = getWorkoutMuscleKey(workoutName);
+    const tips = [];
+    [...data.sessions]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .forEach(session => {
+            if(getWorkoutMuscleKey(session.name) !== muscleKey) return;
+            (session.exercises || []).forEach(exercise => {
+                const tip = String(exercise.tip || "").trim();
+                if(tip && !tips.some(item => item.tip === tip)) {
+                    tips.push({ name: getExerciseDisplayName(exercise.name), tip });
+                }
+            });
+        });
+    return tips;
+}
+
+function getStagnantExercisesForWorkout(workoutName) {
+    const muscleKey = getWorkoutMuscleKey(workoutName);
+    const historyByExercise = new Map();
+
+    data.sessions.forEach(session => {
+        if(getWorkoutMuscleKey(session.name) !== muscleKey) return;
+        (session.exercises || []).forEach(exercise => {
+            const key = exercise.exerciseKey || normalizeExerciseName(exercise.name);
+            if(!key) return;
+            const bestWeight = Math.max(0, ...(exercise.sets || [])
+                .filter(set => !set.isDropSet)
+                .map(set => Number(set.weight) || 0));
+            if(bestWeight <= 0) return;
+            if(!historyByExercise.has(key)) historyByExercise.set(key, { name: getExerciseDisplayName(exercise.name), entries: [] });
+            historyByExercise.get(key).entries.push({ date: new Date(session.date), weight: bestWeight });
+        });
+    });
+
+    return [...historyByExercise.values()]
+        .filter(exercise => {
+            const recent = exercise.entries.sort((a, b) => a.date - b.date).slice(-3);
+            if(recent.length < 3) return false;
+            const weights = recent.map(entry => entry.weight);
+            return Math.max(...weights) - Math.min(...weights) < 2.5;
+        })
+        .map(exercise => exercise.name);
+}
+
 const defaultProgram = [
 
     {
@@ -296,6 +371,7 @@ function refreshSessionViews(){
     renderDashboard();
     renderHistory();
     renderCalendar();
+    if(typeof initExerciseProgress === "function") initExerciseProgress();
 }
 
 
@@ -639,7 +715,13 @@ function openCalendarModal(date, sessions){
                     <div style="font-size:13px;line-height:1.5;">
                         ${session.exercises.map(ex => `
                             <strong>${ex.name}</strong><br>
-                            ${ex.sets.map((set,i)=>`Série ${i+1}: ${set.weight}kg x ${set.reps}`).join("<br>")}<br><br>
+                            ${ex.sets.map((set,i)=>{
+                                if(set.isDropSet) {
+                                    return `<span style="color:var(--muted);padding-left:16px;">↳ Drop: ${set.weight}kg x ${set.reps}</span>`;
+                                }
+                                return `Série ${i+1}: ${set.weight}kg x ${set.reps}`;
+                            }).join("<br>")}<br><br>
+                            ${ex.tip ? `<div style="margin:-4px 0 12px;padding:8px 10px;background:#f7f8f5;border-left:3px solid var(--lime);border-radius:0 6px 6px 0;"><strong style="font-size:11px;">💡 Conseil suivant</strong><br>${escapeHtml(ex.tip)}</div>` : ""}
                         `).join("")}
                         ${session.extraExercises && session.extraExercises.length > 0 ? `
                             <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);">
@@ -932,6 +1014,21 @@ function renderDashboard(){
             getNextWorkoutName(last ? last.name : null);
     }
 
+    const tipsContainer = document.getElementById("nextWorkoutTips");
+    if(tipsContainer){
+        const suggestedWorkout = getNextWorkoutName(last ? last.name : null);
+        const tips = getTipsForWorkout(suggestedWorkout);
+        const stagnantExercises = getStagnantExercisesForWorkout(suggestedWorkout);
+        tipsContainer.innerHTML = [
+            tips.length
+                ? `<strong>Conseils de ta dernière séance similaire</strong>${tips.slice(0, 3).map(item => `<p><b>${escapeHtml(item.name)}</b> · ${escapeHtml(item.tip)}</p>`).join("")}`
+                : "",
+            stagnantExercises.length
+                ? `<p><b>🤖 IA · À débloquer :</b> ${stagnantExercises.map(escapeHtml).join(", ")}.</p>`
+                : ""
+        ].filter(Boolean).join("");
+    }
+
     renderAiAssistant();
     renderWeeklyBars();
 
@@ -942,24 +1039,6 @@ function getNextWorkoutName(lastWorkoutName){
     if(!lastWorkoutName){
         return data.program[0]?.name || "-";
     }
-
-    if(lastWorkoutName === "ÉPAULES + ABDOS"){
-        return "LEGDAY";
-    }
-
-    if(lastWorkoutName === "LEGDAY"){
-        return "PECS + BICEPS";
-    }
-
-    if(lastWorkoutName === "PECS + BICEPS"){
-        return "TRICEPS + DOS";
-    }
-
-    if(lastWorkoutName === "TRICEPS + DOS"){
-        return "ÉPAULES + ABDOS";
-    }
-
-    return data.program[0]?.name || "-";
 
     const currentIndex =
         data.program.findIndex(
@@ -1277,6 +1356,7 @@ function renderExerciseLogger(id){
             </td>
 
             <td>
+                <button type="button" class="add-dropset" data-ex="${index}" data-set="${i}" style="border:none;background:none;color:#426e22;font-size:14px;cursor:pointer;padding:4px;margin-right:4px;" title="Ajouter une baisse de charge">+ drop</button>
                 <button type="button" class="remove-set" data-ex="${index}" data-set="${i}" style="border:none;background:none;color:#ad4238;font-size:16px;cursor:pointer;padding:4px;">×</button>
             </td>
 
@@ -1295,12 +1375,17 @@ function renderExerciseLogger(id){
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
             <h3 style="margin:0;">
-                <input type="text" class="exercise-name" data-ex="${index}" value="${exercise.name}" style="font-size:14px;font-weight:700;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;padding:6px 8px;font:inherit;color:inherit;width:auto;">
+                <input type="text" class="exercise-name" data-ex="${index}" data-exercise-key="${normalizeExerciseName(exercise.name)}" value="${exercise.name}" style="font-size:14px;font-weight:700;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;padding:6px 8px;font:inherit;color:inherit;width:auto;">
             </h3>
             <div style="display:flex;gap:8px;">
                 <button type="button" class="add-set" data-ex="${index}" style="border:0;background:none;color:#426e22;font:700 11px Manrope;padding:6px 8px;cursor:pointer;">+ Ajouter série</button>
                 <button type="button" class="remove-exercise" data-ex="${index}" style="border:0;background:none;color:#ad4238;font:700 11px Manrope;padding:6px 8px;cursor:pointer;">Supprimer</button>
             </div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+            <label style="font-size:12px;color:var(--muted);">💡 Conseil pour la prochaine séance :</label>
+            <input type="text" class="exercise-tip" data-ex="${index}" placeholder="Ex: +2.5kg si technique OK, focus sur la contraction..." style="width:100%;padding:8px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:6px;font:12px Manrope;margin-top:4px;">
         </div>
 
 
@@ -1320,6 +1405,7 @@ function renderExerciseLogger(id){
 
 
         ${rows}
+
 
 
         </table>
@@ -1357,6 +1443,12 @@ function renderExerciseLogger(id){
         });
     });
 
+    container.querySelectorAll(".add-dropset").forEach(btn => {
+        btn.addEventListener("click", () => {
+            addDropSetToRow(Number(btn.dataset.ex), Number(btn.dataset.set));
+        });
+    });
+
     // Add event listeners for real-time summary updates
     container.querySelectorAll(".set-weight, .set-reps").forEach(input => {
         input.addEventListener("input", updateSummary);
@@ -1384,10 +1476,92 @@ function removeExercise(exerciseIndex) {
             block.querySelectorAll(".remove-set").forEach(btn => {
                 btn.dataset.ex = idx;
             });
+            block.querySelectorAll(".add-dropset, .remove-dropset").forEach(btn => {
+                btn.dataset.ex = idx;
+            });
         });
         updateSummary();
     }
 }
+
+function addNewExercise() {
+    const container = document.getElementById("exerciseLogger");
+    if(!container) return;
+    
+    const exerciseBlocks = container.querySelectorAll(".logged");
+    const newIndex = exerciseBlocks.length;
+    
+    const block = document.createElement("div");
+    block.className = "card logged";
+    block.dataset.exerciseIndex = newIndex;
+    block.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <h3 style="margin:0;">
+                <input type="text" class="exercise-name" data-ex="${newIndex}" placeholder="Nom de l'exercice" style="font-size:14px;font-weight:700;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;padding:6px 8px;font:inherit;color:inherit;width:auto;">
+            </h3>
+            <div style="display:flex;gap:8px;">
+                <button type="button" class="add-set" data-ex="${newIndex}" style="border:0;background:none;color:#426e22;font:700 11px Manrope;padding:6px 8px;cursor:pointer;">+ Ajouter série</button>
+                <button type="button" class="remove-exercise" data-ex="${newIndex}" style="border:0;background:none;color:#ad4238;font:700 11px Manrope;padding:6px 8px;cursor:pointer;">Supprimer</button>
+            </div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+            <label style="font-size:12px;color:var(--muted);">💡 Conseil pour la prochaine séance :</label>
+            <input type="text" class="exercise-tip" data-ex="${newIndex}" placeholder="Ex: +2.5kg si technique OK, focus sur la contraction..." style="width:100%;padding:8px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:6px;font:12px Manrope;margin-top:4px;">
+        </div>
+
+        <table>
+        <tr>
+        <th>Série</th>
+        <th>Charge</th>
+        <th>Reps</th>
+        <th></th>
+        </tr>
+        <tr data-set-index="0">
+            <td>Série 1</td>
+            <td>
+                <input class="set-weight" data-ex="${newIndex}" type="number" step="0.5" value="0" placeholder="Poids">
+            </td>
+            <td>
+                <input class="set-reps" data-ex="${newIndex}" type="number" value="10" placeholder="Reps">
+            </td>
+            <td>
+                <button type="button" class="add-dropset" data-ex="${newIndex}" data-set="0" style="border:none;background:none;color:#426e22;font-size:14px;cursor:pointer;padding:4px;margin-right:4px;" title="Ajouter drop set">+</button>
+                <button type="button" class="remove-set" data-ex="${newIndex}" data-set="0" style="border:none;background:none;color:#ad4238;font-size:16px;cursor:pointer;padding:4px;" title="Supprimer">×</button>
+            </td>
+        </tr>
+        </table>
+    `;
+    
+    container.appendChild(block);
+    
+    // Add event listeners
+    block.querySelector(".add-set").addEventListener("click", () => {
+        addSetToExercise(Number(block.dataset.exerciseIndex));
+    });
+    
+    block.querySelector(".remove-exercise").addEventListener("click", () => {
+        removeExercise(Number(block.dataset.exerciseIndex));
+    });
+    
+    block.querySelector(".remove-set").addEventListener("click", () => {
+        removeSetFromExercise(Number(block.dataset.exerciseIndex), 0);
+    });
+    
+    block.querySelector(".add-dropset")?.addEventListener("click", () => {
+        addDropSetToRow(Number(block.dataset.exerciseIndex), 0);
+    });
+    
+    // Add event listeners for real-time summary updates
+    block.querySelectorAll(".set-weight, .set-reps").forEach(input => {
+        input.addEventListener("input", updateSummary);
+    });
+    
+    updateSummary();
+}
+
+// Attacher l'événement au bouton d'ajout d'exercice
+document.getElementById("addNewExercise")?.addEventListener("click", addNewExercise);
 
 function addSetToExercise(exerciseIndex) {
     const container = document.getElementById("exerciseLogger");
@@ -1404,13 +1578,14 @@ function addSetToExercise(exerciseIndex) {
     newRow.innerHTML = `
         <td>Série ${newIndex + 1}</td>
         <td>
-            <input class="set-weight" data-ex="${exerciseIndex}" type="number" step="0.5" value="0">
+            <input class="set-weight" data-ex="${exerciseIndex}" type="number" step="0.5" value="0" placeholder="Poids">
         </td>
         <td>
-            <input class="set-reps" data-ex="${exerciseIndex}" type="number" value="10">
+            <input class="set-reps" data-ex="${exerciseIndex}" type="number" value="10" placeholder="Reps">
         </td>
         <td>
-            <button type="button" class="remove-set" data-ex="${exerciseIndex}" data-set="${newIndex}" style="border:none;background:none;color:#ad4238;font-size:16px;cursor:pointer;padding:4px;">×</button>
+            <button type="button" class="add-dropset" data-ex="${exerciseIndex}" data-set="${newIndex}" style="border:none;background:none;color:#426e22;font-size:14px;cursor:pointer;padding:4px;margin-right:4px;" title="Ajouter drop set">+</button>
+            <button type="button" class="remove-set" data-ex="${exerciseIndex}" data-set="${newIndex}" style="border:none;background:none;color:#ad4238;font-size:16px;cursor:pointer;padding:4px;" title="Supprimer">×</button>
         </td>
     `;
 
@@ -1420,9 +1595,56 @@ function addSetToExercise(exerciseIndex) {
         removeSetFromExercise(exerciseIndex, newIndex);
     });
     
+    newRow.querySelector(".add-dropset")?.addEventListener("click", () => {
+        addDropSetToRow(exerciseIndex, newIndex);
+    });
+    
     // Add event listeners for real-time summary updates
     newRow.querySelector(".set-weight").addEventListener("input", updateSummary);
     newRow.querySelector(".set-reps").addEventListener("input", updateSummary);
+
+    updateSummary();
+}
+
+function addDropSetToRow(exerciseIndex, setIndex) {
+    const container = document.getElementById("exerciseLogger");
+    const block = container.querySelector(`[data-exercise-index="${exerciseIndex}"]`);
+    if(!block) return;
+
+    const table = block.querySelector("table");
+    const tbody = table.querySelector("tbody") || table;
+    const row = tbody.querySelector(`tr[data-set-index="${setIndex}"]`);
+    if(!row) return;
+
+    // Créer une ligne de drop set (sous-série)
+    const dropSetRow = document.createElement("tr");
+    dropSetRow.className = "dropset-row";
+    dropSetRow.dataset.parentSet = setIndex;
+    dropSetRow.innerHTML = `
+        <td style="padding-left:20px;color:var(--muted);font-size:12px;">↳ Drop</td>
+        <td>
+            <input class="set-weight" data-ex="${exerciseIndex}" type="number" step="0.5" value="0" placeholder="Poids">
+        </td>
+        <td>
+            <input class="set-reps" data-ex="${exerciseIndex}" type="number" value="10" placeholder="Reps">
+        </td>
+        <td>
+            <button type="button" class="remove-dropset" data-ex="${exerciseIndex}" data-parent="${setIndex}" style="border:none;background:none;color:#ad4238;font-size:14px;cursor:pointer;padding:4px;" title="Supprimer drop set">×</button>
+        </td>
+    `;
+
+    // Insérer après la ligne parente
+    row.after(dropSetRow);
+
+    dropSetRow.querySelector(".remove-dropset").addEventListener("click", () => {
+        dropSetRow.remove();
+        updateSummary();
+    });
+    
+    // Add event listeners for real-time summary updates
+    dropSetRow.querySelectorAll(".set-weight, .set-reps").forEach(input => {
+        input.addEventListener("input", updateSummary);
+    });
 
     updateSummary();
 }
@@ -1436,12 +1658,23 @@ function removeSetFromExercise(exerciseIndex, setIndex) {
     const tbody = table.querySelector("tbody") || table;
     const row = tbody.querySelector(`tr[data-set-index="${setIndex}"]`);
     if(row) {
+        // Supprimer aussi les drop sets associés
+        const dropSets = tbody.querySelectorAll(`tr[data-parent-set="${setIndex}"]`);
+        dropSets.forEach(ds => ds.remove());
+        
         row.remove();
         // Reindex remaining rows
         tbody.querySelectorAll("tr[data-set-index]").forEach((row, idx) => {
+            const oldIndex = row.dataset.setIndex;
             row.dataset.setIndex = idx;
             row.querySelector("td:first-child").textContent = `Série ${idx + 1}`;
             row.querySelector(".remove-set").dataset.set = idx;
+            const addDropButton = row.querySelector(".add-dropset");
+            if(addDropButton) addDropButton.dataset.set = idx;
+            tbody.querySelectorAll(`tr[data-parent-set="${oldIndex}"]`).forEach(dropRow => {
+                dropRow.dataset.parentSet = idx;
+                dropRow.querySelector(".remove-dropset")?.setAttribute("data-parent", idx);
+            });
         });
     }
 
@@ -1463,7 +1696,7 @@ function updateSummary() {
     let totalVolume = 0;
 
     exerciseBlocks.forEach(block => {
-        const rows = block.querySelectorAll("tr[data-set-index]");
+        const rows = block.querySelectorAll("tr[data-set-index], tr.dropset-row");
         totalSets += rows.length;
         
         rows.forEach(row => {
@@ -1686,65 +1919,41 @@ document.getElementById("saveSession")?.addEventListener(
 
 
 
-    workout.exercises.forEach((exercise,index)=>{
+    const logger = document.getElementById("exerciseLogger");
+    logger?.querySelectorAll(".logged").forEach(block => {
+        const nameInput = block.querySelector(".exercise-name");
+        const name = getExerciseDisplayName(nameInput?.value);
+        if(!name) return;
 
-
-        const weights =
-        document.querySelectorAll(
-            `.set-weight[data-ex="${index}"]`
-        );
-
-
-        const reps =
-        document.querySelectorAll(
-            `.set-reps[data-ex="${index}"]`
-        );
-
-
-
-        const sets=[];
-
-
-
-        weights.forEach((input,i)=>{
-
-
+        const sets = [];
+        block.querySelectorAll("tr[data-set-index], tr.dropset-row").forEach(row => {
             sets.push({
-
-                weight:
-                Number(input.value)||0,
-
-
-                reps:
-                Number(reps[i].value)||0
-
-
+                weight: Number(row.querySelector(".set-weight")?.value) || 0,
+                reps: Number(row.querySelector(".set-reps")?.value) || 0,
+                isDropSet: row.classList.contains("dropset-row"),
+                parentSet: row.classList.contains("dropset-row") ? Number(row.dataset.parentSet) : null
             });
-
-
         });
 
-
-
-        const exerciseNameInput = document.querySelector(`.exercise-name[data-ex="${index}"]`);
-        const exerciseName = exerciseNameInput?.value || exercise.name;
-
-        session.exercises.push({
-
-            name: exerciseName,
-
-            sets: sets
-
-        });
-
-
-
+        if(sets.length) {
+            session.exercises.push({
+                name,
+                // Garder la même courbe même si l'utilisateur renomme un
+                // exercice du programme au moment de saisir sa séance.
+                exerciseKey: nameInput?.dataset.exerciseKey || normalizeExerciseName(name),
+                sets,
+                tip: String(block.querySelector(".exercise-tip")?.value || "").trim()
+            });
+        }
     });
-
-
 
     // Ajouter les exercices supplémentaires
     session.extraExercises = getExtraExercises();
+
+    if(!session.exercises.length && !session.extraExercises.length){
+        alert("Ajoute au moins un exercice avant d'enregistrer la séance.");
+        return;
+    }
 
     data.sessions.push(session);
 
@@ -1868,11 +2077,10 @@ function renderHistory(){
         </time>
 
 
-        <b>
-
-        ${session.name}
-
-        </b>
+        <div>
+            <b>${escapeHtml(session.name)}</b>
+            ${(session.exercises || []).filter(ex => ex.tip).map(ex => `<div class="history-tip"><strong>💡 ${escapeHtml(ex.name)}</strong> · ${escapeHtml(ex.tip)}</div>`).join("")}
+        </div>
 
 
 
@@ -2423,6 +2631,8 @@ function renderChart(exerciseName){
 
 
 
+let programEditorDraft = null;
+
 document.getElementById("editProgram")
 ?.addEventListener(
 "click",
@@ -2433,6 +2643,8 @@ document.getElementById("editProgram")
     document.getElementById("programModal");
 
 
+    // Les modifications restent dans un brouillon tant que l'utilisateur ne sauvegarde pas.
+    programEditorDraft = JSON.parse(JSON.stringify(data.program));
     renderProgramEditor();
 
 
@@ -2463,7 +2675,7 @@ function renderProgramEditor(){
 
 
 
-    data.program.forEach(workout=>{
+    (programEditorDraft || data.program).forEach(workout=>{
 
 
         const block =
@@ -2544,6 +2756,12 @@ function renderProgramEditor(){
 
         });
 
+        html += `
+            <button type="button" class="btn add-program-exercise" data-workout="${workout.id}" style="width:100%;margin-top:10px;padding:9px;">
+                + Ajouter un exercice
+            </button>
+        `;
+
 
 
         block.innerHTML=html;
@@ -2562,10 +2780,10 @@ function renderProgramEditor(){
 
 
         button.onclick=()=>{
-
+            syncProgramEditorDraft();
 
             const workout =
-            data.program.find(
+            programEditorDraft.find(
             w=>w.id===Number(button.dataset.workout)
             );
 
@@ -2586,6 +2804,17 @@ function renderProgramEditor(){
 
     });
 
+    document.querySelectorAll(".add-program-exercise")
+    .forEach(button=>{
+        button.onclick=()=>{
+            syncProgramEditorDraft();
+            const workout = programEditorDraft.find(w => w.id === Number(button.dataset.workout));
+            if(!workout) return;
+            workout.exercises.push({ name: "Nouvel exercice", weight: 0, sets: 3, reps: 10 });
+            renderProgramEditor();
+        };
+    });
+
 
 
 }
@@ -2596,6 +2825,25 @@ function renderProgramEditor(){
 
 
 
+
+function syncProgramEditorDraft(){
+    if(!programEditorDraft) return;
+    document.querySelectorAll(".workout-name-edit").forEach(input => {
+        const workout = programEditorDraft.find(w => w.id === Number(input.dataset.workout));
+        if(workout) workout.name = input.value.trim() || workout.name;
+    });
+    document.querySelectorAll(".prog").forEach(row => {
+        const nameInput = row.querySelector(".edit-name");
+        if(!nameInput) return;
+        const workout = programEditorDraft.find(w => w.id === Number(nameInput.dataset.workout));
+        const exercise = workout?.exercises[Number(nameInput.dataset.index)];
+        if(!exercise) return;
+        exercise.name = nameInput.value.trim() || "Nouvel exercice";
+        exercise.weight = Number(row.querySelector(".edit-weight")?.value) || 0;
+        exercise.sets = Number(row.querySelector(".edit-sets")?.value) || 0;
+        exercise.reps = Number(row.querySelector(".edit-reps")?.value) || 0;
+    });
+}
 
 document.getElementById("saveProgram")
 ?.addEventListener(
@@ -2609,7 +2857,7 @@ document.getElementById("saveProgram")
     document.querySelectorAll(".workout-name-edit")
     .forEach(input=>{
         const workout =
-        data.program.find(
+        programEditorDraft.find(
         w=>w.id===Number(input.dataset.workout)
         );
         if(workout){
@@ -2622,7 +2870,7 @@ document.getElementById("saveProgram")
 
 
         const workout =
-        data.program.find(
+        programEditorDraft.find(
         w=>w.id===Number(input.dataset.workout)
         );
 
@@ -2649,7 +2897,7 @@ document.getElementById("saveProgram")
 
 
         const workout =
-        data.program.find(
+        programEditorDraft.find(
         w=>w.id===Number(input.dataset.workout)
         );
 
@@ -2673,7 +2921,7 @@ document.getElementById("saveProgram")
 
 
         const workout =
-        data.program.find(
+        programEditorDraft.find(
         w=>w.id===Number(input.dataset.workout)
         );
 
@@ -2697,7 +2945,7 @@ document.getElementById("saveProgram")
 
 
         const workout =
-        data.program.find(
+        programEditorDraft.find(
         w=>w.id===Number(input.dataset.workout)
         );
 
@@ -2714,6 +2962,8 @@ document.getElementById("saveProgram")
 
 
 
+    data.program = programEditorDraft || data.program;
+    programEditorDraft = null;
     saveData();
 
 
@@ -2733,37 +2983,35 @@ document.getElementById("saveProgram")
 });
 
 
-// Logique pour le code secret
-document.getElementById("unlockSecret")?.addEventListener("click", () => {
-    const codeInput = document.getElementById("secretCode");
-    const code = codeInput.value.trim().toLowerCase();
-    
-    if (code === "tony") {
-        // Masquer toutes les sections
-        document.querySelectorAll("main section").forEach(section => {
-            section.classList.add("hidden");
-        });
-        
-        // Afficher la page secrète
-        document.getElementById("secret-page").classList.remove("hidden");
-        
-        // Vider le champ
-        codeInput.value = "";
-    } else {
-        // Code incorrect
-        codeInput.style.borderColor = "#ff4444";
-        codeInput.placeholder = "Code incorrect !";
-        setTimeout(() => {
-            codeInput.style.borderColor = "#dce2d9";
-            codeInput.placeholder = "Entre le code secret...";
-        }, 2000);
+// Accès direct à une page qui n'est pas présente dans la navigation.
+function openQuickAccess(){
+    const input = document.getElementById("quickAccessCode");
+    if(!input) return;
+    const code = input.value.trim().toLowerCase().replace(/\s+/g, "");
+    const pages = {
+        "1rm": "calculator"
+    };
+    const page = pages[code];
+    if(page){
+        input.value = "";
+        input.style.borderColor = "";
+        showPage(page);
+        return;
     }
-});
+    input.style.borderColor = "#ad4238";
+    input.value = "";
+    input.placeholder = "Code inconnu — essaie 1RM";
+    setTimeout(() => {
+        input.style.borderColor = "";
+        input.placeholder = "Entre le code 1RM";
+    }, 2500);
+}
 
-// Permettre l'appui sur Entrée dans le champ de code
-document.getElementById("secretCode")?.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-        document.getElementById("unlockSecret").click();
+document.getElementById("openQuickAccess")?.addEventListener("click", openQuickAccess);
+document.getElementById("quickAccessCode")?.addEventListener("keydown", event => {
+    if(event.key === "Enter") {
+        event.preventDefault();
+        openQuickAccess();
     }
 });
 

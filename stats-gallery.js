@@ -1,65 +1,121 @@
 // ===== STATISTIQUES AVANCEES =====
 function renderAdvancedStats(){
     const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    
-    let monthVolume = 0;
-    let dayCount = {};
-    let allRecords = {};
-    
-    data.sessions.forEach(session => {
-        const sessionDate = new Date(session.date);
-        if(sessionDate >= monthStart){
-            monthVolume += calculateVolume(session);
+    now.setHours(23, 59, 59, 999);
+    const dayMs = 24 * 60 * 60 * 1000;
+    const start30 = new Date(now.getTime() - 30 * dayMs);
+    const start60 = new Date(now.getTime() - 60 * dayMs);
+    const recent = data.sessions.filter(s => new Date(s.date) >= start30);
+    const previous = data.sessions.filter(s => {
+        const date = new Date(s.date);
+        return date >= start60 && date < start30;
+    });
+    const recentVolume = recent.reduce((sum, session) => sum + calculateVolume(session), 0);
+    const previousVolume = previous.reduce((sum, session) => sum + calculateVolume(session), 0);
+    const recentSets = recent.reduce((sum, session) => sum + (session.exercises || []).reduce((count, ex) => count + (ex.sets || []).length, 0), 0);
+    const activeDays = new Set(recent.map(s => formatDateInputFromSession(s.date))).size;
+    const averagePerSession = recent.length ? recentVolume / recent.length : 0;
+    const sessionsPerWeek = recent.length / (30 / 7);
+    const change = previousVolume ? ((recentVolume - previousVolume) / previousVolume) * 100 : null;
+
+    const el = document.getElementById("monthVolume");
+    if(el) el.textContent = formatNumber(recentVolume) + " kg";
+    const frequencyEl = document.getElementById("weekProgress");
+    if(frequencyEl) frequencyEl.textContent = sessionsPerWeek.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
+    const changeEl = document.getElementById("totalStrength");
+    if(changeEl) changeEl.textContent = change === null ? "—" : `${change > 0 ? "+" : ""}${Math.round(change)}%`;
+
+    // Nombre de semaines d'affilée avec au moins une séance, en partant de la semaine actuelle.
+    const monday = new Date(now);
+    monday.setHours(0, 0, 0, 0);
+    monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+    let streak = 0;
+    for(let offset = 0; offset < 52; offset++) {
+        const weekStart = new Date(monday.getTime() - offset * 7 * dayMs);
+        const weekEnd = new Date(weekStart.getTime() + 7 * dayMs);
+        if(data.sessions.some(s => {
+            const date = new Date(s.date);
+            return date >= weekStart && date < weekEnd;
+        })) streak++;
+        else break;
+    }
+    const streakEl = document.getElementById("bestDay");
+    if(streakEl) streakEl.textContent = `${streak} sem.`;
+
+    const breakdownEl = document.getElementById("weeklyBreakdown");
+    if(breakdownEl) {
+        breakdownEl.innerHTML = `
+            <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;">
+                <div><strong>${recent.length}</strong><br><span class="sub">séances</span></div>
+                <div><strong>${recentSets}</strong><br><span class="sub">séries</span></div>
+                <div><strong>${formatNumber(averagePerSession)} kg</strong><br><span class="sub">moyenne / séance</span></div>
+                <div><strong>${activeDays}</strong><br><span class="sub">jours entraînés</span></div>
+            </div>`;
+    }
+
+    const trend = document.getElementById("volumeTrend");
+    if(trend) {
+        const weeks = [];
+        for(let index = 7; index >= 0; index--) {
+            const start = new Date(monday.getTime() - index * 7 * dayMs);
+            const end = new Date(start.getTime() + 7 * dayMs);
+            weeks.push({
+                label: index === 0 ? "Cette sem." : `S-${index}`,
+                volume: data.sessions.filter(s => {
+                    const date = new Date(s.date);
+                    return date >= start && date < end;
+                }).reduce((sum, s) => sum + calculateVolume(s), 0)
+            });
         }
-        
-        const dayName = sessionDate.toLocaleDateString("fr-FR",{weekday:"long"});
-        dayCount[dayName] = (dayCount[dayName]||0) + 1;
-        
-        session.exercises.forEach(ex => {
-            ex.sets.forEach(set => {
-                const w = Number(set.weight)||0;
-                if(!allRecords[ex.name] || w > allRecords[ex.name]){
-                    allRecords[ex.name] = w;
+        const max = Math.max(...weeks.map(week => week.volume), 1);
+        trend.innerHTML = weeks.map(week => `
+            <div style="height:100%;display:flex;flex-direction:column;justify-content:end;align-items:center;gap:6px;min-width:0;">
+                <span style="font-size:10px;color:var(--muted);white-space:nowrap;">${week.volume ? formatNumber(week.volume) : "0"}</span>
+                <div title="${week.label}: ${formatNumber(week.volume)} kg" style="height:${Math.max(week.volume ? 8 : 2, Math.round(week.volume / max * 145))}px;width:100%;max-width:42px;background:var(--lime);border-radius:6px 6px 0 0;"></div>
+                <span style="font-size:10px;color:var(--muted);white-space:nowrap;">${week.label}</span>
+            </div>`).join("");
+    }
+
+    const distribution = document.getElementById("workoutDistribution");
+    if(distribution) {
+        const byWorkout = {};
+        recent.forEach(session => {
+            const name = session.name || "Séance sans nom";
+            if(!byWorkout[name]) byWorkout[name] = { sessions: 0, volume: 0 };
+            byWorkout[name].sessions++;
+            byWorkout[name].volume += calculateVolume(session);
+        });
+        const entries = Object.entries(byWorkout).sort((a, b) => b[1].sessions - a[1].sessions);
+        distribution.innerHTML = entries.length ? entries.map(([name, values]) => `
+            <div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line);">
+                <span>${escapeHtml(name)}</span>
+                <strong>${values.sessions} séance${values.sessions > 1 ? "s" : ""} · ${formatNumber(values.volume)} kg</strong>
+            </div>`).join("") : '<p class="sub">Ajoute des séances pour voir la répartition.</p>';
+    }
+
+    const recordsEl = document.getElementById("estimatedRecords");
+    if(recordsEl) {
+        const records = new Map();
+        data.sessions.forEach(session => (session.exercises || []).forEach(exercise => {
+            const key = exercise.exerciseKey || normalizeExerciseName(exercise.name);
+            (exercise.sets || []).forEach(set => {
+                if(set.isDropSet) return;
+                const weight = Number(set.weight) || 0;
+                const reps = Number(set.reps) || 0;
+                if(weight <= 0 || reps <= 0 || reps > 20) return;
+                const estimated = weight * (1 + reps / 30);
+                if(!records.has(key) || records.get(key).value < estimated) {
+                    records.set(key, { name: exercise.name, value: estimated });
                 }
             });
-        });
-    });
-    
-    const el = document.getElementById("monthVolume");
-    if(el) el.textContent = formatNumber(monthVolume) + " kg";
-    
-    const bestDay = Object.keys(dayCount).sort((a,b)=>dayCount[b]-dayCount[a])[0] || "-";
-    const bestEl = document.getElementById("bestDay");
-    if(bestEl) bestEl.textContent = bestDay.charAt(0).toUpperCase() + bestDay.slice(1);
-    
-    const totalStrength = Object.values(allRecords).reduce((a,b)=>a+b,0);
-    const strengthEl = document.getElementById("totalStrength");
-    if(strengthEl) strengthEl.textContent = formatNumber(totalStrength) + " kg";
-    
-    // Progression semaine
-    const weekAgo = new Date(now.getTime() - 7*24*60*60*1000);
-    const twoWeeksAgo = new Date(now.getTime() - 14*24*60*60*1000);
-    let thisWeekVol = 0, lastWeekVol = 0;
-    data.sessions.forEach(s => {
-        const d = new Date(s.date);
-        if(d >= weekAgo) thisWeekVol += calculateVolume(s);
-        else if(d >= twoWeeksAgo) lastWeekVol += calculateVolume(s);
-    });
-    const progress = lastWeekVol > 0 ? Math.round((thisWeekVol - lastWeekVol)/lastWeekVol*100) : 0;
-    const progEl = document.getElementById("weekProgress");
-    if(progEl) progEl.textContent = (progress>0?"+":"") + progress + "%";
-    
-    // Détail par semaine
-    let weeks = {};
-    data.sessions.forEach(s => {
-        const d = new Date(s.date);
-        const week = "Sem " + Math.ceil((d.getDate())/7);
-        weeks[week] = (weeks[week]||0) + calculateVolume(s);
-    });
-    const breakdown = Object.entries(weeks).map(([w,v])=>`${w}: ${formatNumber(v)} kg`).join("<br>");
-    const breakdownEl = document.getElementById("weeklyBreakdown");
-    if(breakdownEl) breakdownEl.innerHTML = breakdown;
+        }));
+        const best = [...records.values()].sort((a, b) => b.value - a.value).slice(0, 5);
+        recordsEl.innerHTML = best.length ? best.map((record, index) => `
+            <div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line);">
+                <span>${index + 1}. ${escapeHtml(record.name)}</span>
+                <strong>${formatNumber(record.value)} kg</strong>
+            </div>`).join("") : '<p class="sub">Ajoute des séries avec charge et répétitions pour estimer tes 1RM.</p>';
+    }
 }
 
 // ===== GALERIE PHOTOS =====

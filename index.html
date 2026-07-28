@@ -18,6 +18,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Carnet Muscu">
+<style>
+.next-tips{margin-top:14px;max-width:620px;padding:11px 13px;border-left:3px solid var(--lime);background:#ffffff12;border-radius:0 8px 8px 0;font-size:12px;color:#e0e9df}.next-tips strong{font-size:11px;text-transform:uppercase;letter-spacing:.04em}.next-tips p{margin:7px 0 0!important;color:#e0e9df!important}.next-tips b{color:white}
+.history-tip{margin-top:6px;font-size:11px;line-height:1.4;color:var(--muted)}.history-tip strong{color:var(--ink)}
+</style>
 </head>
 
 <body>
@@ -35,7 +39,6 @@
         <a href="#" data-page="history">Historique</a>
         <a href="#" data-page="calendar">Calendrier</a>
         <a href="#" data-page="stats">Stats</a>
-        <a href="#" data-page="calculator">Calculateur 1RM</a>
     </nav>
 
     <small>
@@ -107,6 +110,8 @@ Pecs + Biceps
 Séance recommandée
 
 </p>
+
+<div id="nextWorkoutTips" class="next-tips" aria-live="polite"></div>
 
 </div>
 
@@ -305,17 +310,19 @@ D
 
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
 
-<h2 style="margin:0;">🔐 Accès secret</h2>
+<h2 style="margin:0;">⚡ Accès rapide</h2>
 
 </div>
 
 <div style="display:flex;gap:8px;">
 
-<input type="text" id="secretCode" placeholder="Entre le code secret..." style="flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font:13px Manrope;">
+<input type="text" id="quickAccessCode" placeholder="Entre le code 1RM" style="flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font:13px Manrope;">
 
-<button class="btn lime" id="unlockSecret" style="padding:10px 14px;">Déverrouiller</button>
+<button class="btn lime" id="openQuickAccess" style="padding:10px 14px;">Ouvrir</button>
 
 </div>
+
+<p class="sub" style="margin:9px 0 0;font-size:12px;">Code disponible : <b>1RM</b>.</p>
 
 </div>
 
@@ -426,6 +433,10 @@ Choisir une séance
 <div id="exerciseLogger">
 
 </div>
+
+<button type="button" class="btn" id="addNewExercise" style="width:100%;margin-top:12px;padding:10px;">
++ Ajouter un nouvel exercice
+</button>
 
 <div class="card" style="margin-top:16px;padding:18px;">
 
@@ -754,42 +765,58 @@ id="chartBox">
 <div>
 <p class="eyebrow">STATISTIQUES</p>
 <h1>Ta progression</h1>
-<p class="sub">Volume, force et meilleur jour</p>
+<p class="sub">Des repères simples pour suivre ta régularité et ta charge de travail.</p>
 </div>
 </header>
 
 <div class="stats-grid">
 
 <div class="card">
-<h2>Volume du mois</h2>
+<h2>Volume · 30 jours</h2>
 <b id="monthVolume" style="font-size:32px;color:var(--lime)">0 kg</b>
-<p class="sub" style="margin-top:8px">Total déplacé ce mois</p>
+<p class="sub" style="margin-top:8px">Charge totale déplacée</p>
 </div>
 
 <div class="card">
-<h2>Progression semaine</h2>
-<b id="weekProgress" style="font-size:32px;color:var(--lime)">+0%</b>
-<p class="sub" style="margin-top:8px">vs semaine précédente</p>
+<h2>Régularité</h2>
+<b id="weekProgress" style="font-size:32px;color:var(--lime)">0,0</b>
+<p class="sub" style="margin-top:8px">séances / semaine (4 sem.)</p>
 </div>
 
 <div class="card">
-<h2>Meilleur jour</h2>
-<b id="bestDay" style="font-size:28px;color:var(--lime)">-</b>
-<p class="sub" style="margin-top:8px">Plus d'entraînements</p>
+<h2>Série en cours</h2>
+<b id="bestDay" style="font-size:28px;color:var(--lime)">0 sem.</b>
+<p class="sub" style="margin-top:8px">semaines consécutives actives</p>
 </div>
 
 <div class="card">
-<h2>Force totale</h2>
-<b id="totalStrength" style="font-size:32px;color:var(--lime)">0 kg</b>
-<p class="sub" style="margin-top:8px">Somme des records</p>
+<h2>Évolution du volume</h2>
+<b id="totalStrength" style="font-size:32px;color:var(--lime)">—</b>
+<p class="sub" style="margin-top:8px">30 derniers jours vs les 30 précédents</p>
 </div>
 
 </div>
 
 <div class="card" style="margin-top:20px">
-<h2>Détail par semaine</h2>
+<h2>Repères des 30 derniers jours</h2>
 <div id="weeklyBreakdown" style="font-size:13px;line-height:1.8">
 <!-- rempli par JS -->
+</div>
+</div>
+
+<div class="card" style="margin-top:20px">
+<h2>Volume sur 8 semaines</h2>
+<div id="volumeTrend" style="display:grid;grid-template-columns:repeat(8,minmax(28px,1fr));gap:10px;align-items:end;height:210px;margin-top:18px;"></div>
+</div>
+
+<div class="stats-grid" style="margin-top:20px">
+<div class="card">
+<h2>Répartition des séances</h2>
+<div id="workoutDistribution" style="margin-top:14px;font-size:13px;"></div>
+</div>
+<div class="card">
+<h2>Meilleurs 1RM estimés</h2>
+<div id="estimatedRecords" style="margin-top:14px;font-size:13px;"></div>
 </div>
 </div>
 
@@ -911,28 +938,6 @@ Calculer et sauvegarder
 
 </section>
 
-<!-- ================= PAGE SECRÈTE ================= -->
-
-<section id="secret-page" class="hidden">
-
-<header>
-<div>
-<p class="eyebrow">🔐 ACCÈS SECRET</p>
-<h1>Page secrète</h1>
-<p class="sub">Contenu réservé</p>
-</div>
-</header>
-
-<div class="card">
-
-<h2>🎉 Bienvenue !</h2>
-
-<p>Tu as déverrouillé l'accès secret. Cette page sera construite plus tard.</p>
-
-</div>
-
-</section>
-
 </main>
 
 <nav class="mobile-nav">
@@ -942,7 +947,6 @@ Calculer et sauvegarder
   <a href="#" data-page="history">Historique</a>
   <a href="#" data-page="calendar">Calendrier</a>
   <a href="#" data-page="stats">Stats</a>
-  <a href="#" data-page="calculator">Calculateur 1RM</a>
 </nav>
 
 

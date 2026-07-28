@@ -21,11 +21,15 @@ buildAiAdvice = function(prompt = ""){
     
     data.sessions.forEach(session => {
         session.exercises.forEach(ex => {
-            if(!exerciseHistory[ex.name]) {
-                exerciseHistory[ex.name] = [];
+            const normalizedName = normalizeExerciseName(ex.name);
+            if(!exerciseHistory[normalizedName]) {
+                exerciseHistory[normalizedName] = {
+                    originalName: ex.name,
+                    history: []
+                };
             }
             const maxWeight = Math.max(...ex.sets.map(s => Number(s.weight) || 0));
-            exerciseHistory[ex.name].push({
+            exerciseHistory[normalizedName].history.push({
                 date: new Date(session.date),
                 weight: maxWeight,
                 volume: ex.sets.reduce((sum, s) => sum + (Number(s.weight) || 0) * (Number(s.reps) || 0), 0)
@@ -37,8 +41,9 @@ buildAiAdvice = function(prompt = ""){
     const stagnantExercises = [];
     const progressingExercises = [];
     
-    Object.keys(exerciseHistory).forEach(exName => {
-        const history = exerciseHistory[exName].sort((a, b) => a.date - b.date);
+    Object.keys(exerciseHistory).forEach(normalizedName => {
+        const exData = exerciseHistory[normalizedName];
+        const history = exData.history.sort((a, b) => a.date - b.date);
         if(history.length >= 3) {
             const recent = history.slice(-3);
             const weights = recent.map(h => h.weight);
@@ -46,9 +51,9 @@ buildAiAdvice = function(prompt = ""){
             const minWeight = Math.min(...weights);
             
             if(maxWeight - minWeight < 2.5) {
-                stagnantExercises.push({ name: exName, currentWeight: maxWeight });
+                stagnantExercises.push({ name: exData.originalName, currentWeight: maxWeight });
             } else {
-                progressingExercises.push({ name: exName, currentWeight: maxWeight, gain: maxWeight - minWeight });
+                progressingExercises.push({ name: exData.originalName, currentWeight: maxWeight, gain: maxWeight - minWeight });
             }
         }
     });
@@ -160,17 +165,29 @@ buildAiAdvice = function(prompt = ""){
     const trend = delta > 0 ? "📈 En progression" : delta < 0 ? "📉 Volume en baisse" : "➡️ Volume stable";
     const weekSessions = getWeekSessions().length;
 
+    // Construire la liste des exercices en stagnation
+    let stagnantList = "";
+    if(stagnantExercises.length > 0) {
+        stagnantList = stagnantExercises.map(ex => `${ex.name} (${ex.currentWeight}kg)`).join(", ");
+    }
+
+    const nextWorkoutTips = getTipsForWorkout(nextWorkout);
+    const savedTipsBullet = nextWorkoutTips.length
+        ? `📝 Tes notes pour ${nextWorkout} : ${nextWorkoutTips.slice(0, 2).map(item => `${item.name} — ${item.tip}`).join(" · ")}`
+        : "";
+
     return {
         title: "🤖 Analyse IA locale",
-        text: `${trend}. ${weekSessions} séance(s) cette semaine. ${stagnantExercises.length > 0 ? `${stagnantExercises.length} exercice(s) en stagnation.` : "Pas de stagnation détectée."}`,
+        text: `${trend}. ${weekSessions} séance(s) cette semaine. ${stagnantExercises.length > 0 ? `Exercices en stagnation : ${stagnantList}.` : "Pas de stagnation détectée."}`,
         bullets: [
             mainAdvice,
             secondaryAdvice,
             specificExerciseAdvice,
-            `📊 Force totale : ${Object.values(exerciseHistory).reduce((sum, hist) => {
-                const max = Math.max(...hist.map(h => h.weight));
+            savedTipsBullet,
+            `📊 Force totale : ${Object.values(exerciseHistory).reduce((sum, exData) => {
+                const max = Math.max(...exData.history.map(h => h.weight));
                 return sum + max;
             }, 0)} kg en records personnels`
-        ]
+        ].filter(Boolean)
     };
 };

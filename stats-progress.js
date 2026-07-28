@@ -4,41 +4,45 @@ function initExerciseProgress() {
     if(!select) return;
     
     // Récupérer tous les exercices uniques
-    const exercises = new Set();
+    const exercises = new Map();
     data.sessions.forEach(session => {
         session.exercises.forEach(ex => {
-            exercises.add(ex.name);
+            const key = ex.exerciseKey || normalizeExerciseName(ex.name);
+            if(key && !exercises.has(key)) exercises.set(key, getExerciseDisplayName(ex.name));
         });
         if(session.extraExercises) {
             session.extraExercises.forEach(ex => {
                 if(ex.mode === 'sets') {
-                    exercises.add(ex.name);
+                    const key = normalizeExerciseName(ex.name);
+                    if(key && !exercises.has(key)) exercises.set(key, getExerciseDisplayName(ex.name));
                 }
             });
         }
     });
     
     // Remplir le select
+    const selectedKey = select.value;
     select.innerHTML = '<option value="">Choisir un exercice</option>';
-    exercises.forEach(name => {
+    exercises.forEach((name, key) => {
         const option = document.createElement("option");
-        option.value = name;
+        option.value = key;
         option.textContent = name;
         select.appendChild(option);
     });
+    if(exercises.has(selectedKey)) select.value = selectedKey;
     
     // Écouteur de changement
-    select.addEventListener("change", () => {
+    select.onchange = () => {
         if(select.value) {
             renderExerciseProgressChart(select.value);
         } else {
             const chart = document.getElementById("exerciseProgressChart");
             chart.innerHTML = '<div class="empty" style="width:100%;text-align:center;padding:40px;">Sélectionne un exercice pour voir ta progression</div>';
         }
-    });
+    };
 }
 
-function renderExerciseProgressChart(exerciseName) {
+function renderExerciseProgressChart(exerciseKey) {
     const chartContainer = document.getElementById("exerciseProgressChart");
     if(!chartContainer) return;
     
@@ -46,7 +50,7 @@ function renderExerciseProgressChart(exerciseName) {
     const values = [];
     data.sessions.forEach(session => {
         session.exercises.forEach(ex => {
-            if(ex.name === exerciseName) {
+            if((ex.exerciseKey || normalizeExerciseName(ex.name)) === exerciseKey) {
                 let best = 0;
                 ex.sets.forEach(set => {
                     if(Number(set.weight) > best) {
@@ -64,7 +68,7 @@ function renderExerciseProgressChart(exerciseName) {
         
         if(session.extraExercises) {
             session.extraExercises.forEach(ex => {
-                if(ex.name === exerciseName && ex.mode === 'sets') {
+                if(normalizeExerciseName(ex.name) === exerciseKey && ex.mode === 'sets') {
                     if(ex.weight > 0) {
                         values.push({
                             date: new Date(session.date),
@@ -120,7 +124,7 @@ function drawChart(values, width, height) {
     // Trouver les valeurs min/max
     const maxWeight = Math.max(...values.map(v => v.value));
     const minWeight = Math.min(...values.map(v => v.value)) * 0.9;
-    const weightRange = maxWeight - minWeight;
+    const weightRange = Math.max(maxWeight - minWeight, 1);
     
     // Dessiner les axes
     ctx.strokeStyle = '#e0e5dd';
@@ -165,7 +169,7 @@ function drawChart(values, width, height) {
     ctx.beginPath();
     
     values.forEach((point, index) => {
-        const x = padding.left + (chartWidth * index / (values.length - 1));
+        const x = values.length === 1 ? padding.left + chartWidth / 2 : padding.left + (chartWidth * index / (values.length - 1));
         const y = padding.top + chartHeight - ((point.value - minWeight) / weightRange * chartHeight);
         
         if(index === 0) {
@@ -179,7 +183,7 @@ function drawChart(values, width, height) {
     
     // Dessiner les points
     values.forEach((point, index) => {
-        const x = padding.left + (chartWidth * index / (values.length - 1));
+        const x = values.length === 1 ? padding.left + chartWidth / 2 : padding.left + (chartWidth * index / (values.length - 1));
         const y = padding.top + chartHeight - ((point.value - minWeight) / weightRange * chartHeight);
         
         ctx.fillStyle = '#1c291e';
@@ -200,7 +204,7 @@ function drawChart(values, width, height) {
     const dateInterval = Math.ceil(values.length / 6); // Afficher max 6 dates
     values.forEach((point, index) => {
         if(index % dateInterval === 0 || index === values.length - 1) {
-            const x = padding.left + (chartWidth * index / (values.length - 1));
+            const x = values.length === 1 ? padding.left + chartWidth / 2 : padding.left + (chartWidth * index / (values.length - 1));
             const dateStr = point.date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
             ctx.fillText(dateStr, x, height - padding.bottom + 20);
         }
