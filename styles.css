@@ -110,7 +110,7 @@ dialog[open]{animation:d-fade .15s ease-out}
 
   /* === Page Ajouter v3 : layout iPhone propre === */
   /* Rangée du haut d'un bloc exercice (meta + boutons d'action) : stack vertical */
-  .logged > div:first-child {
+  #log .logged > div:first-child {
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 10px !important;
@@ -143,25 +143,12 @@ dialog[open]{animation:d-fade .15s ease-out}
     box-sizing: border-box;
   }
   /* Les boutons d'action (+ Ajouter série, Supprimer) : empile vertical + pleine largeur */
-  .logged > div:first-child > div:last-child {
+  #log .logged > div:first-child > div:last-child {
     display: flex !important;
     flex-direction: column !important;
     gap: 8px;
     width: 100%;
     margin-top: 6px;
-  }
-  button.add-set, button.remove-exercise {
-    width: 100% !important;
-    padding: 12px 14px !important;
-    font-size: 13px !important;
-    border: 1px solid var(--line) !important;
-    border-radius: 8px !important;
-    background: white !important;
-    text-align: center !important;
-    margin: 0 !important;
-    box-sizing: border-box;
-    display: block !important;
-    min-height: 44px;
   }
   /* Conseil pour la prochaine séance : pleine largeur */
   input.exercise-tip {
@@ -169,13 +156,22 @@ dialog[open]{animation:d-fade .15s ease-out}
     padding: 10px 12px !important;
     box-sizing: border-box;
   }
-  /* Card "Exercices supplémentaires" : stack titre + bouton (force flex colonne) */
-  .card > div:first-child:not(.exercise-meta) {
+  /* Card "Exercices supplémentaires" : stack titre + bouton (scoped à #log pour ne
+     pas toucher les autres cards de l'app : dashboard, programme, calendrier, etc.) */
+  #log .card > div:first-child {
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 10px;
   }
-  .card > div:first-child:not(.exercise-meta) > button {
-    width: 100%;
+  #log .card > div:first-child > button { width: 100%; }
+  /* Scoping défensif : les boutons add-set/remove-exercise sont liés au logger */
+  #log button.add-set, #log button.remove-exercise {
+    width: 100% !important;
+    padding: 12px 8px !important;
+    font-size: 13px !important;
+    text-align: center !important;
+    margin: 0 !important;
+    box-sizing: border-box;
+    min-height: 44px;
   }
 }
