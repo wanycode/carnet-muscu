@@ -51,6 +51,30 @@ function renderExerciseProgressChart(exerciseKey) {
     data.sessions.forEach(session => {
         session.exercises.forEach(ex => {
             if((ex.exerciseKey || normalizeExerciseName(ex.name)) === exerciseKey) {
+                // Pour les exos en temps (gainage...), on suit la durée cumulée.
+                if(ex.type === "time") {
+                    let totalDuration = 0;
+                    ex.sets.forEach(set => {
+                        totalDuration += Number(set.weight) || 0;
+                    });
+                    if(totalDuration > 0) {
+                        values.push({ date: new Date(session.date), value: totalDuration, unit: "s" });
+                    }
+                    return;
+                }
+                // Pour les exos en élastique, on suit la résistance max utilisée.
+                if(ex.type === "elastic") {
+                    let best = 0;
+                    ex.sets.forEach(set => {
+                        if(Number(set.weight) > best) {
+                            best = Number(set.weight);
+                        }
+                    });
+                    if(best > 0) {
+                        values.push({ date: new Date(session.date), value: best, unit: "niv." });
+                    }
+                    return;
+                }
                 let best = 0;
                 ex.sets.forEach(set => {
                     if(Number(set.weight) > best) {
@@ -58,14 +82,11 @@ function renderExerciseProgressChart(exerciseKey) {
                     }
                 });
                 if(best > 0) {
-                    values.push({
-                        date: new Date(session.date),
-                        value: best
-                    });
+                    values.push({ date: new Date(session.date), value: best, unit: "kg" });
                 }
             }
         });
-        
+
         if(session.extraExercises) {
             session.extraExercises.forEach(ex => {
                 if(normalizeExerciseName(ex.name) === exerciseKey && ex.mode === 'sets') {
@@ -125,6 +146,7 @@ function drawChart(values, width, height) {
     const maxWeight = Math.max(...values.map(v => v.value));
     const minWeight = Math.min(...values.map(v => v.value)) * 0.9;
     const weightRange = Math.max(maxWeight - minWeight, 1);
+    const unit = values.find(v => v.unit)?.unit || "kg";
     
     // Dessiner les axes
     ctx.strokeStyle = '#e0e5dd';
@@ -158,7 +180,7 @@ function drawChart(values, width, height) {
         ctx.lineTo(width - padding.right, y);
         ctx.stroke();
         
-        ctx.fillText(Math.round(weight) + 'kg', padding.left - 10, y + 4);
+        ctx.fillText(Math.round(weight) + unit, padding.left - 10, y + 4);
     }
     
     // Dessiner la ligne de progression

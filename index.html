@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carnet Muscu</title>
 
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=8">
     
     <!-- Icône pour appli web -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -428,6 +428,15 @@ Choisir une séance
 </select>
 
 </label>
+
+<div style="display:flex;gap:8px;margin-top:-4px;flex-wrap:wrap;">
+  <button type="button" class="btn" id="createCustomSessionBtn" style="flex:1;padding:8px;font-size:11px;border:1px dashed #aebda3;background:transparent;color:var(--ink);">
+    ＋ Nouvelle séance personnalisée
+  </button>
+  <button type="button" class="btn" id="epAbPresetBtn" style="flex:1;padding:8px;font-size:11px;border:1px dashed #80cbc4;background:transparent;color:var(--ink);display:none;">
+    ⚡ Mode rapide Épaules-Abdos
+  </button>
+</div>
 
 
 <div id="exerciseLogger">
@@ -1037,6 +1046,45 @@ Sauvegarder
 
 </dialog>
 
+<dialog id="newSessionModal">
+<form method="dialog" id="newSessionForm">
+<button type="button" class="close" id="closeNewSession">×
+</button>
+
+<h2>＋ Nouvelle séance</h2>
+
+<p class="sub">
+Crée un modèle de séance (ex : Séance Élastique, Full Body...) pour l'ajouter au programme et pouvoir la logger depuis l'écran "Ajouter".
+</p>
+
+<label>
+Nom de la séance
+<input type="text" id="newSessionName" placeholder="Ex : Séance Élastique, Full Body, Mobilité..." maxlength="40">
+</label>
+
+<label>
+Type d'exercices par défaut
+<select id="newSessionType">
+<option value="weight">⚖️ Poids (haltères, machines)</option>
+<option value="elastic">➰ Élastique (résistance par niveau)</option>
+<option value="time">⏱️ Temps (gainage, mobilité)</option>
+</select>
+</label>
+
+<p class="sub" style="font-size:11px;margin-top:6px;">
+Tu pourras changer le type de chaque exercice individuellement, ajouter ou supprimer des exercices, et grouper en circuits/super-sets une fois la séance créée.
+</p>
+
+<div class="actions">
+<button type="button" class="btn" value="cancel" id="cancelNewSession">Annuler</button>
+<button type="submit" class="btn lime" id="confirmNewSession">
+Créer la séance
+</button>
+</div>
+
+</form>
+</dialog>
+
 <dialog id="sessionEditModal">
 
 <form method="dialog" id="sessionEditForm">
@@ -1071,10 +1119,10 @@ Enregistrer
 
 </dialog>
 
-<script src="stats-gallery.js"></script>
-<script src="app.js"></script>
-<script src="ai-improved.js"></script>
-<script src="stats-progress.js"></script>
+<script src="stats-gallery.js?v=8"></script>
+<script src="app.js?v=8"></script>
+<script src="ai-improved.js?v=8"></script>
+<script src="stats-progress.js?v=8"></script>
 
 
 </body>

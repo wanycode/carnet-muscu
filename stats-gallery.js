@@ -97,6 +97,8 @@ function renderAdvancedStats(){
     if(recordsEl) {
         const records = new Map();
         data.sessions.forEach(session => (session.exercises || []).forEach(exercise => {
+            // Le 1RM estimé ne concerne que les exercices à charge en kg.
+            if(exercise.type && exercise.type !== "weight") return;
             const key = exercise.exerciseKey || normalizeExerciseName(exercise.name);
             (exercise.sets || []).forEach(set => {
                 if(set.isDropSet) return;
