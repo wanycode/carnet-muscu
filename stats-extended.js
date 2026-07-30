@@ -424,121 +424,7 @@
         }).join("");
     }
 
-    // ---------- Bloc 6: Records personnels (Big 3) ----------
-    function renderPersonalRecords(allSessions) {
-        var exoRecords = new Map(); // key -> {name, max1RM, maxReps, maxRepsWeight, maxVol}
-        allSessions.forEach(function(s) {
-            (s.exercises || []).forEach(function(ex) {
-                if (ex.type && ex.type !== "weight") return;
-                var key = ex.exerciseKey || normalizeExerciseName(ex.name);
-                if (!key) return;
-                if (!exoRecords.has(key)) exoRecords.set(key, {
-                    name: ex.name, max1RM: 0, max1RMReps: 0, maxReps: 0, maxRepsWeight: 0, maxVol: 0, sessionTotal: 0
-                });
-                var rec = exoRecords.get(key);
-                rec.sessionTotal = 0;
-                (ex.sets || []).forEach(function(set) {
-                    if (set.isDropSet) return;
-                    var w = Number(set.weight) || 0, r = Number(set.reps) || 0;
-                    if (w <= 0 || r <= 0 || r > 20) return;
-                    var est = w * (1 + r / 30);
-                    if (est > rec.max1RM) { rec.max1RM = est; rec.max1RMReps = r; }
-                    if (r > rec.maxReps) { rec.maxReps = r; rec.maxRepsWeight = w; }
-                    rec.sessionTotal += w * r;
-                });
-                if (rec.sessionTotal > rec.maxVol) rec.maxVol = rec.sessionTotal;
-            });
-        });
 
-        var by1RM = Array.from(exoRecords.entries()).filter(function(p) { return p[1].max1RM > 0; })
-                       .sort(function(a,b){ return b[1].max1RM - a[1].max1RM; }).slice(0,3);
-        var byReps = Array.from(exoRecords.entries()).filter(function(p) { return p[1].maxReps > 0; })
-                       .sort(function(a,b){ return b[1].maxReps - a[1].maxReps; }).slice(0,3);
-        var byVol = Array.from(exoRecords.entries()).filter(function(p) { return p[1].maxVol > 0; })
-                       .sort(function(a,b){ return b[1].maxVol - a[1].maxVol; }).slice(0,3);
-
-        function box(title, items, formatter) {
-            var itemsHtml = items.length === 0
-                ? '<p class="sub" style="font-size:11px;margin:0;">Pas encore de données.</p>'
-                : items.map(function(p, i) {
-                    return '<div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--line);">' +
-                        '<span style="font-size:13px;">' + (i+1) + '. ' + escapeHtml(p[1].name) + '</span>' +
-                        '<strong style="font-size:13px;">' + formatter(p[1]) + '</strong>' +
-                        '</div>';
-                }).join("");
-            return '<div style="padding:14px;background:#fbfdf8;border:1px solid var(--line);border-radius:10px;">' +
-                '<h3 style="margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;">' + title + '</h3>' +
-                itemsHtml +
-                '</div>';
-        }
-
-        var el = document.getElementById("personalRecordsGrid");
-        if (!el) return;
-        el.innerHTML = [
-            box("🔥 Meilleurs 1RM estimés", by1RM, function(r) { return formatNumber(r.max1RM.toFixed(0)) + ' kg'; }),
-            box("💯 Plus de reps en charge", byReps, function(r) { return r.maxReps + ' reps @ ' + r.maxRepsWeight + ' kg'; }),
-            box("🏋️ Plus gros tonnage en 1 séance", byVol, function(r) { return formatNumber(r.maxVol.toFixed(0)) + ' kg'; })
-        ].join("");
-    }
-
-    // ---------- Bloc 7: Stagnation (≥ 3 séances consécutives sans progression) ----------
-    function renderStagnation(allSessions) {
-        var byExo = new Map();
-        var exNames = new Map();
-        allSessions.forEach(function(s) {
-            (s.exercises || []).forEach(function(ex) {
-                if (ex.type && ex.type !== "weight") return;
-                var key = ex.exerciseKey || normalizeExerciseName(ex.name);
-                if (!key) return;
-                if (!byExo.has(key)) byExo.set(key, []);
-                if (!exNames.has(key)) exNames.set(key, ex.name);
-                (ex.sets || []).forEach(function(set) {
-                    if (set.isDropSet) return;
-                    var w = Number(set.weight) || 0, r = Number(set.reps) || 0;
-                    if (w <= 0 || r <= 0 || r > 20) return;
-                    byExo.get(key).push({ date: new Date(s.date), est: w * (1 + r / 30) });
-                });
-            });
-        });
-
-        // Pour chaque exo: regarder les 3 dernières séances (distinctes par date)
-        // Si best-1RM dans chaque séance est dans une fourchette de ±2.5% → stagnant.
-        var stagnant = [];
-        byExo.forEach(function(records, key) {
-            // Regroupe par date (YYYY-MM-DD)
-            var byDate = {};
-            records.forEach(function(r) {
-                var k = formatDateInputFromSession(r.date);
-                if (!byDate[k]) byDate[k] = 0;
-                if (r.est > byDate[k]) byDate[k] = r.est;
-            });
-            var dates = Object.keys(byDate).sort().reverse(); // newest first
-            if (dates.length < 3) return;
-            var last3 = [byDate[dates[0]], byDate[dates[1]], byDate[dates[2]]];
-            var mx = Math.max.apply(null, last3);
-            var mn = Math.min.apply(null, last3);
-            if (mn > 0 && (mx - mn) / mn < 0.025) {
-                stagnant.push({ key: key, name: exNames.get(key) || key, lastDate: dates[0], best: mx, sessions: 3 });
-            }
-        });
-
-        var el = document.getElementById("stagnationList");
-        if (!el) return;
-        if (stagnant.length === 0) {
-            el.innerHTML = '<p class="sub">✓ Aucun exercice en stagnation. Continue, ta progression est régulière.</p>';
-            return;
-        }
-        el.innerHTML = stagnant.map(function(st) {
-            return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff8e1;border-left:3px solid #ffa000;border-radius:0 6px 6px 0;margin-bottom:8px;">' +
-                '<span style="font-size:18px;">💡</span>' +
-                '<div style="flex:1;font-size:13px;">' +
-                    '<strong>' + escapeHtml(st.name) + '</strong> stagne depuis ' + st.sessions + ' séances' +
-                    '<div style="font-size:11px;color:var(--muted);margin-top:2px;">Dernière: ' + st.lastDate + ' · ' + formatNumber(st.best.toFixed(0)) + ' kg estimé</div>' +
-                '</div>' +
-                '<span style="font-size:11px;color:#ad4238;font-weight:700;background:#fff;padding:4px 8px;border-radius:5px;">+2.5kg ?</span>' +
-                '</div>';
-        }).join("");
-    }
 
     // ---------- Bloc 8: Fréquence par jour de semaine ----------
     function renderWeekdayFrequency(allSessions) {
@@ -569,57 +455,6 @@
         el.innerHTML = '<div style="display:flex;align-items:flex-end;gap:6px;height:170px;">' + bars + '</div>';
     }
 
-    // ---------- Bloc 9: Heatmap annuelle (365 jours) ----------
-    function renderYearHeatmap(allSessions) {
-        var now = new Date(); now.setHours(0,0,0,0);
-        var volumeByDay = new Map();
-        allSessions.forEach(function(s) {
-            var k = formatDateInputFromSession(s.date);
-            volumeByDay.set(k, (volumeByDay.get(k) || 0) + getSessionVolume(s));
-        });
-        var cells = [];
-        for (var i = 364; i >= 0; i--) {
-            var day = new Date(now.getTime() - i * 86400000);
-            var k = formatDateInputFromSession(day);
-            cells.push({ date: day, vol: volumeByDay.get(k) || 0 });
-        }
-        var monOldest = (cells[0].date.getDay() + 6) % 7;
-        var padded = [];
-        for (var p = 0; p < monOldest; p++) padded.push(null);
-        cells.forEach(function(c) { padded.push(c); });
-        while (padded.length % 7 !== 0) padded.push(null);
-        var weeks = [];
-        for (var w = 0; w < padded.length; w += 7) weeks.push(padded.slice(w, w + 7));
-        var maxVol = 0;
-        cells.forEach(function(c) { if (c.vol > maxVol) maxVol = c.vol; });
-        function getColor(vol) {
-            if (vol === 0 || maxVol === 0) return "#f1f4ee";
-            var r = vol / maxVol;
-            if (r < 0.25) return "rgba(213,255,62,0.30)";
-            if (r < 0.50) return "rgba(213,255,62,0.55)";
-            if (r < 0.75) return "rgba(213,255,62,0.80)";
-            return "#d5ff3e";
-        }
-        var colLabels = ["L","M","M","J","V","S","D"];
-        var colLabelHtml = colLabels.map(function(l) {
-            return '<div style="font-size:9px;color:var(--muted);text-align:center;height:11px;line-height:11px;">' + l + '</div>';
-        }).join("");
-        var weeksHtml = weeks.map(function(week) {
-            var weekCells = week.map(function(c) {
-                if (!c) return '<div style="width:11px;height:11px;"></div>';
-                var title = c.date.toLocaleDateString('fr-FR', {day:'2-digit', month:'short'}) + ' · ' + formatNumber(c.vol) + ' kg';
-                return '<div title="' + title.replace(/"/g,'&quot;') + '" style="width:11px;height:11px;border-radius:2px;background:' + getColor(c.vol) + ';"></div>';
-            }).join("");
-            return '<div style="display:flex;flex-direction:column;gap:2px;"><div style="height:11px;"></div>' + weekCells + '</div>';
-        }).join("");
-        var el = document.getElementById("yearHeatmap");
-        if (!el) return;
-        el.innerHTML = '<div style="overflow-x:auto;padding:8px 0;margin:0 -10px;">' +
-            '<div style="display:flex;gap:2px;align-items:flex-start;width:max-content;padding:0 10px;">' +
-                '<div style="display:flex;flex-direction:column;gap:2px;margin-right:6px;flex-shrink:0;">' + colLabelHtml + '</div>' +
-                weeksHtml +
-            '</div></div>';
-    }
 
     // ---------- Bloc 10: Volume mois actuel vs mois précédent + sparkline 12 mois ----------
     function renderVolumeTrendMoM(allSessions) {
@@ -670,103 +505,7 @@
             '<div style="display:flex;align-items:end;gap:3px;height:140px;margin-top:14px;padding:0 4px;">' + bars + '</div>';
     }
 
-    // ---------- Bloc 11: Distribution intensité (léger / moyen / lourd) ----------
-    function renderIntensityDistribution(allSessions) {
-        var volumes = allSessions.map(function(s) { return getSessionVolume(s); }).filter(function(v) { return v > 0; });
-        var el = document.getElementById("intensityDistribution");
-        if (!el) return;
-        if (volumes.length === 0) { el.innerHTML = '<p class="sub">Pas encore de séances avec volume.</p>'; return; }
-        var sorted = volumes.slice().sort(function(a,b){ return a-b; });
-        var min = sorted[0];
-        var max = sorted[sorted.length - 1];
-        var q1 = sorted[Math.floor(sorted.length / 4)];
-        var q3 = sorted[Math.floor(sorted.length * 3 / 4)];
-        var buckets = { 'Légères': 0, 'Moyennes': 0, 'Lourdes': 0 };
-        var bucketVol = { 'Légères': 0, 'Moyennes': 0, 'Lourdes': 0 };
-        allSessions.forEach(function(s) {
-            var v = getSessionVolume(s);
-            if (v <= 0) return;
-            var b = v < q1 ? 'Légères' : (v <= q3 ? 'Moyennes' : 'Lourdes');
-            buckets[b]++;
-            bucketVol[b] += v;
-        });
-        var total = buckets['Légères'] + buckets['Moyennes'] + buckets['Lourdes'];
-        var colors = { 'Légères': '#a5d6a7', 'Moyennes': '#ffe082', 'Lourdes': '#ffab91' };
-        var icons = { 'Légères': '🌱', 'Moyennes': '⚡', 'Lourdes': '🔥' };
-        var rows = ['Légères', 'Moyennes', 'Lourdes'].map(function(name) {
-            var c = buckets[name];
-            var pct = total > 0 ? (c / total) * 100 : 0;
-            var avg = c > 0 ? bucketVol[name] / c : 0;
-            var barW = Math.max(pct, 3);
-            return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line);">' +
-                '<span style="min-width:96px;font-size:12px;font-weight:600;">' + icons[name] + ' ' + name + '</span>' +
-                '<div style="flex:1;background:#eef1eb;border-radius:6px;height:18px;overflow:hidden;">' +
-                    '<div style="width:' + barW + '%;height:100%;background:' + colors[name] + ';border-radius:6px;transition:width .4s;"></div>' +
-                '</div>' +
-                '<span style="min-width:120px;text-align:right;font-size:12px;"><strong>' + c + '</strong>·séance' + (c > 1 ? 's' : '') + ' · ' + (avg > 0 ? formatNumber(avg.toFixed(0)) + ' kg moy' : '—') + '</span>' +
-                '</div>';
-        }).join('');
-        el.innerHTML = '<div style="margin-bottom:10px;font-size:11px;color:var(--muted);">Seuils auto Q1/Q3 sur tes séances réelles (entre ' + formatNumber(min.toFixed(0)) + ' et ' + formatNumber(max.toFixed(0)) + ' kg).</div>' + rows;
-    }
 
-    // ---------- Bloc 12: Records perso PAR groupe musculaire ----------
-    function renderPerMuscleRecords(allSessions) {
-        var MUSCLES = Object.keys(MUSCLE_LABELS);
-        var records = {};
-        MUSCLES.forEach(function(m) { records[m] = { best1RM: 0, date: null, name: null, volume30j: 0 }; });
-        var cutoff30 = new Date(new Date().getTime() - 30 * 86400000);
-        allSessions.forEach(function(s) {
-            var sessionDate = new Date(s.date);
-            var sessionGroups = classifySessionMuscles(s);
-            (s.exercises || []).forEach(function(ex) {
-                if (ex.type && ex.type !== "weight") return;
-                var exGroups = classifyExerciseByName(ex.name);
-                if (exGroups.length === 0 && sessionGroups.length > 0) exGroups = sessionGroups;
-                if (exGroups.length === 0) return;
-                (ex.sets || []).forEach(function(set) {
-                    if (set.isDropSet) return;
-                    var w = Number(set.weight) || 0, r = Number(set.reps) || 0;
-                    if (w <= 0 || r <= 0 || r > 20) return;
-                    var est = w * (1 + r / 30);
-                    var vol = w * r;
-                    exGroups.forEach(function(g) {
-                        if (!records[g]) return;
-                        if (est > records[g].best1RM) {
-                            records[g].best1RM = est;
-                            records[g].date = sessionDate;
-                            records[g].name = ex.name;
-                        }
-                        if (sessionDate >= cutoff30) {
-                            records[g].volume30j += vol / exGroups.length;
-                        }
-                    });
-                });
-            });
-        });
-        var el = document.getElementById("perMuscleRecords");
-        if (!el) return;
-        var html = MUSCLES.map(function(m) {
-            var r = records[m];
-            return '<div style="padding:12px;border:1px solid var(--line);border-radius:10px;background:#fbfdf8;">' +
-                '<div style="display:flex;align-items:center;gap:6px;">' +
-                    '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + MUSCLE_COLORS[m] + ';"></span>' +
-                    '<span style="flex:1;font-size:12px;font-weight:700;">' + MUSCLE_LABELS[m] + '</span>' +
-                '</div>' +
-                '<div style="margin-top:6px;font-size:20px;color:var(--lime);font-weight:800;line-height:1.1;">' +
-                    (r.best1RM > 0 ? formatNumber(r.best1RM.toFixed(0)) + ' kg' : '—') +
-                '</div>' +
-                '<div style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4;">' +
-                    (r.best1RM > 0
-                        ? '🏷 ' + escapeHtml(r.name || '') + '<br>📅 ' + formatDateInputFromSession(r.date)
-                        : 'Aucun record') +
-                '</div>' +
-                '<div style="font-size:10px;margin-top:6px;color:var(--muted);">' +
-                    '30j: <strong style="color:var(--ink);">' + formatNumber(r.volume30j.toFixed(0)) + ' kg</strong>' +
-                '</div>' +
-                '</div>';
-        }).join("");
-        el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px;">' + html + '</div>';
-    }
 
     // ---------- Bloc 13: Records perdus (alerte rouge) ----------
     function renderLostRecords(allSessions) {
@@ -840,13 +579,8 @@
         safe(renderPushPull.bind(null, all));
         safe(renderHeatmap.bind(null, all));
         safe(renderTopProgressions.bind(null, all));
-        safe(renderPersonalRecords.bind(null, all));
-        safe(renderStagnation.bind(null, all));
         safe(renderWeekdayFrequency.bind(null, all));
-        safe(renderYearHeatmap.bind(null, all));
         safe(renderVolumeTrendMoM.bind(null, all));
-        safe(renderIntensityDistribution.bind(null, all));
-        safe(renderPerMuscleRecords.bind(null, all));
         safe(renderLostRecords.bind(null, all));
     }
 

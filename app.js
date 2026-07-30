@@ -3612,7 +3612,8 @@ function openQuickAccess(){
     const code = input.value.trim().toLowerCase().replace(/\s+/g, "");
     const pages = {
         "1rm": "calculator",
-        "map": "map"
+        "map": "map",
+        "tony": "tony"
     };
     const page = pages[code];
     if(page){

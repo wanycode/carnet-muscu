@@ -842,12 +842,6 @@ id="chartBox">
 </div>
 </div>
 
-<div class="card" style="margin-top:14px">
-<h2>📆 Carte annuelle — 365 jours</h2>
-<p class="sub" style="font-size:11px;margin-top:4px;">Scroll horizontalement pour voir toute l'année. Les jours d'entraînement ressortent en vert lime.</p>
-<div id="yearHeatmap" style="margin-top:10px;"></div>
-</div>
-
 <!-- ============ VOLUME & CHARGE ============ -->
 <p class="eyebrow" style="margin-top:26px;margin-bottom:10px;font-size:11px;">💪 VOLUME & CHARGE</p>
 
@@ -863,11 +857,6 @@ id="chartBox">
 <p class="sub" style="font-size:11px;margin-top:4px;">Rapport de volume pectoraux+triceps+épaules vs dos+biceps sur 30 jours.</p>
 <div id="pushPullBalance" style="margin-top:14px;"></div>
 </div>
-<div class="card">
-<h2>🔥 Intensité des séances</h2>
-<p class="sub" style="font-size:11px;margin-top:4px;">Légères / Moyennes / Lourdes — seuils Q1/Q3 calculés sur ta distribution réelle.</p>
-<div id="intensityDistribution" style="margin-top:14px;font-size:13px;"></div>
-</div>
 </div>
 
 <div class="card" style="margin-top:14px">
@@ -878,17 +867,6 @@ id="chartBox">
 
 <!-- ============ RECORDS & PROGRESSION ============ -->
 <p class="eyebrow" style="margin-top:26px;margin-bottom:10px;font-size:11px;">🏆 RECORDS & PROGRESSION</p>
-
-<div class="card">
-<h2>🏅 Records personnels (Top 3 dans 3 catégories)</h2>
-<div id="personalRecordsGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:14px;"></div>
-</div>
-
-<div class="card" style="margin-top:14px">
-<h2>💪 Records par groupe musculaire</h2>
-<p class="sub" style="font-size:11px;margin-top:4px;">Meilleur 1RM estimé et volume 30j pour chaque groupe musculaire.</p>
-<div id="perMuscleRecords" style="margin-top:14px;font-size:13px;"></div>
-</div>
 
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-top:14px;">
 <div class="card">
@@ -907,11 +885,6 @@ id="chartBox">
 <p class="eyebrow" style="margin-top:26px;margin-bottom:10px;font-size:11px;">🔍 ANALYSE & RÉFÉRENCES</p>
 
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;">
-<div class="card">
-<h2>💡 Détection de stagnation</h2>
-<p class="sub" style="font-size:11px;margin-top:4px;">Exercices dont le 1RM estimé est resté dans une fourchette de ±2.5% sur les 3 dernières séances.</p>
-<div id="stagnationList" style="margin-top:14px;font-size:13px;"></div>
-</div>
 <div class="card">
 <h2>📋 Répartition des séances (30j)</h2>
 <p class="sub" style="font-size:11px;margin-top:4px;">Combien de fois chaque séance type sur 30 jours.</p>
@@ -1194,6 +1167,16 @@ Calculer et sauvegarder
 
 </section>
 
+<!-- ============== TONY (accès rapide secret) ============== -->
+<section id="tony" style="display:none;max-width:520px;margin:60px auto;padding:0;">
+  <div style="background:#1a1a1a;border:2px solid #b8e94c;border-radius:18px;padding:60px 32px;text-align:center;box-shadow:0 8px 32px rgba(184,233,76,0.15);">
+    <p style="color:#b8e94c;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;margin:0 0 18px;font-weight:600;">accès restreint</p>
+    <h1 style="color:#fff;font-size:42px;margin:0 0 14px;font-weight:700;letter-spacing:-0.02em;">Coucou Tony 👋</h1>
+    <p style="color:#9aa99a;font-size:14px;margin:0;line-height:1.5;">Tu as trouvé le code secret. Continue à pousser ! 🦾</p>
+    <button data-page="dashboard" class="btn lime" style="margin-top:32px;display:inline-block;">Retour au dashboard</button>
+  </div>
+</section>
+
 </main>
 
 <nav class="mobile-nav">
@@ -1366,12 +1349,12 @@ Enregistrer
 
 </dialog>
 
-<script src="stats-gallery.js?v=18"></script>
-<script src="app.js?v=18"></script>
-<script src="ai-improved.js?v=18"></script>
-<script src="stats-progress.js?v=18"></script>
-<script src="stats-extended.js?v=18"></script>
-<script src="quickmap.js?v=18"></script>
+<script src="stats-gallery.js?v=19"></script>
+<script src="app.js?v=19"></script>
+<script src="ai-improved.js?v=19"></script>
+<script src="stats-progress.js?v=19"></script>
+<script src="stats-extended.js?v=19"></script>
+<script src="quickmap.js?v=19"></script>
 
 
 </body>
