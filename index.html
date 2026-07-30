@@ -316,13 +316,13 @@ D
 
 <div style="display:flex;gap:8px;">
 
-<input type="text" id="quickAccessCode" placeholder="Entre le code 1RM" style="flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font:13px Manrope;">
+<input type="text" id="quickAccessCode" placeholder="Entre le code 1RM ou MAP" style="flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font:13px Manrope;">
 
 <button class="btn lime" id="openQuickAccess" style="padding:10px 14px;">Ouvrir</button>
 
 </div>
 
-<p class="sub" style="margin:9px 0 0;font-size:12px;">Code disponible : <b>1RM</b>.</p>
+<p class="sub" style="margin:9px 0 0;font-size:12px;">Codes disponibles : <b>1RM</b>, <b>MAP</b>.</p>
 
 </div>
 
@@ -774,70 +774,317 @@ id="chartBox">
 <div>
 <p class="eyebrow">STATISTIQUES</p>
 <h1>Ta progression</h1>
-<p class="sub">Des repères simples pour suivre ta régularité et ta charge de travail.</p>
+<p class="sub">Vue d'ensemble, régularité, charge, records et analyses détaillés.</p>
 </div>
 </header>
 
-<div class="stats-grid">
+<!-- ============ VUE D'ENSEMBLE ============ -->
 
+<div class="stats-grid">
 <div class="card">
 <h2>Volume · 30 jours</h2>
 <b id="monthVolume" style="font-size:32px;color:var(--lime)">0 kg</b>
 <p class="sub" style="margin-top:8px">Charge totale déplacée</p>
 </div>
-
 <div class="card">
 <h2>Régularité</h2>
 <b id="weekProgress" style="font-size:32px;color:var(--lime)">0,0</b>
 <p class="sub" style="margin-top:8px">séances / semaine (4 sem.)</p>
 </div>
-
 <div class="card">
 <h2>Série en cours</h2>
 <b id="bestDay" style="font-size:28px;color:var(--lime)">0 sem.</b>
 <p class="sub" style="margin-top:8px">semaines consécutives actives</p>
 </div>
-
 <div class="card">
 <h2>Évolution du volume</h2>
 <b id="totalStrength" style="font-size:32px;color:var(--lime)">—</b>
 <p class="sub" style="margin-top:8px">30 derniers jours vs les 30 précédents</p>
 </div>
-
 </div>
 
-<div class="card" style="margin-top:20px">
-<h2>Repères des 30 derniers jours</h2>
-<div id="weeklyBreakdown" style="font-size:13px;line-height:1.8">
+<div class="stats-grid" style="margin-top:14px">
+<div class="card">
+<h2>🏋️ Plus grosse séance</h2>
+<b id="bestSessionVolume" style="font-size:28px;color:var(--lime)">—</b>
+<p class="sub" id="bestSessionDate" style="margin-top:8px">Aucune séance</p>
+</div>
+<div class="card">
+<h2>💪 Top exo (30j)</h2>
+<b id="topExerciseName" style="font-size:18px;color:var(--lime);word-break:break-word;display:block;line-height:1.2;">—</b>
+<p class="sub" id="topExerciseVolume" style="margin-top:8px">—</p>
+</div>
+<div class="card">
+<h2>📅 Jour préf.</h2>
+<b id="favoriteDay" style="font-size:24px;color:var(--lime)">—</b>
+<p class="sub" id="favoriteDayCount" style="margin-top:8px">—</p>
+</div>
+<div class="card">
+<h2>🏆 1RM battus 30j</h2>
+<b id="recordsBeatCount" style="font-size:32px;color:var(--lime)">0</b>
+<p class="sub" style="margin-top:8px">Records améliorés</p>
+</div>
+</div>
+
+<!-- ============ RÉGULARITÉ & PRÉSENCE ============ -->
+<p class="eyebrow" style="margin-top:26px;margin-bottom:10px;font-size:11px;">📅 RÉGULARITÉ & PRÉSENCE</p>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;">
+<div class="card">
+<h2>📊 Fréquence par jour de semaine</h2>
+<p class="sub" style="font-size:11px;margin-top:4px;">Quelle journée tu pousses le plus souvent (historique complet). Le jour courant est mis en évidence.</p>
+<div id="weekdayFrequency" style="margin-top:14px;"></div>
+</div>
+<div class="card">
+<h2>📅 Carte d'intensité — 30 derniers jours</h2>
+<p class="sub" style="font-size:11px;margin-top:4px;">Plus c'est foncé, plus le tonnage a été lourd ce jour-là.</p>
+<div id="weeklyHeatmap" style="margin-top:10px;"></div>
+</div>
+</div>
+
+<div class="card" style="margin-top:14px">
+<h2>📆 Carte annuelle — 365 jours</h2>
+<p class="sub" style="font-size:11px;margin-top:4px;">Scroll horizontalement pour voir toute l'année. Les jours d'entraînement ressortent en vert lime.</p>
+<div id="yearHeatmap" style="margin-top:10px;"></div>
+</div>
+
+<!-- ============ VOLUME & CHARGE ============ -->
+<p class="eyebrow" style="margin-top:26px;margin-bottom:10px;font-size:11px;">💪 VOLUME & CHARGE</p>
+
+<div class="card">
+<h2>💪 Tonnage par groupe musculaire (30j)</h2>
+<p class="sub" style="font-size:11px;margin-top:4px;">Volume ajusté sur les séances qui couvrent plusieurs groupes (Pecs+Biceps : volume compté moitié-moitié).</p>
+<div id="muscleGroupBars" style="margin-top:14px;font-size:13px;"></div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-top:14px;">
+<div class="card">
+<h2>⚖️ Équilibre Push / Pull</h2>
+<p class="sub" style="font-size:11px;margin-top:4px;">Rapport de volume pectoraux+triceps+épaules vs dos+biceps sur 30 jours.</p>
+<div id="pushPullBalance" style="margin-top:14px;"></div>
+</div>
+<div class="card">
+<h2>🔥 Intensité des séances</h2>
+<p class="sub" style="font-size:11px;margin-top:4px;">Légères / Moyennes / Lourdes — seuils Q1/Q3 calculés sur ta distribution réelle.</p>
+<div id="intensityDistribution" style="margin-top:14px;font-size:13px;"></div>
+</div>
+</div>
+
+<div class="card" style="margin-top:14px">
+<h2>📈 Tendance mensuelle (12 derniers mois)</h2>
+<p class="sub" style="font-size:11px;margin-top:4px;">Ce mois vs mois précédent +12 mois d'historique.</p>
+<div id="volumeTrendMoM" style="margin-top:14px;font-size:13px;"></div>
+</div>
+
+<!-- ============ RECORDS & PROGRESSION ============ -->
+<p class="eyebrow" style="margin-top:26px;margin-bottom:10px;font-size:11px;">🏆 RECORDS & PROGRESSION</p>
+
+<div class="card">
+<h2>🏅 Records personnels (Top 3 dans 3 catégories)</h2>
+<div id="personalRecordsGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:14px;"></div>
+</div>
+
+<div class="card" style="margin-top:14px">
+<h2>💪 Records par groupe musculaire</h2>
+<p class="sub" style="font-size:11px;margin-top:4px;">Meilleur 1RM estimé et volume 30j pour chaque groupe musculaire.</p>
+<div id="perMuscleRecords" style="margin-top:14px;font-size:13px;"></div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-top:14px;">
+<div class="card">
+<h2>🚀 En progression rapide</h2>
+<p class="sub" style="font-size:11px;margin-top:4px;">Top exercices par croissance du 1RM estimé sur 30 jours vs 30 jours précédents.</p>
+<div id="topProgressions" style="margin-top:14px;font-size:13px;"></div>
+</div>
+<div class="card">
+<h2>⚠️ Records fragilisés</h2>
+<p class="sub" style="font-size:11px;margin-top:4px;">Exercices dont le pic n'a pas été retrouvé depuis 14 jours ou plus.</p>
+<div id="lostRecords" style="margin-top:14px;font-size:13px;"></div>
+</div>
+</div>
+
+<!-- ============ ANALYSE & RÉFÉRENCES ============ -->
+<p class="eyebrow" style="margin-top:26px;margin-bottom:10px;font-size:11px;">🔍 ANALYSE & RÉFÉRENCES</p>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;">
+<div class="card">
+<h2>💡 Détection de stagnation</h2>
+<p class="sub" style="font-size:11px;margin-top:4px;">Exercices dont le 1RM estimé est resté dans une fourchette de ±2.5% sur les 3 dernières séances.</p>
+<div id="stagnationList" style="margin-top:14px;font-size:13px;"></div>
+</div>
+<div class="card">
+<h2>📋 Répartition des séances (30j)</h2>
+<p class="sub" style="font-size:11px;margin-top:4px;">Combien de fois chaque séance type sur 30 jours.</p>
+<div id="workoutDistribution" style="margin-top:14px;font-size:13px;"></div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-top:14px;">
+<div class="card">
+<h2>🏋️ Meilleurs 1RM estimés</h2>
+<div id="estimatedRecords" style="margin-top:14px;font-size:13px;"></div>
+</div>
+<div class="card">
+<h2>📊 Repères des 30 derniers jours</h2>
+<div id="weeklyBreakdown" style="margin-top:14px;font-size:13px;line-height:1.8">
 <!-- rempli par JS -->
 </div>
 </div>
+</div>
 
-<div class="card" style="margin-top:20px">
-<h2>Volume sur 8 semaines</h2>
+<div class="card" style="margin-top:14px">
+<h2>📈 Volume sur 8 semaines</h2>
 <div id="volumeTrend" style="display:grid;grid-template-columns:repeat(8,minmax(28px,1fr));gap:10px;align-items:end;height:210px;margin-top:18px;"></div>
 </div>
 
-<div class="stats-grid" style="margin-top:20px">
-<div class="card">
-<h2>Répartition des séances</h2>
-<div id="workoutDistribution" style="margin-top:14px;font-size:13px;"></div>
-</div>
-<div class="card">
-<h2>Meilleurs 1RM estimés</h2>
-<div id="estimatedRecords" style="margin-top:14px;font-size:13px;"></div>
-</div>
-</div>
-
-<div class="card" style="margin-top:20px">
+<div class="card" style="margin-top:14px">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-<h2 style="margin:0;">Progression par exercice</h2>
+<h2 style="margin:0;">📊 Progression par exercice</h2>
 <select id="exerciseProgressSelect" style="padding:8px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
 <option value="">Choisir un exercice</option>
 </select>
 </div>
 <div id="exerciseProgressChart" style="height:250px;display:flex;gap:8px;align-items:end;border-bottom:1px solid var(--line);padding:0 10px;">
 <div class="empty" style="width:100%;text-align:center;padding:40px;">Sélectionne un exercice pour voir ta progression</div>
+</div>
+</div>
+
+</section>
+
+<!-- ================= CARTE CORPORELLE (MAP) ================= -->
+
+<section id="map" class="hidden">
+
+<header>
+<div>
+<p class="eyebrow">ACCÈS RAPIDE · MAP</p>
+<h1>🗺️ Carte corporelle</h1>
+<p class="sub">Visualise d'un coup d'œil quels muscles tu as poussés. Tape sur un muscle pour voir le drill-down.</p>
+</div>
+<div style="display:flex;gap:6px;align-self:flex-start;flex-wrap:wrap;">
+<button class="btn" data-map-mode="7j" style="padding:7px 12px;font-size:11px;border:1px solid var(--lime);background:var(--lime);color:#1c291e;font-weight:700;border-radius:8px;">7 derniers jours</button>
+<button class="btn" data-map-mode="30j" style="padding:7px 12px;font-size:11px;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;">30 derniers jours</button>
+<button class="btn" data-map-mode="equilibre" style="padding:7px 12px;font-size:11px;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;">⚖️ Équilibre</button>
+</div>
+</header>
+
+<div id="mapBalanceBanner" style="display:none;margin-top:14px;"></div>
+
+<div class="card" style="margin-top:14px">
+<div style="margin:0 auto;max-width:760px;text-align:center;">
+<svg viewBox="0 0 800 640" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-height:600px;display:block;" aria-label="Carte corporelle interactive">
+
+<defs>
+<radialGradient id="bodyShade" cx="50%" cy="35%" r="75%">
+<stop offset="0%" stop-color="#ffffff"/>
+<stop offset="100%" stop-color="#eef1eb"/>
+</radialGradient>
+</defs>
+
+<!-- ================= AVANT ================= -->
+<g id="front-view">
+
+<!-- HEAD: oval head shape -->
+<path d="M 198,40 Q 198,30 220,30 Q 242,30 242,40 L 246,75 Q 244,95 220,98 Q 196,95 194,75 Z" fill="url(#bodyShade)" stroke="#8d9d8d" stroke-width="1.5" stroke-linejoin="round"/>
+
+<!-- NECK -->
+<path d="M 207,95 L 233,95 L 235,118 L 205,118 Z" fill="url(#bodyShade)" stroke="#8d9d8d" stroke-width="1.5" stroke-linejoin="round"/>
+
+<!-- TORSO OUTLINE: V-taper athletic body -->
+<path d="M 145,140 Q 175,118 205,118 L 235,118 Q 265,118 295,140 L 290,260 Q 285,300 260,330 Q 235,345 220,345 Q 205,345 180,330 Q 155,300 150,260 L 145,140 Z" fill="url(#bodyShade)" stroke="#8d9d8d" stroke-width="1.5" stroke-linejoin="round"/>
+
+<!-- EPAULES -->
+<path class="map-muscle" data-muscle="epaules" d="M 150,160 Q 138,138 158,132 L 198,140 Q 192,165 178,185 Q 158,190 150,178 Z" fill="transparent" stroke="#8d9d8d" stroke-width="1.5" style="cursor:pointer;transition:fill 0.3s;"/>
+<path class="map-muscle" data-muscle="epaules" d="M 290,160 Q 302,138 282,132 L 242,140 Q 248,165 262,185 Q 282,190 290,178 Z" fill="transparent" stroke="#8d9d8d" stroke-width="1.5" style="cursor:pointer;transition:fill 0.3s;"/>
+
+<!-- PECS: organic curve with center groove -->
+<path class="map-muscle" data-muscle="pecs" d="M 180,160 Q 200,148 220,148 Q 240,148 260,160 Q 272,175 268,200 Q 258,220 240,228 Q 220,234 200,228 Q 182,220 172,200 Q 168,175 180,160 Z" fill="transparent" stroke="#8d9d8d" stroke-width="1.5" style="cursor:pointer;transition:fill 0.3s;"/>
+<line x1="220" y1="150" x2="220" y2="228" stroke="#8d9d8d" stroke-width="0.8" opacity="0.55"/>
+
+<!-- BICEPS: organic teardrop with elbow taper -->
+<path class="map-muscle" data-muscle="biceps" d="M 148,160 Q 138,200 142,235 Q 148,260 158,258 Q 166,225 164,185 Q 162,168 158,162 Z" fill="transparent" stroke="#8d9d8d" stroke-width="1.5" style="cursor:pointer;transition:fill 0.3s;"/>
+<path class="map-muscle" data-muscle="biceps" d="M 292,160 Q 302,200 298,235 Q 292,260 282,258 Q 274,225 276,185 Q 278,168 282,162 Z" fill="transparent" stroke="#8d9d8d" stroke-width="1.5" style="cursor:pointer;transition:fill 0.3s;"/>
+
+<!-- FOREARMS: narrower tapered -->
+<path d="M 158,258 Q 152,290 148,335 Q 152,352 158,350 Q 162,310 162,278 Z" fill="url(#bodyShade)" stroke="#8d9d8d" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M 282,258 Q 288,290 292,335 Q 288,352 282,350 Q 278,310 278,278 Z" fill="url(#bodyShade)" stroke="#8d9d8d" stroke-width="1.5" stroke-linejoin="round"/>
+
+<!-- ABDOS: 6-pack style with horizontal divisions -->
+<rect class="map-muscle" data-muscle="abdos" x="190" y="232" width="60" height="100" rx="8" fill="transparent" stroke="#8d9d8d" stroke-width="1.5" style="cursor:pointer;transition:fill 0.3s;"/>
+<line x1="190" y1="257" x2="250" y2="257" stroke="#8d9d8d" stroke-width="0.8" opacity="0.55"/>
+<line x1="190" y1="282" x2="250" y2="282" stroke="#8d9d8d" stroke-width="0.8" opacity="0.55"/>
+<line x1="190" y1="307" x2="250" y2="307" stroke="#8d9d8d" stroke-width="0.8" opacity="0.55"/>
+<line x1="220" y1="232" x2="220" y2="332" stroke="#8d9d8d" stroke-width="0.8" opacity="0.55"/>
+
+<!-- QUADS: organic teardrop -->
+<path class="map-muscle" data-muscle="jambes" d="M 175,345 Q 162,400 178,490 Q 188,510 202,505 Q 208,460 200,395 Q 196,360 188,345 Z" fill="transparent" stroke="#8d9d8d" stroke-width="1.5" style="cursor:pointer;transition:fill 0.3s;"/>
+<path class="map-muscle" data-muscle="jambes" d="M 265,345 Q 278,400 262,490 Q 252,510 238,505 Q 232,460 240,395 Q 244,360 252,345 Z" fill="transparent" stroke="#8d9d8d" stroke-width="1.5" style="cursor:pointer;transition:fill 0.3s;"/>
+
+<!-- CALVES: visible bulge -->
+<path d="M 184,510 Q 174,548 180,578 Q 188,594 200,588 Q 206,560 200,520 Q 196,512 192,508 Z" fill="url(#bodyShade)" stroke="#8d9d8d" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M 256,510 Q 266,548 260,578 Q 252,594 240,588 Q 234,560 240,520 Q 244,512 248,508 Z" fill="url(#bodyShade)" stroke="#8d9d8d" stroke-width="1.5" stroke-linejoin="round"/>
+
+<!-- GROUND line -->
+<line x1="160" y1="600" x2="280" y2="600" stroke="#8d9d8d" stroke-width="1" opacity="0.35"/>
+</g>
+
+<text x="220" y="625" text-anchor="middle" font-size="11" font-weight="700" fill="#6c756c" font-family="Manrope,system-ui,sans-serif">AVANT</text>
+
+<!-- ================= ARRIÈRE ================= -->
+<g transform="translate(440,0)">
+
+<!-- HEAD back (with hair-line suggestion) -->
+<path d="M 198,40 Q 198,30 220,30 Q 242,30 242,40 L 246,72 Q 246,82 232,84 L 208,84 Q 194,82 194,72 Z" fill="url(#bodyShade)" stroke="#8d9d8d" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M 200,46 Q 220,38 240,46" stroke="#8d9d8d" stroke-width="0.8" fill="none" opacity="0.6"/>
+
+<!-- NECK -->
+<path d="M 207,95 L 233,95 L 235,118 L 205,118 Z" fill="url(#bodyShade)" stroke="#8d9d8d" stroke-width="1.5" stroke-linejoin="round"/>
+
+<!-- TORSO OUTLINE -->
+<path d="M 145,140 Q 175,118 205,118 L 235,118 Q 265,118 295,140 L 290,260 Q 285,300 260,330 Q 235,345 220,345 Q 205,345 180,330 Q 155,300 150,260 L 145,140 Z" fill="url(#bodyShade)" stroke="#8d9d8d" stroke-width="1.5" stroke-linejoin="round"/>
+
+<!-- DOS: trapèzes + lats V-shape -->
+<path class="map-muscle" data-muscle="dos" d="M 175,118 Q 220,108 245,118 L 295,160 Q 295,200 290,260 Q 280,295 245,318 L 220,320 L 195,318 Q 160,295 150,260 Q 145,200 145,160 Z" fill="transparent" stroke="#8d9d8d" stroke-width="1.5" style="cursor:pointer;transition:fill 0.3s;"/>
+<path d="M 200,200 Q 195,240 200,295" stroke="#8d9d8d" stroke-width="0.8" fill="none" opacity="0.5"/>
+<path d="M 240,200 Q 245,240 240,295" stroke="#8d9d8d" stroke-width="0.8" fill="none" opacity="0.5"/>
+
+<!-- TRICEPS -->
+<path class="map-muscle" data-muscle="triceps" d="M 148,160 Q 138,200 142,235 Q 148,260 158,258 Q 166,225 164,185 Q 162,168 158,162 Z" fill="transparent" stroke="#8d9d8d" stroke-width="1.5" style="cursor:pointer;transition:fill 0.3s;"/>
+<path class="map-muscle" data-muscle="triceps" d="M 292,160 Q 302,200 298,235 Q 292,260 282,258 Q 274,225 276,185 Q 278,168 282,162 Z" fill="transparent" stroke="#8d9d8d" stroke-width="1.5" style="cursor:pointer;transition:fill 0.3s;"/>
+
+<!-- FOREARMS back -->
+<path d="M 158,258 Q 152,290 148,335 Q 152,352 158,350 Q 162,310 162,278 Z" fill="url(#bodyShade)" stroke="#8d9d8d" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M 282,258 Q 288,290 292,335 Q 288,352 282,350 Q 278,310 278,278 Z" fill="url(#bodyShade)" stroke="#8d9d8d" stroke-width="1.5" stroke-linejoin="round"/>
+
+<!-- GLUTES: organic with center crease -->
+<path class="map-muscle" data-muscle="jambes" d="M 165,328 Q 158,360 172,400 Q 200,420 220,418 Q 240,420 268,400 Q 282,360 275,328 Q 250,322 220,322 Q 190,322 165,328 Z" fill="transparent" stroke="#8d9d8d" stroke-width="1.5" style="cursor:pointer;transition:fill 0.3s;"/>
+<path d="M 220,325 L 220,415" stroke="#8d9d8d" stroke-width="0.8" fill="none" opacity="0.55"/>
+
+<!-- HAMS -->
+<path class="map-muscle" data-muscle="jambes" d="M 175,418 Q 162,470 178,545 Q 188,562 202,555 Q 208,510 200,450 Q 196,425 188,418 Z" fill="transparent" stroke="#8d9d8d" stroke-width="1.5" style="cursor:pointer;transition:fill 0.3s;"/>
+<path class="map-muscle" data-muscle="jambes" d="M 265,418 Q 278,470 262,545 Q 252,562 238,555 Q 232,510 240,450 Q 244,425 252,418 Z" fill="transparent" stroke="#8d9d8d" stroke-width="1.5" style="cursor:pointer;transition:fill 0.3s;"/>
+
+<!-- CALVES back -->
+<path d="M 184,555 Q 174,592 180,615 Q 188,628 200,622 Q 206,598 200,565 Z" fill="url(#bodyShade)" stroke="#8d9d8d" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M 256,555 Q 266,592 260,615 Q 252,628 240,622 Q 234,598 240,565 Z" fill="url(#bodyShade)" stroke="#8d9d8d" stroke-width="1.5" stroke-linejoin="round"/>
+
+<!-- GROUND line -->
+<line x1="160" y1="630" x2="280" y2="630" stroke="#8d9d8d" stroke-width="1" opacity="0.35"/>
+</g>
+
+<text x="660" y="655" text-anchor="middle" font-size="11" font-weight="700" fill="#6c756c" font-family="Manrope,system-ui,sans-serif">ARRIÈRE</text>
+
+</svg>
+</div>
+
+<div id="mapLegend" style="margin-top:14px;"></div>
+
+</div>
+
+<div class="card" style="margin-top:14px">
+<h2 style="margin:0 0 12px;font-size:14px;">📋 Détail du muscle sélectionné</h2>
+<div id="mapDetailPanel">
+<p class="sub" style="text-align:center;padding:24px 0;margin:0;">👆 Tape sur un muscle pour voir le détail (charge, séances, exercices associés).</p>
 </div>
 </div>
 
@@ -1119,10 +1366,12 @@ Enregistrer
 
 </dialog>
 
-<script src="stats-gallery.js?v=14"></script>
-<script src="app.js?v=14"></script>
-<script src="ai-improved.js?v=14"></script>
-<script src="stats-progress.js?v=14"></script>
+<script src="stats-gallery.js?v=18"></script>
+<script src="app.js?v=18"></script>
+<script src="ai-improved.js?v=18"></script>
+<script src="stats-progress.js?v=18"></script>
+<script src="stats-extended.js?v=18"></script>
+<script src="quickmap.js?v=18"></script>
 
 
 </body>
