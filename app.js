@@ -3613,7 +3613,8 @@ function openQuickAccess(){
     const pages = {
         "1rm": "calculator",
         "map": "map",
-        "tony": "tony"
+        "tony": "tony",
+        "ghost": "ghost"
     };
     const page = pages[code];
     if(page){
@@ -3624,10 +3625,10 @@ function openQuickAccess(){
     }
     input.style.borderColor = "#ad4238";
     input.value = "";
-    input.placeholder = "Code inconnu — essaie 1RM ou MAP";
+    input.placeholder = "Code inconnu — essaie 1RM, MAP ou GHOST";
     setTimeout(() => {
         input.style.borderColor = "";
-        input.placeholder = "Entre le code 1RM ou MAP";
+        input.placeholder = "Entre le code 1RM, MAP ou GHOST";
     }, 2500);
 }
 

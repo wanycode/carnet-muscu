@@ -28,3 +28,58 @@
 .calendar-legend{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .calendar-legend span{font-size:11px;padding:8px 10px;justify-content:flex-start}
 }
+
+/* ============================================================
+   GHOST PROTOCOL \u2014 styles
+   ============================================================ */
+.ghost-card{display:block;margin-top:10px;font-family:Manrope,system-ui,sans-serif}
+.ghost-card-inner{background:linear-gradient(135deg,#f5f7f3 0%,#eaf2e6 100%);border:1px dashed #b8e94c;border-radius:10px;padding:9px 12px;font-size:11px;line-height:1.45;color:var(--ink)}
+.ghost-empty{color:var(--muted);font-style:italic;background:transparent;border-style:dotted}
+.ghost-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px;font-size:11px}
+.ghost-head strong{font-weight:700;color:var(--ink)}
+.ghost-verdict{font-weight:700;font-size:10px;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:9px;white-space:nowrap}
+.ghost-verdict.win{background:#dff0d2;color:#426e22}
+.ghost-verdict.loss{background:#fadcd8;color:#ad4238}
+.ghost-verdict.tie{background:#ecefe7;color:#7d8a78}
+.ghost-verdict.neutral{background:#f0f0e8;color:#7d8a78}
+.ghost-sets{display:flex;flex-direction:column;gap:3px}
+.ghost-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:4px 7px;border-radius:6px;font-size:11px;transition:background .2s ease}
+.ghost-row.ghost-win{background:#dff0d2}
+.ghost-row.ghost-loss{background:#fadcd8}
+.ghost-row.ghost-tie{background:#ecefe7}
+.ghost-row.ghost-extra{background:#e7eef3;border:1px dashed #aebda3}
+.ghost-row.ghost-missing{background:#f0eae7;border:1px dashed #c0b8a8}
+.ghost-set-label{color:var(--muted);font-weight:700;font-size:10px;min-width:22px;font-family:Manrope,system-ui,sans-serif}
+.ghost-line{flex:1;min-width:140px;display:flex;flex-wrap:wrap;gap:5px;align-items:baseline}
+.ghost-you{font-weight:700;color:var(--ink);font-size:12px;font-family:'JetBrains Mono',monospace}
+.ghost-vs{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+.ghost-them{color:#7d8a78;font-weight:600;font-family:'JetBrains Mono',monospace}
+.ghost-delta{font-size:10px;color:#426e22;font-weight:700;background:#ffffff66;padding:1px 5px;border-radius:5px}
+.ghost-row.ghost-loss .ghost-delta{color:#ad4238}
+.ghost-icon{margin-left:auto;font-size:13px;line-height:1}
+.ghost-dashboard{max-width:780px;margin:0 auto}
+.ghost-hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:11px;margin:14px 0 18px}
+.ghost-stat{background:#fbfcfa;border:1px solid #dce2d9;border-radius:10px;padding:13px 9px;text-align:center;transition:all .2s ease}
+.ghost-stat:hover{border-color:#b8e94c;background:#fff}
+.ghost-stat b{display:block;font-size:24px;color:var(--ink);line-height:1.05;font-family:'JetBrains Mono',monospace;margin-bottom:4px}
+.ghost-stat span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block}
+.ghost-stat.big b{font-size:28px}
+.ghost-stat.win b{color:#426e22}
+.ghost-stat.loss b{color:#ad4238}
+.ghost-stat.tie b{color:#7d8a78}
+.ghost-section{margin-bottom:18px}
+.ghost-section-head{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:7px}
+.ghost-battle{background:#fbfcfa;border:1px solid #dce2d9;border-radius:10px;padding:10px 12px;margin-bottom:7px;transition:all .25s ease;cursor:default}
+.ghost-battle:hover{border-color:#b8e94c;background:#fff;transform:translateY(-1px)}
+.ghost-battle.win{border-left:3px solid #b8e94c}
+.ghost-battle.loss{border-left:3px solid #ad4238}
+.ghost-battle.tie{border-left:3px solid #aebda3}
+.ghost-battle-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;flex-wrap:wrap;gap:6px}
+.ghost-battle-name{font-weight:700;color:var(--ink);font-size:13px}
+.ghost-battle-meta{font-size:10px;color:var(--muted)}
+.ghost-battle-score{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;align-items:center;color:var(--muted);margin-bottom:6px}
+.ghost-battle-score b{font-size:13px;color:var(--ink);margin-right:2px}
+.ghost-battle-verdict{margin-left:auto;font-size:10px;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:8px;letter-spacing:.04em}
+.ghost-battle-verdict.win{background:#dff0d2;color:#426e22}
+.ghost-battle-verdict.loss{background:#fadcd8;color:#ad4238}
+.ghost-battle-verdict.tie{background:#ecefe7;color:#7d8a78}

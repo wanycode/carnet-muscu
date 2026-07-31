@@ -1401,7 +1401,7 @@ Enregistrer
 <script src="stats-progress.js?v=27"></script>
 <script src="stats-extended.js?v=27"></script>
 <script src="quickmap.js?v=27"></script>
-<script src="quickghost.js?v=55"></script>
+<script src="quickghost.js?v=50"></script>
 
 
 </body>
