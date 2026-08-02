@@ -83,3 +83,144 @@
 .ghost-battle-verdict.win{background:#dff0d2;color:#426e22}
 .ghost-battle-verdict.loss{background:#fadcd8;color:#ad4238}
 .ghost-battle-verdict.tie{background:#ecefe7;color:#7d8a78}
+
+/* ============================================================
+   ENHANCEMENTS BATCH 1 — added 2026-08-02 (patched)
+   ------------------------------------------------------------
+   To REVERT: delete from this "ENHANCEMENTS BATCH 1" comment
+   block down to (and including) the "END ENHANCEMENTS BATCH 1"
+   marker below. CSS only, no JS touched.
+   ============================================================ */
+
+/* (a) Theme tokens (additive — new vars are inert until used) */
+:root {
+  --red: #ad4238;
+  --green-text: #426e22;
+  --lime-border: #b8e94c;
+  --line-dark: #dce2d9;
+  --bg-card: #fbfcfa;
+  --shadow-card: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+/* (b) Card hover lift — pure additive on .card (transition + transform + shadow) */
+.card {
+  transition: transform .15s ease-out, box-shadow .15s ease-out;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+
+/* (c) Keyboard focus visibility (a11y WCAG 2.1 SC 1.4.11)
+   Lime alone fails 3:1 contrast; pair dark outline + lime halo (3-color combo gives
+   readable contrast on both white & dark surfaces). */
+button:focus-visible, a:focus-visible, .btn:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(213,255,62,0.55);
+  border-radius: 6px;
+}
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(213,255,62,0.35);
+}
+
+/* (d) Calendar day-emoji badge — circle lime halo + bounded size for mobile grids */
+.day-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(213,255,62,0.18);
+  min-width: 22px;
+  min-height: 22px;
+  max-width: 28px;
+  max-height: 28px;
+  border-radius: 50%;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.day-cell.empty .day-emoji {
+  display: none;
+}
+
+/* (e) 44px touch target on form edit buttons — MOBILE ONLY
+   - Scope to <=760px so .remove/.delete inside .logged tables and .footer keep their
+     normal compact height on desktop.
+   - Exclude .remove and .delete (used inside table cells, would inflate row heights). */
+@media (max-width: 760px) {
+  .addset, .add-dropset, .add-set, .remove-set, .add-exercise, .remove-exercise {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ============================================================
+   END ENHANCEMENTS BATCH 1
+   ============================================================ */
+
+/* (a) Theme tokens (additive — new vars are inert until used) */
+:root {
+  --red: #ad4238;
+  --green-text: #426e22;
+  --lime-border: #b8e94c;
+  --line-dark: #dce2d9;
+  --bg-card: #fbfcfa;
+  --shadow-card: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+/* (b) Card hover lift — applies to .card, comes AFTER existing rules so it wins via cascade for the new props only (transform, box-shadow, transition). Doesn't override the existing border/padding from .card{...} earlier. */
+.card {
+  transition: transform .15s ease-out, box-shadow .15s ease-out;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+
+/* (c) Keyboard focus visibility (a11y) — fires only on keyboard nav (focus-visible), no change for mouse clicks */
+button:focus-visible, a:focus-visible, .btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid var(--lime);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* (d) Calendar day-emoji badge — circle lime halo for glanceability */
+.day-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(213,255,62,0.18);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  line-height: 1;
+}
+/* Hide the badge for empty day cells */
+.day-cell.empty .day-emoji {
+  background: transparent;
+  width: 0;
+  height: 0;
+}
+
+/* (e) 44px touch target on form edit buttons (Apple HIG / Material Design baseline) */
+.addset, .remove, .remove-exercise, .add-exercise, .add-dropset, .add-set, .remove-set, .delete {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* (f) Lime border on focused inputs (strengthens existing border without removing it) */
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  border-color: var(--lime);
+}
+
+/* ============================================================
+   END ENHANCEMENTS BATCH 1
+   ============================================================ */

@@ -71,8 +71,9 @@
         var groups = [];
         // pecs
         if (/pec|bench|bench press|développé couché|dev.*bar|chest press|push up|pompe/.test(n)) groups.push("pecs");
-        // biceps
-        if (/bicep|curl/.test(n)) groups.push("biceps");
+        // biceps (exclure les leg-curls qui contiennent "curl" + leg keyword)
+        var isLegExercise = /leg\s*curl|legcurl|leg-|jamb|ischio|hamstring|moll|quad\b|quadriceps|fessier|glute|femoral|mollet/.test(n);
+        if ((/bicep/.test(n)) || (/curl/.test(n) && !isLegExercise)) groups.push("biceps");
         // triceps
         if (/tricep|extension|barre au front|skull crusher|press.*serré/.test(n)) groups.push("triceps");
         // dos

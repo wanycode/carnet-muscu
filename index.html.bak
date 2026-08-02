@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carnet Muscu</title>
 
-    <link rel="stylesheet" href="styles.css?v=21">
+    <link rel="stylesheet" href="styles.css?v=62">
     
     <!-- Icône pour appli web -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -21,6 +21,15 @@
 <style>
 .next-tips{margin-top:14px;max-width:620px;padding:11px 13px;border-left:3px solid var(--lime);background:#ffffff12;border-radius:0 8px 8px 0;font-size:12px;color:#e0e9df}.next-tips strong{font-size:11px;text-transform:uppercase;letter-spacing:.04em}.next-tips p{margin:7px 0 0!important;color:#e0e9df!important}.next-tips b{color:white}
 .history-tip{margin-top:6px;font-size:11px;line-height:1.4;color:var(--muted)}.history-tip strong{color:var(--ink)}
+.map-muscle{cursor:pointer;transition:all 0.3s ease}
+.map-muscle:hover{filter:brightness(1.1);transform:scale(1.02)}
+.map-muscle.active{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+.map-muscle.high-intensity{filter:drop-shadow(0 0 8px rgba(76,175,80,0.6))}
+.map-muscle.medium-intensity{filter:drop-shadow(0 0 4px rgba(255,152,0,0.4))}
+.map-muscle.low-intensity{filter:drop-shadow(0 0 2px rgba(158,158,158,0.3))}
+.muscle-tooltip{position:absolute;background:rgba(0,0,0,0.85);color:white;padding:8px 12px;border-radius:6px;font-size:12px;pointer-events:none;z-index:1000;max-width:200px}
+.muscle-tooltip strong{display:block;margin-bottom:4px;color:var(--lime)}
 </style>
 </head>
 
@@ -199,7 +208,6 @@ Records
 
 <div>
 
-
 <h2>
 
 Dernière activité
@@ -304,6 +312,52 @@ D
 
 </div>
 
+<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);">
+<p style="margin:0;font-size:11px;color:var(--muted);"><strong>Nouvelles capacités IA :</strong></p>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+<span style="font-size:10px;padding:4px 8px;background:#f7f8f5;border-radius:4px;">🔮 Prédiction de performance</span>
+<span style="font-size:10px;padding:4px 8px;background:#f7f8f5;border-radius:4px;">🔄 Deload intelligent</span>
+<span style="font-size:10px;padding:4px 8px;background:#f7f8f5;border-radius:4px;">⚠️ Analyse de forme</span>
+<span style="font-size:10px;padding:4px 8px;background:#f7f8f5;border-radius:4px;">📝 Tes notes intégrées</span>
+</div>
+</div>
+
+</div>
+
+<div class="card" style="margin-top:16px;">
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+
+<h2 style="margin:0;">🌍 Classements mondiaux</h2>
+
+</div>
+
+<div id="globalRankings" style="font-size:13px;">
+<!-- Rempli par JS -->
+</div>
+
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-top:14px;">
+
+<div class="card">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+<h2 style="margin:0;">🔮 Forme du jour</h2>
+</div>
+<div id="dailyFormPrediction" style="text-align:center;">
+<!-- Rempli par JS -->
+</div>
+</div>
+
+<div class="card">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+<h2 style="margin:0;">⏰ Comparaison temporelle</h2>
+</div>
+<div id="temporalComparison" style="font-size:13px;">
+<!-- Rempli par JS -->
+</div>
+</div>
+
 </div>
 
 <div class="card" style="margin-top:16px;">
@@ -323,8 +377,6 @@ D
 </div>
 
 <p class="sub" style="margin:9px 0 0;font-size:12px;">Codes disponibles : <b>1RM</b>, <b>MAP</b>, <b>GHOST</b>.</p>
-
-
 
 </div>
 
@@ -406,11 +458,9 @@ Remplis tes performances après ton entraînement.
 
 </header>
 
-
 <div class="log">
 
 <div class="card form">
-
 
 <label>
 
@@ -419,7 +469,6 @@ Date de la séance
 <input type="date" id="sessionDate">
 
 </label>
-
 
 <label>
 
@@ -439,7 +488,6 @@ Choisir une séance
     ⚡ Mode rapide Épaules-Abdos
   </button>
 </div>
-
 
 <div id="exerciseLogger">
 
@@ -467,11 +515,9 @@ Choisir une séance
 
 </div>
 
-
 </div>
 
 </div>
-
 
 <label>
 
@@ -485,7 +531,6 @@ placeholder="Énergie, sensations, douleurs, remarques...">
 
 </label>
 
-
 <div class="footer">
 
 <button
@@ -495,7 +540,6 @@ id="cancelLog">
 Annuler
 
 </button>
-
 
 <button
 class="btn lime"
@@ -507,10 +551,7 @@ Enregistrer la séance
 
 </div>
 
-
 </div>
-
-
 
 <div class="card summary">
 
@@ -519,7 +560,6 @@ Enregistrer la séance
 Résumé
 
 </h2>
-
 
 <p>
 
@@ -533,7 +573,6 @@ Exercices :
 
 </p>
 
-
 <p>
 
 Séries :
@@ -545,7 +584,6 @@ Séries :
 </b>
 
 </p>
-
 
 <p>
 
@@ -559,9 +597,7 @@ Volume :
 
 </p>
 
-
 <hr>
-
 
 <p>
 
@@ -570,24 +606,17 @@ Cette séance sera ajoutée à ton historique.
 
 </p>
 
-
 </div>
 
-
 </div>
-
 
 </section>
 
-
-
 <!-- ================= HISTORIQUE ================= -->
-
 
 <section
 id="history"
 class="hidden">
-
 
 <header>
 
@@ -597,13 +626,11 @@ class="hidden">
 HISTORIQUE
 </p>
 
-
 <h1>
 
 Tes séances
 
 </h1>
-
 
 <p class="sub">
 
@@ -611,11 +638,9 @@ Toutes tes séances réalisées.
 
 </p>
 
-
 </div>
 
 </header>
-
 
 <div
 class="card history"
@@ -629,12 +654,7 @@ Aucune séance enregistrée.
 
 </div>
 
-
-
 </section>
-
-
-
 
 <!-- ================= CALENDRIER ================= -->
 
@@ -698,14 +718,11 @@ Clique sur un jour pour voir ta séance et l’emoji muscle.
 
 </section>
 
-
-
 <!-- ================= PROGRESSION ================= -->
 
 <section
 id="progress"
 class="hidden">
-
 
 <header>
 
@@ -717,13 +734,11 @@ PROGRESSION
 
 </p>
 
-
 <h1>
 
 Évolution
 
 </h1>
-
 
 <p class="sub">
 
@@ -731,29 +746,21 @@ Suis tes charges et ton volume.
 
 </p>
 
-
 </div>
 
 </header>
 
-
-
 <div class="card chart">
-
 
 <label>
 
 Choisir un exercice
 
-
 <select id="exerciseProgress">
 
 </select>
 
-
 </label>
-
-
 
 <div
 class="chartBox"
@@ -761,10 +768,7 @@ id="chartBox">
 
 </div>
 
-
-
 </div>
-
 
 </section>
 
@@ -826,6 +830,23 @@ id="chartBox">
 <b id="recordsBeatCount" style="font-size:32px;color:var(--lime)">0</b>
 <p class="sub" style="margin-top:8px">Records améliorés</p>
 </div>
+</div>
+
+<!-- ============ ÉVOLUTION CORPORELLE 3D ============ -->
+<div class="card" style="margin-top:26px;">
+  <h2 style="margin:0;">🧬 Évolution corporelle</h2>
+  <p class="sub" style="font-size:11px;margin-top:6px;">Compare ton volume d'entraînement par groupe musculaire entre deux périodes. Hover un muscle pour le détail.</p>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:14px 0 8px;">
+    <div id="timeComparisonHeadline"></div>
+    <select id="timeComparisonSelect" style="padding:6px 10px;border:1px solid var(--line);border-radius:6px;font:12px Manrope;background:#fbfdf8;">
+      <option value="1month">30j récents vs 30j précédents</option>
+      <option value="3months">3 mois récents vs 3 mois précédents</option>
+      <option value="6months">6 mois récents vs 6 mois précédents</option>
+      <option value="1year">1 an récent vs 1 an précédent</option>
+    </select>
+  </div>
+  <div id="temporalComparison3D" style="text-align:center;padding:14px 0;"></div>
+  <div id="timeComparisonLegend" style="margin-top:4px;"></div>
 </div>
 
 <!-- ============ RÉGULARITÉ & PRÉSENCE ============ -->
@@ -908,11 +929,6 @@ id="chartBox">
 </div>
 
 <div class="card" style="margin-top:14px">
-<h2>📈 Volume sur 8 semaines</h2>
-<div id="volumeTrend" style="display:grid;grid-template-columns:repeat(8,minmax(28px,1fr));gap:10px;align-items:end;height:210px;margin-top:18px;"></div>
-</div>
-
-<div class="card" style="margin-top:14px">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
 <h2 style="margin:0;">📊 Progression par exercice</h2>
 <select id="exerciseProgressSelect" style="padding:8px;border:1px solid #dce2d9;background:#fbfcfa;border-radius:7px;font:13px Manrope;">
@@ -922,6 +938,12 @@ id="chartBox">
 <div id="exerciseProgressChart" style="height:250px;display:flex;gap:8px;align-items:end;border-bottom:1px solid var(--line);padding:0 10px;">
 <div class="empty" style="width:100%;text-align:center;padding:40px;">Sélectionne un exercice pour voir ta progression</div>
 </div>
+</div>
+<div class="card" style="margin-top:14px">
+<h2>📈 Volume sur 8 semaines</h2>
+<div id="volumeTrend" style="display:grid;grid-template-columns:repeat(8,minmax(28px,1fr));gap:10px;align-items:end;height:210px;margin-top:18px;"></div>
+</div>
+
 </div>
 
 </section>
@@ -1179,8 +1201,6 @@ Calculer et sauvegarder
   </div>
 </section>
 
-
-
 <!-- ================= GHOST PROTOCOL ================= -->
 
 <section
@@ -1234,18 +1254,11 @@ Retour au dashboard
   <a href="#" data-page="stats">Stats</a>
 </nav>
 
-
-
-
-
 <!-- ================= MODAL PROGRAMME ================= -->
-
 
 <dialog id="programModal">
 
-
 <form method="dialog">
-
 
 <button
 class="close">
@@ -1254,13 +1267,11 @@ class="close">
 
 </button>
 
-
 <h2>
 
 Modifier le programme
 
 </h2>
-
 
 <p class="sub">
 
@@ -1268,16 +1279,11 @@ Ajoute ou modifie tes exercices.
 
 </p>
 
-
-
 <div id="programEditor">
 
 </div>
 
-
-
 <div class="actions">
-
 
 <button
 class="btn"
@@ -1287,8 +1293,6 @@ Annuler
 
 </button>
 
-
-
 <button
 class="btn lime"
 id="saveProgram">
@@ -1297,12 +1301,9 @@ Sauvegarder
 
 </button>
 
-
 </div>
 
-
 </form>
-
 
 </dialog>
 
@@ -1395,14 +1396,13 @@ Enregistrer
 
 </dialog>
 
-<script src="stats-gallery.js?v=27"></script>
-<script src="app.js?v=27"></script>
-<script src="ai-improved.js?v=27"></script>
-<script src="stats-progress.js?v=27"></script>
-<script src="stats-extended.js?v=27"></script>
-<script src="quickmap.js?v=27"></script>
-<script src="quickghost.js?v=50"></script>
-
+<script src="stats-gallery.js?v=60"></script>
+<script src="app.js?v=60"></script>
+<script src="ai-improved.js?v=60"></script>
+<script src="stats-progress.js?v=60"></script>
+<script src="stats-extended.js?v=60"></script>
+<script src="quickmap.js?v=60"></script>
+<script src="quickghost.js?v=65"></script>
 
 </body>
 

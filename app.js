@@ -49,13 +49,35 @@ function getExerciseDisplayName(name) {
 function getWorkoutMuscleKey(workoutName) {
     const name = normalizeExerciseName(workoutName);
     const muscles = [];
-    if(name.includes("pec") || name.includes("chest")) muscles.push("pecs");
-    if(name.includes("bicep")) muscles.push("biceps");
-    if(name.includes("tricep")) muscles.push("triceps");
-    if(name.includes("dos") || name.includes("back")) muscles.push("dos");
-    if(name.includes("epaule") || name.includes("shoulder")) muscles.push("epaules");
-    if(name.includes("abdo") || name.includes("core")) muscles.push("abdos");
-    if(name.includes("leg") || name.includes("jambe") || name.includes("quad")) muscles.push("jambes");
+    
+    // Pecs
+    if(name.includes("pec") || name.includes("chest") || name.includes("developpe") || name.includes("dc") || name.includes("bench") || name.includes("pomp")) muscles.push("pecs");
+    
+    // Biceps (exclure les exercices de jambes qui contiennent "curl")
+    if(name.includes("bicep") || (name.includes("curl") && !name.includes("leg") && !name.includes("jambe") && !name.includes("ischio") && !name.includes("hamstring"))) muscles.push("biceps");
+    
+    // Triceps
+    if(name.includes("tricep") || name.includes("extension") || name.includes("dip") || name.includes("pushdown")) muscles.push("triceps");
+    
+    // Dos
+    if(name.includes("dos") || name.includes("back") || name.includes("traction") || name.includes("tirage") || name.includes("row") || name.includes("lat")) muscles.push("dos");
+    
+    // Épaules
+    if(name.includes("epaule") || name.includes("shoulder") || name.includes("military") || name.includes("elevation") || name.includes("lateral") || name.includes("press") && !name.includes("bench")) muscles.push("epaules");
+    
+    // Abdos
+    if(name.includes("abdo") || name.includes("core") || name.includes("crunch") || name.includes("plank") || name.includes("gainage") || name.includes("situp")) muscles.push("abdos");
+    
+    // Jambes (plus précis pour éviter les confusions)
+    if(name.includes("leg") || name.includes("jambe") || name.includes("quad") || name.includes("squat") || name.includes("presse") || name.includes("fessier") || name.includes("glute") || name.includes("ischio") || name.includes("hamstring") || name.includes("calf") || name.includes("mollet")) muscles.push("jambes");
+    
+    // Cas spécifiques pour éviter les mauvaises associations
+    if(name.includes("legcurl") || name.includes("leg curl") || name.includes("curl") && (name.includes("leg") || name.includes("jambe"))) {
+        // Retirer biceps si c'est un leg curl
+        const bicepsIndex = muscles.indexOf("biceps");
+        if(bicepsIndex > -1) muscles.splice(bicepsIndex, 1);
+    }
+    
     return muscles.sort().join("-") || name;
 }
 
@@ -74,6 +96,79 @@ function getTipsForWorkout(workoutName) {
             });
         });
     return tips;
+}
+
+function analyzeFormAndTechnique() {
+    const analysis = {
+        issues: [],
+        patterns: [],
+        recommendations: []
+    };
+
+    if (data.sessions.length < 5) return analysis;
+
+    // Analyser les notes pour détecter des problèmes de forme
+    const formKeywords = {
+        douleur: ['douleur', 'mal', 'blessure', 'picotement', 'engourdi', 'tension'],
+        technique: ['technique', 'forme', 'amplitude', 'contrôle', 'stabilité'],
+        fatigue: ['fatigué', 'épuisé', 'faible', 'manque', 'difficile'],
+        progression: ['progression', 'amélioration', 'facile', 'léger', 'simple']
+    };
+
+    data.sessions.slice(-10).forEach(session => {
+        const note = (session.note || "").toLowerCase();
+        Object.keys(formKeywords).forEach(category => {
+            formKeywords[category].forEach(keyword => {
+                if (note.includes(keyword)) {
+                    analysis.patterns.push({
+                        type: category,
+                        keyword: keyword,
+                        date: session.date,
+                        context: note
+                    });
+                }
+            });
+        });
+    });
+
+    // Détecter les problèmes récurrents
+    const issueCounts = {};
+    analysis.patterns.forEach(pattern => {
+        if (pattern.type === 'douleur') {
+            issueCounts['douleur'] = (issueCounts['douleur'] || 0) + 1;
+        }
+    });
+
+    if (issueCounts['douleur'] >= 2) {
+        analysis.issues.push({
+            severity: 'high',
+            message: 'Douleurs récurrentes détectées dans tes séances récentes',
+            recommendation: 'Considère de réduire l\'intensité ou de consulter un professionnel'
+        });
+    }
+
+    // Analyser la régularité des exercices pour détecter les déséquilibres
+    const exerciseFrequency = {};
+    data.sessions.forEach(session => {
+        session.exercises.forEach(ex => {
+            const key = normalizeExerciseName(ex.name);
+            exerciseFrequency[key] = (exerciseFrequency[key] || 0) + 1;
+        });
+    });
+
+    const totalExercises = Object.values(exerciseFrequency).reduce((a, b) => a + b, 0);
+    Object.entries(exerciseFrequency).forEach(([ex, count]) => {
+        const percentage = (count / totalExercises) * 100;
+        if (percentage > 40) {
+            analysis.issues.push({
+                severity: 'medium',
+                message: `Sur-entraînement potentiel sur ${ex}`,
+                recommendation: 'Équilibre ton programme avec d\'autres exercices'
+            });
+        }
+    });
+
+    return analysis;
 }
 
 function getStagnantExercisesForWorkout(workoutName) {
@@ -1001,6 +1096,667 @@ function renderWeeklyBars(){
     });
 }
 
+function renderGlobalRankings() {
+    const container = document.getElementById("globalRankings");
+    if(!container) return;
+
+    // Calculer les stats de l'utilisateur
+    const userStats = {
+        totalVolume: data.sessions.reduce((sum, s) => sum + calculateVolume(s), 0),
+        totalSessions: data.sessions.length,
+        weekVolume: getWeekSessions().reduce((sum, s) => sum + calculateVolume(s), 0),
+        best1RM: Math.max(...maxData.records.map(r => r.estimated1RM), 0),
+        consistency: calculateConsistency()
+    };
+
+    // Simuler des données globales (dans une vraie app, ça viendrait d'un serveur)
+    const globalStats = generateGlobalStats(userStats);
+
+    // Calculer les percentiles
+    const volumePercentile = calculatePercentile(userStats.totalVolume, globalStats.totalVolumes);
+    const sessionPercentile = calculatePercentile(userStats.totalSessions, globalStats.totalSessions);
+    const consistencyPercentile = calculatePercentile(userStats.consistency, globalStats.consistencies);
+    const globalScore = Math.floor((volumePercentile + sessionPercentile + consistencyPercentile) / 3);
+
+    container.innerHTML = `
+        <div style="text-align:center;padding:16px;background:linear-gradient(135deg,#f7f8f5 0%,#e8f5e9 100%);border-radius:12px;border:2px solid var(--lime);">
+            <div style="font-size:48px;font-weight:800;color:var(--lime);margin-bottom:4px;">${globalScore}%</div>
+            <div style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;">Ton rang mondial</div>
+            <div style="font-size:12px;color:var(--muted);">
+                Tu es mieux que <b>${globalScore}%</b> des ${formatNumber(globalStats.totalUsers)} utilisateurs
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;">
+            <div style="text-align:center;padding:8px;background:#f7f8f5;border-radius:6px;">
+                <b style="display:block;font-size:16px;color:var(--lime);">${volumePercentile}%</b>
+                <span style="font-size:10px;color:var(--muted);">Volume</span>
+            </div>
+            <div style="text-align:center;padding:8px;background:#f7f8f5;border-radius:6px;">
+                <b style="display:block;font-size:16px;color:var(--lime);">${sessionPercentile}%</b>
+                <span style="font-size:10px;color:var(--muted);">Séances</span>
+            </div>
+            <div style="text-align:center;padding:8px;background:#f7f8f5;border-radius:6px;">
+                <b style="display:block;font-size:16px;color:var(--lime);">${consistencyPercentile}%</b>
+                <span style="font-size:10px;color:var(--muted);">Régularité</span>
+            </div>
+        </div>
+    `;
+}
+
+function generateGlobalStats(userStats) {
+    // Simuler une distribution réaliste basée sur les stats de l'utilisateur
+    const baseVolume = userStats.totalVolume || 10000;
+    const baseSessions = userStats.totalSessions || 10;
+    const baseConsistency = userStats.consistency || 50;
+
+    const totalUsers = Math.floor(Math.random() * 50000) + 100000; // 100k-150k utilisateurs
+
+    // Générer des distributions normales
+    const totalVolumes = Array.from({length: 1000}, () => {
+        const mean = baseVolume * 0.8;
+        const std = baseVolume * 0.4;
+        return Math.max(0, normalRandom(mean, std));
+    });
+
+    const totalSessions = Array.from({length: 1000}, () => {
+        const mean = baseSessions * 0.9;
+        const std = baseSessions * 0.5;
+        return Math.max(0, Math.round(normalRandom(mean, std)));
+    });
+
+    const consistencies = Array.from({length: 1000}, () => {
+        const mean = baseConsistency * 0.85;
+        const std = 20;
+        return Math.max(0, Math.min(100, Math.round(normalRandom(mean, std))));
+    });
+
+    return { totalUsers, totalVolumes, totalSessions, consistencies };
+}
+
+function normalRandom(mean, std) {
+    // Box-Muller transform pour distribution normale
+    const u1 = Math.random();
+    const u2 = Math.random();
+    const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    return z * std + mean;
+}
+
+function calculatePercentile(value, distribution) {
+    const sorted = [...distribution].sort((a, b) => a - b);
+    const index = sorted.findIndex(v => v >= value);
+    if (index === -1) return 100;
+    return Math.round((index / sorted.length) * 100);
+}
+
+function calculateConsistency() {
+    if (data.sessions.length < 4) return 0;
+
+    const last4Weeks = [];
+    for (let i = 0; i < 4; i++) {
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - (i * 7));
+        const weekEnd = new Date(weekAgo);
+        weekEnd.setDate(weekEnd.getDate() + 7);
+
+        const weekSessions = data.sessions.filter(s => {
+            const sessionDate = new Date(s.date);
+            return sessionDate >= weekAgo && sessionDate < weekEnd;
+        });
+
+        last4Weeks.push(weekSessions.length);
+    }
+
+    // Calculer la variance
+    const mean = last4Weeks.reduce((a, b) => a + b, 0) / last4Weeks.length;
+    const variance = last4Weeks.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / last4Weeks.length;
+    const stdDev = Math.sqrt(variance);
+
+    // Plus l'écart-type est faible, plus la consistance est élevée
+    const maxStdDev = 2; // Considéré comme très inconsistant
+    const consistencyScore = Math.max(0, 100 - (stdDev / maxStdDev) * 100);
+
+    return Math.round(consistencyScore);
+}
+
+function renderDailyFormPrediction() {
+    const container = document.getElementById("dailyFormPrediction");
+    if(!container) return;
+
+    if (data.sessions.length < 3) {
+        container.innerHTML = `<p class="sub" style="padding:20px 0;">Ajoute 3+ séances pour l'analyse de forme</p>`;
+        return;
+    }
+
+    // Calculer le score de forme basé sur plusieurs facteurs
+    const recentSessions = data.sessions.slice(-5);
+    const volumes = recentSessions.map(s => calculateVolume(s));
+    const avgVolume = volumes.reduce((a, b) => a + b, 0) / volumes.length;
+    const lastVolume = volumes[volumes.length - 1];
+    
+    // Tendance du volume
+    const volumeTrend = lastVolume > avgVolume * 1.1 ? 1 : lastVolume < avgVolume * 0.9 ? -1 : 0;
+    
+    // Fréquence récente
+    const last7Days = data.sessions.filter(s => {
+        const sessionDate = new Date(s.date);
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return sessionDate >= weekAgo;
+    }).length;
+    
+    // Analyse des notes pour détecter la fatigue
+    const fatigueKeywords = ['fatigué', 'épuisé', 'faible', 'difficile', 'lourd'];
+    let fatigueScore = 0;
+    recentSessions.forEach(session => {
+        const note = (session.note || "").toLowerCase();
+        fatigueKeywords.forEach(keyword => {
+            if (note.includes(keyword)) fatigueScore++;
+        });
+    });
+    
+    // Calculer le score de forme (0-100)
+    let formScore = 75; // Base
+    
+    // Ajustement selon la tendance
+    formScore += volumeTrend * 10;
+    
+    // Ajustement selon la fréquence (3-4 séances/semaine est optimal)
+    if (last7Days >= 3 && last7Days <= 4) formScore += 5;
+    else if (last7Days >= 5) formScore -= 10; // Sur-entraînement potentiel
+    else if (last7Days === 0) formScore -= 5; // Sous-entraînement
+    
+    // Ajustement selon la fatigue
+    formScore -= fatigueScore * 5;
+    
+    // Limiter entre 0 et 100
+    formScore = Math.max(0, Math.min(100, formScore));
+    
+    // Déterminer le niveau de forme
+    let formLevel = "";
+    let formEmoji = "";
+    let formColor = "";
+    
+    if (formScore >= 85) {
+        formLevel = "Excellente";
+        formEmoji = "🔥";
+        formColor = "var(--lime)";
+    } else if (formScore >= 70) {
+        formLevel = "Bonne";
+        formEmoji = "💪";
+        formColor = "#4CAF50";
+    } else if (formScore >= 50) {
+        formLevel = "Moyenne";
+        formEmoji = "😐";
+        formColor = "#FF9800";
+    } else if (formScore >= 30) {
+        formLevel = "Fatigué";
+        formEmoji = "😴";
+        formColor = "#FF5722";
+    } else {
+        formLevel = "Épuisé";
+        formEmoji = "⚠️";
+        formColor = "#F44336";
+    }
+    
+    container.innerHTML = `
+        <div style="font-size:48px;margin-bottom:8px;">${formEmoji}</div>
+        <div style="font-size:32px;font-weight:800;color:${formColor};margin-bottom:4px;">${formScore}%</div>
+        <div style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:12px;">Forme : ${formLevel}</div>
+        <div style="font-size:11px;color:var(--muted);">
+            ${formScore >= 70 ? "Top condition pour performer !" : formScore >= 50 ? "Condition correcte, tu peux t'entraîner" : "Considère du repos ou alléger l'intensité"}
+        </div>
+    `;
+}
+
+function renderTemporalComparison() {
+    const container = document.getElementById("temporalComparison");
+    if(!container) return;
+
+    if (data.sessions.length < 10) {
+        container.innerHTML = `<p class="sub" style="padding:20px 0;">Ajoute 10+ séances pour la comparaison temporelle</p>`;
+        return;
+    }
+
+    const now = new Date();
+    const oneMonthAgo = new Date(now);
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    
+    const threeMonthsAgo = new Date(now);
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    
+    // Calculer les stats pour différentes périodes
+    const currentPeriod = data.sessions.filter(s => new Date(s.date) >= oneMonthAgo);
+    const previousPeriod = data.sessions.filter(s => {
+        const date = new Date(s.date);
+        return date >= threeMonthsAgo && date < oneMonthAgo;
+    });
+    
+    const currentVolume = currentPeriod.reduce((sum, s) => sum + calculateVolume(s), 0);
+    const previousVolume = previousPeriod.reduce((sum, s) => sum + calculateVolume(s), 0);
+    
+    const currentSessions = currentPeriod.length;
+    const previousSessions = previousPeriod.length;
+    
+    // Calculer la progression
+    const volumeProgress = previousVolume > 0 ? ((currentVolume - previousVolume) / previousVolume) * 100 : 0;
+    const sessionProgress = previousSessions > 0 ? ((currentSessions - previousSessions) / previousSessions) * 100 : 0;
+    
+    // Calculer la force moyenne (meilleures charges)
+    const currentMaxWeights = [];
+    const previousMaxWeights = [];
+    
+    currentPeriod.forEach(session => {
+        session.exercises.forEach(ex => {
+            const maxWeight = Math.max(...ex.sets.map(s => Number(s.weight) || 0));
+            if (maxWeight > 0) currentMaxWeights.push(maxWeight);
+        });
+    });
+    
+    previousPeriod.forEach(session => {
+        session.exercises.forEach(ex => {
+            const maxWeight = Math.max(...ex.sets.map(s => Number(s.weight) || 0));
+            if (maxWeight > 0) previousMaxWeights.push(maxWeight);
+        });
+    });
+    
+    const currentAvgWeight = currentMaxWeights.length > 0 
+        ? currentMaxWeights.reduce((a, b) => a + b, 0) / currentMaxWeights.length 
+        : 0;
+    const previousAvgWeight = previousMaxWeights.length > 0 
+        ? previousMaxWeights.reduce((a, b) => a + b, 0) / previousMaxWeights.length 
+        : 0;
+    
+    const weightProgress = previousAvgWeight > 0 
+        ? ((currentAvgWeight - previousAvgWeight) / previousAvgWeight) * 100 
+        : 0;
+    
+    container.innerHTML = `
+        <div style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:12px;color:var(--muted);">Volume total</span>
+                <span style="font-size:12px;font-weight:600;">${volumeProgress >= 0 ? '+' : ''}${volumeProgress.toFixed(1)}%</span>
+            </div>
+            <div style="height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:${Math.min(100, Math.max(0, 50 + volumeProgress))}%;background:${volumeProgress >= 0 ? 'var(--lime)' : '#F44336'};transition:width 0.3s;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">
+                ${formatNumber(currentVolume)} kg vs ${formatNumber(previousVolume)} kg
+            </div>
+        </div>
+        
+        <div style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:12px;color:var(--muted);">Fréquence</span>
+                <span style="font-size:12px;font-weight:600;">${sessionProgress >= 0 ? '+' : ''}${sessionProgress.toFixed(1)}%</span>
+            </div>
+            <div style="height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:${Math.min(100, Math.max(0, 50 + sessionProgress))}%;background:${sessionProgress >= 0 ? 'var(--lime)' : '#F44336'};transition:width 0.3s;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">
+                ${currentSessions} séances vs ${previousSessions} séances
+            </div>
+        </div>
+        
+        <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:12px;color:var(--muted);">Force moyenne</span>
+                <span style="font-size:12px;font-weight:600;">${weightProgress >= 0 ? '+' : ''}${weightProgress.toFixed(1)}%</span>
+            </div>
+            <div style="height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:${Math.min(100, Math.max(0, 50 + weightProgress))}%;background:${weightProgress >= 0 ? 'var(--lime)' : '#F44336'};transition:width 0.3s;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">
+                ${formatNumber(currentAvgWeight)} kg vs ${formatNumber(previousAvgWeight)} kg
+            </div>
+        </div>
+        
+        <p style="margin:12px 0 0;font-size:10px;color:var(--muted);text-align:center;">
+            📊 Comparaison : 30 derniers jours vs 30-60 jours
+        </p>
+    `;
+}
+
+function renderTemporalComparison3D() {
+    const container = document.getElementById("temporalComparison3D");
+    const select = document.getElementById("timeComparisonSelect");
+    const headline = document.getElementById("timeComparisonHeadline");
+    const legend = document.getElementById("timeComparisonLegend");
+    if(!container || !select) return;
+
+    if (data.sessions.length < 5) {
+        container.innerHTML = '<p class="sub" style="padding:20px 0;">Ajoute 5+ séances pour voir l\'évolution corporelle.</p>';
+        if (headline) headline.innerHTML = '';
+        if (legend) legend.innerHTML = '';
+        return;
+    }
+
+    const rangeMap = {
+        "1month":  { days: 30,  label: "30 derniers jours" },
+        "3months": { days: 90,  label: "3 derniers mois" },
+        "6months": { days: 180, label: "6 derniers mois" },
+        "1year":   { days: 365, label: "1 an" }
+    };
+    const range = rangeMap[select.value] || rangeMap["1month"];
+    const now = new Date();
+    const recentStart = new Date(now.getTime() - range.days * 86400000);
+    const pastStart = new Date(now.getTime() - 2 * range.days * 86400000);
+
+    const MUSCLES = ["pecs","biceps","triceps","dos","epaules","abdos","jambes"];
+    const vol = {};
+    MUSCLES.forEach(m => vol[m] = { recent: 0, past: 0 });
+
+    data.sessions.forEach(session => {
+        const d = new Date(session.date);
+        const muscleKey = getWorkoutMuscleKey(session.name);
+        const groups = muscleKey.split("-").filter(Boolean);
+        if (groups.length === 0) return;
+        const v = calculateVolume(session);
+        const per = v / groups.length;
+        const isRecent = d >= recentStart;
+        const isPast = d >= pastStart && d < recentStart;
+        if (!isRecent && !isPast) return;
+        groups.forEach(g => {
+            if (!vol[g]) return;
+            if (isRecent) vol[g].recent += per;
+            else vol[g].past += per;
+        });
+    });
+
+    const delta = {};
+    let totalPast = 0, totalRecent = 0;
+    MUSCLES.forEach(m => {
+        const p = vol[m].past, r = vol[m].recent;
+        delta[m] = p > 0 ? ((r - p) / p) * 100 : (r > 0 ? 100 : 0);
+        totalPast += p;
+        totalRecent += r;
+    });
+    const totalDelta = totalPast > 0 ? ((totalRecent - totalPast) / totalPast) * 100 : (totalRecent > 0 ? 100 : 0);
+
+    if (headline) {
+        const sign = totalDelta >= 0 ? "+" : "";
+        const emoji = totalDelta >= 5 ? "🔥" : (totalDelta >= -5 ? "✅" : "❄️");
+        const color = totalDelta >= 5 ? "var(--lime)" : (totalDelta >= -5 ? "#2e7d32" : "#ad4238");
+        headline.innerHTML =
+            '<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">' +
+                '<span style="font-size:32px;font-weight:800;color:' + color + ';">' + emoji + ' ' + sign + totalDelta.toFixed(1) + '%</span>' +
+                '<span style="font-size:12px;color:var(--muted);">de volume global</span>' +
+            '</div>' +
+            '<div style="font-size:11px;color:var(--muted);margin-top:3px;">' + range.label + ' récents vs ' + range.label + ' précédents</div>';
+    }
+
+    let maxPast = 0;
+    MUSCLES.forEach(m => { if (vol[m].past > maxPast) maxPast = vol[m].past; });
+
+    function pastColor(v) {
+        if (v === 0 || maxPast === 0) return "rgba(141,157,141,0.10)";
+        const ratio = v / maxPast;
+        if (ratio < 0.20) return "rgba(141,157,141,0.25)";
+        if (ratio < 0.45) return "rgba(141,157,141,0.45)";
+        if (ratio < 0.75) return "rgba(141,157,141,0.70)";
+        return "#7a857a";
+    }
+
+    function newColor(d) {
+        if (d >= 20) return "#d5ff3e";
+        if (d >= 5)  return "#2e7d32";
+        if (d >= -5) return "#9c9c8a";
+        if (d >= -20) return "#ffab91";
+        return "#ad4238";
+    }
+
+    function bodySvg(period) {
+        const c = (m) => period === "past" ? pastColor(vol[m].past) : newColor(delta[m]);
+        const cs = "cursor:pointer;transition:opacity .2s;";
+        return '<svg viewBox="0 0 200 440" width="170" height="374" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">' +
+            '<ellipse cx="100" cy="40" rx="22" ry="28" fill="#e8d4b8" stroke="#8d7457" stroke-width="1"/>' +
+            '<path d="M 76 70 Q 100 64 124 70 L 124 82 L 76 82 Z" fill="#e8d4b8" stroke="#8d7457" stroke-width="1"/>' +
+            '<path data-muscle="epaules" d="M 50 76 Q 75 70 100 70 Q 125 70 150 76 L 152 110 Q 130 112 100 110 Q 70 112 48 110 Z" fill="' + c("epaules") + '" stroke="#8d7457" stroke-width="1" style="' + cs + '"/>' +
+            '<path data-muscle="pecs" d="M 78 90 Q 100 92 100 102 Q 88 132 76 128 Q 70 110 78 90 Z" fill="' + c("pecs") + '" stroke="#8d7457" stroke-width="1" style="' + cs + '"/>' +
+            '<path data-muscle="pecs" d="M 122 90 Q 100 92 100 102 Q 112 132 124 128 Q 130 110 122 90 Z" fill="' + c("pecs") + '" stroke="#8d7457" stroke-width="1" style="' + cs + '"/>' +
+            '<ellipse data-muscle="epaules" cx="46" cy="86" rx="14" ry="14" fill="' + c("epaules") + '" stroke="#8d7457" stroke-width="1" style="' + cs + '"/>' +
+            '<ellipse data-muscle="epaules" cx="154" cy="86" rx="14" ry="14" fill="' + c("epaules") + '" stroke="#8d7457" stroke-width="1" style="' + cs + '"/>' +
+            '<ellipse data-muscle="biceps" cx="42" cy="120" rx="11" ry="22" fill="' + c("biceps") + '" stroke="#8d7457" stroke-width="1" style="' + cs + '"/>' +
+            '<ellipse data-muscle="biceps" cx="158" cy="120" rx="11" ry="22" fill="' + c("biceps") + '" stroke="#8d7457" stroke-width="1" style="' + cs + '"/>' +
+            '<path data-muscle="triceps" d="M 27 100 Q 30 75 42 82 L 42 115 Q 30 115 27 100 Z" fill="' + c("triceps") + '" stroke="#8d7457" stroke-width="1" style="' + cs + '"/>' +
+            '<path data-muscle="triceps" d="M 173 100 Q 170 75 158 82 L 158 115 Q 170 115 173 100 Z" fill="' + c("triceps") + '" stroke="#8d7457" stroke-width="1" style="' + cs + '"/>' +
+            '<rect x="36" y="148" width="14" height="48" rx="5" fill="#e0d4be" stroke="#8d7457" stroke-width="1"/>' +
+            '<rect x="150" y="148" width="14" height="48" rx="5" fill="#e0d4be" stroke="#8d7457" stroke-width="1"/>' +
+            '<rect data-muscle="abdos" x="80" y="150" width="40" height="58" rx="4" fill="' + c("abdos") + '" stroke="#8d7457" stroke-width="1" style="' + cs + '"/>' +
+            '<line x1="100" y1="151" x2="100" y2="207" stroke="#8d7457" stroke-width="0.6" stroke-dasharray="2,2" pointer-events="none"/>' +
+            '<line x1="82" y1="170" x2="118" y2="170" stroke="#8d7457" stroke-width="0.6" pointer-events="none"/>' +
+            '<line x1="82" y1="187" x2="118" y2="187" stroke="#8d7457" stroke-width="0.6" pointer-events="none"/>' +
+            '<path data-muscle="dos" d="M 52 110 Q 75 105 80 145 L 78 165 Q 60 145 52 110 Z" fill="' + c("dos") + '" stroke="#8d7457" stroke-width="1" style="' + cs + '"/>' +
+            '<path data-muscle="dos" d="M 148 110 Q 125 105 120 145 L 122 165 Q 140 145 148 110 Z" fill="' + c("dos") + '" stroke="#8d7457" stroke-width="1" style="' + cs + '"/>' +
+            '<ellipse data-muscle="jambes" cx="78" cy="280" rx="22" ry="55" fill="' + c("jambes") + '" stroke="#8d7457" stroke-width="1" style="' + cs + '"/>' +
+            '<ellipse data-muscle="jambes" cx="122" cy="280" rx="22" ry="55" fill="' + c("jambes") + '" stroke="#8d7457" stroke-width="1" style="' + cs + '"/>' +
+            '<ellipse cx="80" cy="370" rx="14" ry="32" fill="#e0d4be" stroke="#8d7457" stroke-width="1"/>' +
+            '<ellipse cx="120" cy="370" rx="14" ry="32" fill="#e0d4be" stroke="#8d7457" stroke-width="1"/>' +
+        '</svg>';
+    }
+
+    const labels = { pecs: "💪 Pectoraux", biceps: "💪 Biceps", triceps: "🦾 Triceps", dos: "🔙 Dos", epaules: "🛡️ Épaules", abdos: "🎯 Abdos", jambes: "🦵 Jambes" };
+
+    container.innerHTML =
+        '<div style="position:relative;">' +
+            '<div style="display:flex;justify-content:center;align-items:flex-start;gap:24px;flex-wrap:wrap;margin-top:8px;">' +
+                '<div style="text-align:center;">' +
+                    '<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Avant · ' + range.label + '</div>' +
+                    bodySvg("past") +
+                '</div>' +
+                '<div style="font-size:36px;color:var(--muted);opacity:.4;align-self:center;padding-top:30px;">→</div>' +
+                '<div style="text-align:center;">' +
+                    '<div style="font-size:11px;font-weight:700;color:var(--lime);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Aujourd\'hui</div>' +
+                    bodySvg("recent") +
+                '</div>' +
+            '</div>' +
+            '<div id="muscle3dTooltip" style="position:absolute;display:none;background:#1c291e;color:#d5ff3e;padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.5;pointer-events:none;z-index:999;box-shadow:0 4px 18px rgba(0,0,0,.18);border:1px solid #d5ff3e;min-width:180px;"></div>' +
+        '</div>';
+
+    const tooltip = document.getElementById("muscle3dTooltip");
+    const allMuscles = container.querySelectorAll("[data-muscle]");
+    const allArr = Array.from(allMuscles);
+
+    function showTooltip(key, clientX, clientY) {
+        const m = vol[key], d = delta[key];
+        allArr.forEach(el => {
+            if (el.getAttribute("data-muscle") === key) { el.style.stroke = "#d5ff3e"; el.style.strokeWidth = "2.5"; }
+        });
+        const sign = d > 0 ? "+" : "";
+        const sym = d > 0 ? "↑" : (d < 0 ? "↓" : "→");
+        const dCol = d >= 20 ? "#d5ff3e" : d >= 5 ? "#a5d6a7" : d >= -5 ? "#dde2db" : d >= -20 ? "#ffab91" : "#ad4238";
+        tooltip.innerHTML =
+            '<div style="font-weight:800;font-size:13px;margin-bottom:8px;color:#d5ff3e;">' + (labels[key] || key) + '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-bottom:8px;">' +
+                '<div><div style="font-size:9px;color:#9ba89b;text-transform:uppercase;letter-spacing:.04em;">Avant</div><div style="font-weight:600;">' + formatNumber(m.past) + ' kg</div></div>' +
+                '<div><div style="font-size:9px;color:#9ba89b;text-transform:uppercase;letter-spacing:.04em;">Auj.</div><div style="font-weight:600;">' + formatNumber(m.recent) + ' kg</div></div>' +
+            '</div>' +
+            '<div style="color:' + dCol + ';font-weight:700;font-size:14px;text-align:center;padding-top:6px;border-top:1px solid #2c392e;">' + sym + ' ' + sign + d.toFixed(1) + '%</div>';
+        const rect = container.getBoundingClientRect();
+        tooltip.style.display = "block";
+        tooltip.style.left = (clientX - rect.left + 14) + "px";
+        tooltip.style.top = (clientY - rect.top + 20) + "px";
+    }
+
+    function clearTooltip() {
+        tooltip.style.display = "none";
+        allArr.forEach(el => { el.style.stroke = "#8d7457"; el.style.strokeWidth = "1"; });
+    }
+
+    allMuscles.forEach(muscleEl => {
+        const key = muscleEl.getAttribute("data-muscle");
+        muscleEl.addEventListener("mouseenter", (e) => showTooltip(key, e.clientX, e.clientY));
+        muscleEl.addEventListener("mousemove", (e) => {
+            const rect = container.getBoundingClientRect();
+            tooltip.style.left = (e.clientX - rect.left + 14) + "px";
+            tooltip.style.top = (e.clientY - rect.top + 20) + "px";
+        });
+        muscleEl.addEventListener("mouseleave", clearTooltip);
+        muscleEl.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            showTooltip(key, e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: false });
+    });
+
+    container.addEventListener("click", (e) => {
+        if (!e.target.closest("[data-muscle]")) clearTooltip();
+    });
+
+    if (legend) {
+        legend.innerHTML =
+            '<div style="text-align:center;font-size:10px;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;">Avant (volume de l\'époque)</div>' +
+            '<div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--muted);">' +
+                '<div style="display:flex;align-items:center;gap:6px;padding:4px 9px;background:rgba(141,157,141,0.15);border-radius:5px;"><span style="display:inline-block;width:10px;height:10px;background:rgba(141,157,141,0.25);border-radius:2px;"></span>Peu</div>' +
+                '<div style="display:flex;align-items:center;gap:6px;padding:4px 9px;background:rgba(141,157,141,0.15);border-radius:5px;"><span style="display:inline-block;width:10px;height:10px;background:#7a857a;border-radius:2px;"></span>Très chargé</div>' +
+            '</div>' +
+            '<div style="text-align:center;font-size:10px;color:var(--muted);margin:14px 0 4px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;">Aujourd\'hui (évolution vs Avant)</div>' +
+            '<div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--muted);">' +
+                '<div style="display:flex;align-items:center;gap:6px;padding:4px 9px;border-radius:5px;"><span style="display:inline-block;width:10px;height:10px;background:#ad4238;border-radius:2px;"></span>Baisse</div>' +
+                '<div style="display:flex;align-items:center;gap:6px;padding:4px 9px;border-radius:5px;"><span style="display:inline-block;width:10px;height:10px;background:#ffab91;border-radius:2px;"></span>Léger recul</div>' +
+                '<div style="display:flex;align-items:center;gap:6px;padding:4px 9px;border-radius:5px;"><span style="display:inline-block;width:10px;height:10px;background:#9c9c8a;border-radius:2px;"></span>Stable</div>' +
+                '<div style="display:flex;align-items:center;gap:6px;padding:4px 9px;border-radius:5px;"><span style="display:inline-block;width:10px;height:10px;background:#2e7d32;border-radius:2px;"></span>Progression</div>' +
+                '<div style="display:flex;align-items:center;gap:6px;padding:4px 9px;border-radius:5px;"><span style="display:inline-block;width:10px;height:10px;background:#d5ff3e;border-radius:2px;"></span>Forte ↑ +20%</div>' +
+            '</div>';
+    }
+}
+
+
+function enhanceMapInteractions() {
+    const muscles = document.querySelectorAll('.map-muscle');
+    const tooltip = document.createElement('div');
+    tooltip.className = 'muscle-tooltip';
+    tooltip.style.display = 'none';
+    document.body.appendChild(tooltip);
+
+    // Calculer l'intensité par muscle
+    const muscleIntensity = {};
+    const last30Days = data.sessions.filter(s => {
+        const sessionDate = new Date(s.date);
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        return sessionDate >= thirtyDaysAgo;
+    });
+
+    last30Days.forEach(session => {
+        const muscleKey = getWorkoutMuscleKey(session.name);
+        const volume = calculateVolume(session);
+        muscleKey.split('-').forEach(muscle => {
+            if(!muscleIntensity[muscle]) muscleIntensity[muscle] = 0;
+            muscleIntensity[muscle] += volume / (muscleKey.split('-').length || 1);
+        });
+    });
+
+    const maxIntensity = Math.max(...Object.values(muscleIntensity), 1);
+
+    muscles.forEach(muscle => {
+        const muscleName = muscle.dataset.muscle;
+        const intensity = muscleIntensity[muscleName] || 0;
+        const percentage = Math.round((intensity / maxIntensity) * 100);
+
+        // Appliquer les classes d'intensité
+        muscle.classList.remove('high-intensity', 'medium-intensity', 'low-intensity');
+        if (percentage > 60) muscle.classList.add('high-intensity');
+        else if (percentage > 30) muscle.classList.add('medium-intensity');
+        else if (percentage > 0) muscle.classList.add('low-intensity');
+
+        // Colorer selon l'intensité
+        if (percentage > 60) {
+            muscle.style.fill = '#4CAF50';
+        } else if (percentage > 30) {
+            muscle.style.fill = '#81C784';
+        } else if (percentage > 0) {
+            muscle.style.fill = '#A5D6A7';
+        } else {
+            muscle.style.fill = 'transparent';
+        }
+
+        // Tooltip au hover
+        muscle.addEventListener('mouseenter', (e) => {
+            tooltip.style.display = 'block';
+            tooltip.innerHTML = `
+                <strong>${muscleName.charAt(0).toUpperCase() + muscleName.slice(1)}</strong>
+                Intensité: ${percentage}%<br>
+                Volume: ${formatNumber(intensity)} kg
+            `;
+        });
+
+        muscle.addEventListener('mousemove', (e) => {
+            tooltip.style.left = e.pageX + 10 + 'px';
+            tooltip.style.top = e.pageY + 10 + 'px';
+        });
+
+        muscle.addEventListener('mouseleave', () => {
+            tooltip.style.display = 'none';
+        });
+
+        // Click pour détails
+        muscle.addEventListener('click', () => {
+            showMuscleDetails(muscleName, intensity);
+        });
+    });
+}
+
+function showMuscleDetails(muscleName, intensity) {
+    const detailPanel = document.getElementById('mapDetailPanel');
+    if(!detailPanel) return;
+
+    // Trouver les exercices liés à ce muscle
+    const muscleExercises = [];
+    data.sessions.slice(-20).forEach(session => {
+        const muscleKey = getWorkoutMuscleKey(session.name);
+        if (muscleKey.includes(muscleName)) {
+            session.exercises.forEach(ex => {
+                const maxWeight = Math.max(...ex.sets.map(s => Number(s.weight) || 0));
+                muscleExercises.push({
+                    name: ex.name,
+                    weight: maxWeight,
+                    date: session.date,
+                    volume: ex.sets.reduce((sum, s) => sum + (Number(s.weight) || 0) * (Number(s.reps) || 0), 0)
+                });
+            });
+        }
+    });
+
+    // Grouper par exercice
+    const exerciseStats = {};
+    muscleExercises.forEach(ex => {
+        if(!exerciseStats[ex.name]) {
+            exerciseStats[ex.name] = {
+                count: 0,
+                maxWeight: 0,
+                totalVolume: 0,
+                lastDate: ex.date
+            };
+        }
+        exerciseStats[ex.name].count++;
+        exerciseStats[ex.name].maxWeight = Math.max(exerciseStats[ex.name].maxWeight, ex.weight);
+        exerciseStats[ex.name].totalVolume += ex.volume;
+        exerciseStats[ex.name].lastDate = ex.date;
+    });
+
+    detailPanel.innerHTML = `
+        <h3 style="margin:0 0 12px;font-size:15px;">${muscleName.charAt(0).toUpperCase() + muscleName.slice(1)}</h3>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px;">
+            <div style="text-align:center;padding:8px;background:#f7f8f5;border-radius:6px;">
+                <b style="display:block;font-size:18px;color:var(--lime);">${formatNumber(intensity)}</b>
+                <span style="font-size:10px;color:var(--muted);">Volume 30j</span>
+            </div>
+            <div style="text-align:center;padding:8px;background:#f7f8f5;border-radius:6px;">
+                <b style="display:block;font-size:18px;color:var(--lime);">${Object.keys(exerciseStats).length}</b>
+                <span style="font-size:10px;color:var(--muted);">Exercices</span>
+            </div>
+        </div>
+        <div style="font-size:12px;">
+            <strong>Exercices principaux :</strong>
+            ${Object.entries(exerciseStats).slice(0, 5).map(([name, stats]) => `
+                <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;">
+                    <span>${name}</span>
+                    <span style="color:var(--muted);">${formatNumber(stats.maxWeight)}kg max</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
 function renderAiAssistant(){
     const reply = document.getElementById("aiReply");
     if(!reply) return;
@@ -1066,6 +1822,17 @@ function renderDashboard(){
         lastWorkout.textContent =
             last ? last.name : "-";
 
+    }
+
+    renderGlobalRankings();
+    renderDailyFormPrediction();
+    renderTemporalComparison();
+    renderTemporalComparison3D();
+
+    // Event listener pour le select de temps
+    const timeComparisonSelect = document.getElementById("timeComparisonSelect");
+    if(timeComparisonSelect) {
+        if(!timeComparisonSelect.__bound3d) { timeComparisonSelect.addEventListener("change", renderTemporalComparison3D); timeComparisonSelect.__bound3d = true; }
     }
 
 

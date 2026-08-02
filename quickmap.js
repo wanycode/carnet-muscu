@@ -40,7 +40,9 @@
         var n = name.toLowerCase();
         var groups = [];
         if (/pec|bench|bench press|développé couché|dev.*bar|chest press|push up|pompe/.test(n)) groups.push("pecs");
-        if (/bicep|curl/.test(n)) groups.push("biceps");
+        // biceps (exclure leg curls qui contiennent "curl" + mot-clé jambe)
+        var isLegExercise = /leg\s*curl|legcurl|leg-|jamb|ischio|hamstring|moll|quad\b|quadriceps|fessier|glute|femoral|mollet/.test(n);
+        if ((/bicep/.test(n)) || (/curl/.test(n) && !isLegExercise)) groups.push("biceps");
         if (/tricep|extension|barre au front|skull crusher|press.*serré/.test(n)) groups.push("triceps");
         if (/tirage|rowing|row\b|pull|lat|tractions?|dos\b/.test(n)) groups.push("dos");
         if (/épaule|epaules|shoulder|élévation|lateral raise|press.*militaire|arnold/.test(n)) groups.push("epaules");
