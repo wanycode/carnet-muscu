@@ -1305,6 +1305,16 @@ function renderDailyFormPrediction() {
         <div style="font-size:11px;color:var(--muted);">
             ${formScore >= 70 ? "Top condition pour performer !" : formScore >= 50 ? "Condition correcte, tu peux t'entraîner" : "Considère du repos ou alléger l'intensité"}
         </div>
+        <details style="margin-top:14px;font:500 11px Manrope;color:var(--muted);">
+            <summary style="cursor:pointer;font-weight:700;color:var(--ink);padding:6px 0;list-style:none;user-select:none;">🤔 Pourquoi ce score ?</summary>
+            <div style="margin-top:6px;line-height:1.7;padding:10px 12px;border-left:2px solid var(--lime);background:#f7f8f5;border-radius:0 6px 6px 0;">
+                <div style="margin-bottom:4px;"><b style="color:var(--ink);">Base :</b> 75 (état neutre)</div>
+                <div style="margin-bottom:4px;"><b style="color:var(--ink);">Tendance volume</b> (5 dern. séances vs moyenne) : <span style="color:${volumeTrend > 0 ? '#2e7d32' : volumeTrend < 0 ? '#ad4238' : 'var(--muted)'};">${volumeTrend > 0 ? '+' : ''}${volumeTrend * 10} pts</span> <span style="opacity:.7;">(${volumeTrend > 0 ? 'en hausse' : volumeTrend < 0 ? 'en baisse' : 'stable'})</span></div>
+                <div style="margin-bottom:4px;"><b style="color:var(--ink);">Fréquence 7j</b> (${last7Days} séance${last7Days > 1 ? 's' : ''}) : <span style="color:${last7Days >= 3 && last7Days <= 4 ? '#2e7d32' : last7Days >= 5 || last7Days === 0 ? '#ad4238' : 'var(--muted)'};">${last7Days >= 3 && last7Days <= 4 ? '+5 (sweet spot 3-4/sem)' : last7Days >= 5 ? '-10 (surentraînement)' : last7Days === 0 ? '-5 (repos complet)' : '0 (1-2 séances)'}</span></div>
+                <div style="margin-bottom:4px;"><b style="color:var(--ink);">Fatigue</b> (notes "fatigué/épuisé/difficile/lourd") : <span style="color:${fatigueScore === 0 ? '#2e7d32' : '#ad4238'};">${fatigueScore} signal${fatigueScore > 1 ? 's' : ''} → ${fatigueScore * -5} pts</span></div>
+                <div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--line);font:600 11px Manrope;color:var(--ink);">= 75${volumeTrend !== 0 ? ' ' + (volumeTrend > 0 ? '+10' : '-10') : ''}${last7Days >= 3 && last7Days <= 4 ? ' +5' : last7Days >= 5 ? ' -10' : last7Days === 0 ? ' -5' : ''}${fatigueScore > 0 ? ' -' + (fatigueScore * 5) : ''} = <b>${formScore}%</b></div>
+            </div>
+        </details>
     `;
 }
 
@@ -4381,7 +4391,30 @@ function openQuickAccess(){
         "1rm": "calculator",
         "map": "map",
         "tony": "tony",
-        "ghost": "ghost"
+        "ghost": "ghost",
+        "nutri": "nutrition",
+        "nutriai": "nutrition",
+        "nutrition": "nutrition",
+        "manger": "nutrition",
+        "repas": "nutrition",
+        "alim": "nutrition",
+        "alimentation": "nutrition",
+        // Injury prediction
+        "blessure": "blessure",
+        "injury": "blessure",
+        "risk": "blessure",
+        "sante": "blessure",
+        "santé": "blessure",
+        "prevention": "blessure",
+        "preventionblessure": "blessure",
+        // Time machine
+        "timemachine": "timemachine",
+        "futur": "timemachine",
+        "projection": "timemachine",
+        "goal": "timemachine",
+        "objectif": "timemachine",
+        "future": "timemachine",
+        "projectionfuture": "timemachine"
     };
     const page = pages[code];
     if(page){
@@ -4392,14 +4425,15 @@ function openQuickAccess(){
     }
     input.style.borderColor = "#ad4238";
     input.value = "";
-    input.placeholder = "Code inconnu — essaie 1RM, MAP ou GHOST";
+    input.placeholder = "Code inconnu — essaie NUTRI, BLESSURE, TIMEMACHINE, 1RM, MAP ou GHOST";
     setTimeout(() => {
         input.style.borderColor = "";
-        input.placeholder = "Entre le code 1RM, MAP ou GHOST";
+        input.placeholder = "Entre le code NUTRI, 1RM, MAP, GHOST, BLESSURE ou TIMEMACHINE";
     }, 2500);
 }
 
 document.getElementById("openQuickAccess")?.addEventListener("click", openQuickAccess);
+document.getElementById("injuryRefreshBtn")?.addEventListener("click", ()=>window.__renderInjuryRisk && window.__renderInjuryRisk());
 document.getElementById("quickAccessCode")?.addEventListener("keydown", event => {
     if(event.key === "Enter") {
         event.preventDefault();

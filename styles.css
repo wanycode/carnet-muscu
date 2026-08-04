@@ -88,7 +88,11 @@
    ENHANCEMENTS BATCH 1 — added 2026-08-02 (patched)
    ------------------------------------------------------------
    To REVERT: delete from this "ENHANCEMENTS BATCH 1" comment
-   block down to (and including) the "END ENHANCEMENTS BATCH 1"
+   block down to (and including) the "END ENHANCEMENTS BATCH 1 — kept above; below added later
+   ============================================================ */
+/* Visible chevron disclosure widget for <details><summary> (Forme du jour) */
+#dailyFormPrediction summary{cursor:pointer;list-style:revert;user-select:none;}
+#dailyFormPrediction summary::-webkit-details-marker{color:var(--lime);font-size:1.1em;}"
    marker below. CSS only, no JS touched.
    ============================================================ */
 
@@ -224,3 +228,287 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 /* ============================================================
    END ENHANCEMENTS BATCH 1
    ============================================================ */
+
+/* ============================================================
+   NUTRI MODULE — styles scoped to #nutrition
+   ============================================================ */
+#nutrition .nutri-score-hero{
+    display:flex;
+    align-items:center;
+    gap:24px;
+    flex-wrap:wrap;
+    padding:8px 4px 4px;
+}
+#nutrition .nutri-score-circle{
+    width:130px;height:130px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    box-shadow:0 2px 12px rgba(0,0,0,0.04);
+}
+#nutrition .nutri-score-inner{
+    width:108px;height:108px;border-radius:50%;
+    background:#fff;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+}
+#nutrition .nutri-score-num{
+    font:800 38px Manrope;line-height:1;
+}
+#nutrition .nutri-score-of{
+    font:600 12px Manrope;color:var(--muted);
+    margin-top:4px;letter-spacing:.05em;
+}
+#nutrition .nutri-score-side{flex:1;min-width:200px;}
+#nutrition .nutri-score-title{
+    font:800 18px Manrope;color:var(--ink);
+    margin-bottom:4px;
+}
+#nutrition .nutri-score-stats{
+    font:600 13px Manrope;color:var(--muted);
+    margin-bottom:6px;
+}
+#nutrition .nutri-score-context{
+    font:500 12px Manrope;color:#426e22;
+    background:#f4f8e8;padding:6px 10px;border-radius:8px;
+    display:inline-block;
+}
+#nutrition .nutri-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-top:14px;
+}
+@media (max-width:760px){
+    #nutrition .nutri-grid{grid-template-columns:repeat(2,1fr);}
+}
+#nutrition .nutri-macro{
+    background:#fbfcfa;border:1px solid var(--line);
+    border-radius:10px;padding:12px;text-align:center;
+}
+#nutrition .nutri-macro-label{
+    font:600 11px Manrope;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.06em;
+    margin-bottom:6px;
+}
+#nutrition .nutri-macro-val{
+    font:700 18px Manrope;color:var(--ink);
+}
+#nutrition .nutri-macro-sub{
+    font:500 10px Manrope;color:var(--muted);
+    margin-top:3px;
+}
+#nutrition .nutri-card{
+    background:#fff;border:1px solid var(--line);
+    border-radius:13px;padding:18px 20px;
+    margin-top:12px;
+}
+#nutrition .nutri-card-title{
+    font:700 14px Manrope;color:var(--ink);
+    margin-bottom:14px;
+}
+#nutrition .nutri-row{margin-bottom:14px;}
+#nutrition .nutri-row:last-child{margin-bottom:0;}
+#nutrition .nutri-row-head{
+    display:flex;justify-content:space-between;align-items:center;
+    font:600 12px Manrope;color:var(--ink);
+    margin-bottom:5px;
+}
+#nutrition .nutri-row-head b{color:var(--muted);font-weight:700;}
+#nutrition .nutri-bar{
+    height:7px;background:#f0f3eb;border-radius:4px;
+    overflow:hidden;margin-bottom:4px;
+}
+#nutrition .nutri-bar-fill{
+    height:100%;border-radius:4px;
+    transition:width .35s ease-out;
+}
+#nutrition .nutri-row-detail{
+    font:500 11px Manrope;color:var(--muted);
+    line-height:1.4;
+}
+#nutrition .nutri-item{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:6px;
+    font:13px Manrope;
+    padding:7px 0;
+    border-bottom:1px solid #f0f3eb;
+}
+#nutrition .nutri-item:last-child{border-bottom:none;}
+#nutrition .nutri-item-name{color:var(--ink);font-weight:600;}
+#nutrition .nutri-item-portion{
+    font-weight:700;color:var(--muted);
+    text-align:right;
+}
+#nutrition .nutri-item-macro{
+    grid-column:1 / -1;
+    font:500 11px Manrope;color:var(--muted);
+}
+#nutrition .nutri-tip{
+    padding:10px 14px;border-radius:8px;
+    margin-bottom:10px;
+    border-left:3px solid var(--line);
+}
+#nutrition .nutri-tip:last-child{margin-bottom:0;}
+#nutrition .nutri-tip-good{
+    background:#f4f8e8;border-left-color:#426e22;
+}
+#nutrition .nutri-tip-warn{
+    background:#fdf6e5;border-left-color:#ffab91;
+}
+#nutrition .nutri-tip-info{
+    background:#f0f5f8;border-left-color:#9c9c8a;
+}
+#nutrition .nutri-tip-label{
+    font:700 12px Manrope;color:var(--ink);
+    margin-bottom:3px;
+}
+#nutrition .nutri-tip-text{
+    font:500 13px Manrope;color:var(--ink);
+    line-height:1.5;
+}
+#nutrition .nutri-empty{
+    background:#fbfcfa;border:1px dashed var(--line);
+    border-radius:10px;padding:18px;
+    font:500 13px Manrope;color:var(--muted);
+    text-align:center;
+}
+#nutrition .nutri-loading{
+    background:#fbfcfa;border:1px dashed var(--line);
+    border-radius:10px;padding:24px;
+    font:600 14px Manrope;color:var(--muted);
+    text-align:center;
+    animation:nutripulse 1.2s ease-in-out infinite;
+}
+@keyframes nutripulse{0%,100%{opacity:.7;}50%{opacity:1;}}
+#nutrition .nutri-disclaimer{
+    font:500 11px Manrope;color:var(--muted);
+    text-align:center;margin-top:18px;padding:8px;
+    line-height:1.5;
+    font-style:italic;
+}
+
+/* ========== INJURY PREDICTION ========== */
+#blessure .injury-header{
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+    margin-bottom:18px;
+}
+#blessure .injury-donut{flex-shrink:0;}
+#blessure .injury-header-meta{flex:1;min-width:220px;}
+#blessure .injury-verdict{
+    font:700 14px Manrope;margin:0;line-height:1.5;padding:10px 14px;border-radius:8px;
+}
+#blessure .injury-verdict.ok{background:#e8f5e9;color:#2e7d32;border-left:3px solid #4caf50;}
+#blessure .injury-verdict.warn{background:#fff3e0;color:#e65100;border-left:3px solid #ff9800;}
+#blessure .injury-verdict.bad{background:#fdecea;color:#ad4238;border-left:3px solid #ad4238;}
+#blessure .injury-list{display:grid;gap:10px;margin-top:8px;}
+#blessure .injury-row{
+    padding:12px 14px;border-radius:8px;
+    background:#fbfcfa;
+    border-left:3px solid;
+    border-color:var(--line);
+}
+#blessure .injury-row.ok{border-left-color:#4caf50;}
+#blessure .injury-row.warn{border-left-color:#ff9800;background:#fff8f0;}
+#blessure .injury-row.bad{border-left-color:#ad4238;background:#fdecea;}
+#blessure .injury-row-head{
+    display:flex;justify-content:space-between;align-items:center;
+    font:700 13px Manrope;color:var(--ink);
+}
+#blessure .injury-row-label{flex:1;}
+#blessure .injury-row-score{
+    font:700 12px Manrope;
+    padding:3px 9px;border-radius:6px;
+}
+#blessure .injury-row.ok .injury-row-score{background:#e8f5e9;color:#2e7d32;}
+#blessure .injury-row.warn .injury-row-score{background:#fff3e0;color:#e65100;}
+#blessure .injury-row.bad .injury-row-score{background:#fdecea;color:#ad4238;}
+#blessure .injury-actions{display:grid;gap:10px;margin-top:8px;}
+#blessure .injury-action{
+    padding:12px 14px;border-radius:8px;
+    background:#fbfcfa;border-left:3px solid var(--line);
+}
+#blessure .injury-action.bad{border-left-color:#ad4238;background:#fdecea;}
+#blessure .injury-action.warn{border-left-color:#ff9800;background:#fff8f0;}
+#blessure .injury-action.ok{border-left-color:#4caf50;background:#e8f5e9;}
+#blessure .injury-priority{
+    display:inline-block;
+    font:700 10px Manrope;text-transform:uppercase;letter-spacing:0.06em;
+    padding:3px 8px;border-radius:4px;
+}
+#blessure .injury-action.bad .injury-priority{background:#ad4238;color:white;}
+#blessure .injury-action.warn .injury-priority{background:#ff9800;color:white;}
+#blessure .injury-action.ok .injury-priority{background:#4caf50;color:white;}
+
+/* ========== TIME MACHINE ========== */
+#timemachine .tm-toolbar{
+    display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;gap:8px;
+}
+#timemachine .tm-form{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:14px;margin-top:14px;
+}
+#timemachine .tm-form label{
+    font:600 12px Manrope;color:var(--ink);text-transform:uppercase;letter-spacing:0.04em;
+    display:flex;flex-direction:column;gap:6px;
+}
+#timemachine .tm-form input,
+#timemachine .tm-form select{
+    padding:10px 12px;border:1px solid var(--line);
+    border-radius:7px;font:13px Manrope;background:#fbfcfa;
+}
+#timemachine .tm-summary{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:14px;padding:18px;border-radius:10px;margin-bottom:18px;
+}
+#timemachine .tm-summary.ok{background:#e8f5e9;border-left:3px solid #4caf50;}
+#timemachine .tm-summary.warn{background:#fff8f0;border-left:3px solid #ff9800;}
+#timemachine .tm-summary.bad{background:#fdecea;border-left:3px solid #ad4238;}
+#timemachine .tm-stat{display:flex;flex-direction:column;gap:4px;}
+#timemachine .tm-stat-label{
+    font:700 10px Manrope;text-transform:uppercase;letter-spacing:0.05em;
+    color:var(--muted);
+}
+#timemachine .tm-stat-value{
+    font:800 22px Manrope;color:var(--ink);
+}
+#timemachine .tm-reality{
+    margin:14px 0;padding:14px;border-radius:9px;
+    display:flex;align-items:flex-start;gap:12px;
+}
+#timemachine .tm-reality.ok{background:#e8f5e9;border-left:4px solid #4caf50;}
+#timemachine .tm-reality.warn{background:#fff8f0;border-left:4px solid #ff9800;}
+#timemachine .tm-reality.bad{background:#fdecea;border-left:4px solid #ad4238;}
+#timemachine .tm-verdict{
+    font:700 14px Manrope;text-transform:uppercase;letter-spacing:0.05em;
+    padding:4px 10px;border-radius:5px;background:rgba(0,0,0,0.1);
+    flex-shrink:0;
+}
+#timemachine .tm-reality p{margin:0;font:500 13px Manrope;color:var(--ink);line-height:1.5;}
+#timemachine .tm-blocks{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:10px;margin-top:10px;
+}
+#timemachine .tm-block{
+    padding:10px 12px;border-radius:8px;
+    background:#fbfcfa;border:1px solid var(--line);
+    display:flex;flex-direction:column;gap:4px;
+}
+#timemachine .tm-block.deload{
+    background:#fff3e0;border-color:#ff9800;
+}
+#timemachine .tm-block.work{
+    background:#e8f5e9;border-color:#b8e94c;
+}
+#timemachine .tm-block-tag{
+    font:700 10px Manrope;text-transform:uppercase;letter-spacing:0.04em;
+    color:var(--muted);
+}
+#timemachine .tm-block.deload .tm-block-tag{color:#ff9800;}
+#timemachine .tm-block.work .tm-block-tag{color:#4caf50;}
+#timemachine .tm-block-label{
+    font:700 13px Manrope;color:var(--ink);
+}
+#timemachine .tm-block-load{
+    font:600 12px Manrope;color:var(--ink);
+}

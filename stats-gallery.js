@@ -15,13 +15,10 @@ function renderAdvancedStats(){
     const recentSets = recent.reduce((sum, session) => sum + (session.exercises || []).reduce((count, ex) => count + (ex.sets || []).length, 0), 0);
     const activeDays = new Set(recent.map(s => formatDateInputFromSession(s.date))).size;
     const averagePerSession = recent.length ? recentVolume / recent.length : 0;
-    const sessionsPerWeek = recent.length / (30 / 7);
     const change = previousVolume ? ((recentVolume - previousVolume) / previousVolume) * 100 : null;
 
     const el = document.getElementById("monthVolume");
     if(el) el.textContent = formatNumber(recentVolume) + " kg";
-    const frequencyEl = document.getElementById("weekProgress");
-    if(frequencyEl) frequencyEl.textContent = sessionsPerWeek.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
     const changeEl = document.getElementById("totalStrength");
     if(changeEl) changeEl.textContent = change === null ? "—" : `${change > 0 ? "+" : ""}${Math.round(change)}%`;
 

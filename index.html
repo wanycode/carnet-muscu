@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carnet Muscu</title>
 
-    <link rel="stylesheet" href="styles.css?v=70">
+    <link rel="stylesheet" href="styles.css?v=101">
     
     <!-- Icône pour appli web -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -370,13 +370,13 @@ D
 
 <div style="display:flex;gap:8px;">
 
-<input type="text" id="quickAccessCode" placeholder="Entre le code 1RM, MAP ou GHOST" style="flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font:13px Manrope;">
+<input type="text" id="quickAccessCode" placeholder="Entre le code NUTRI, 1RM, MAP, GHOST, BLESSURE ou TIMEMACHINE" style="flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font:13px Manrope;">
 
 <button class="btn lime" id="openQuickAccess" style="padding:10px 14px;">Ouvrir</button>
 
 </div>
 
-<p class="sub" style="margin:9px 0 0;font-size:12px;">Codes disponibles : <b>1RM</b>, <b>MAP</b>, <b>GHOST</b>.</p>
+<p class="sub" style="margin:9px 0 0;font-size:12px;">Codes disponibles : <b>1RM</b>, <b>MAP</b>, <b>GHOST</b>, <b>NUTRI</b>, <b>BLESSURE</b>, <b>TIMEMACHINE</b>.</p>
 
 </div>
 
@@ -793,11 +793,6 @@ id="chartBox">
 <p class="sub" style="margin-top:8px">Charge totale déplacée</p>
 </div>
 <div class="card">
-<h2>Régularité</h2>
-<b id="weekProgress" style="font-size:32px;color:var(--lime)">0,0</b>
-<p class="sub" style="margin-top:8px">séances / semaine (4 sem.)</p>
-</div>
-<div class="card">
 <h2>Série en cours</h2>
 <b id="bestDay" style="font-size:28px;color:var(--lime)">0 sem.</b>
 <p class="sub" style="margin-top:8px">semaines consécutives actives</p>
@@ -1201,6 +1196,105 @@ Calculer et sauvegarder
   </div>
 </section>
 
+<!-- ================= QUICK NUTRITION ================= -->
+<section id="nutrition" class="hidden">
+  <header>
+    <div>
+      <p class="eyebrow">ACCÈS RAPIDE · NUTRI</p>
+      <h1>🥗 Recap nutrition IA</h1>
+      <p class="sub">Dis-moi ce que tu as mangé dans la journée — l'IA locale t'analyse : macros, score sur 10 et conseils personnalisés tied à ta séance du jour.</p>
+      <p class="sub" style="margin-top:6px;font-size:11px;">💡 Le même analyseur considère aussi ton dernier entraînement : séance aujourd'hui = priorité protéines + glucides, séance hier = récupération, sinon repos = lipides + légumes.</p>
+      <p class="sub" style="margin-top:6px;font-size:11px;">🔑 <b>Code d'accès rapide</b> : tapez <b>NUTRI</b> (ou MANGER / REPAS / ALIM / NUTRITION) dans le champ « accès rapide » en bas du dashboard pour ouvrir cette page à tout moment.</p></p>
+    </div>
+  </header>
+
+  <div class="card" style="margin-top:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+      <h2 style="margin:0;font-size:16px;">Qu'as-tu mangé aujourd'hui ?</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn lime" id="nutriSample" style="padding:7px 12px;font-size:11px;">Exemple</button>
+        <button class="btn" id="nutriClearBtn" style="padding:7px 12px;font-size:11px;">Effacer</button>
+      </div>
+    </div>
+    <textarea id="nutriInput" placeholder="Un aliment ou un repas par ligne. Ex :&#10;matin : 2 tartines pain complet + beurre de cacahuète + banane&#10;midi : 150 g poulet + riz basmati + brocoli&#10;16h : skyr + myrtilles&#10;soir : pates completes + parmesan + 1 verre de vin" style="width:100%;min-height:140px;padding:12px;border:1px solid var(--line);border-radius:10px;font:13px Manrope;resize:vertical;line-height:1.5;"></textarea>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;flex-wrap:wrap;">
+      <span style="font-size:11px;color:var(--muted);">Astuce : précise les quantités (150g de poulet, 2 bols de riz…) pour une estimation plus juste. <b>⌘/Ctrl + Enter</b> pour analyser.</span>
+      <button class="btn lime" id="nutriAnalyzeBtn" style="padding:9px 18px;font-size:13px;">Analyser 🥗</button>
+    </div>
+  </div>
+
+  <div id="nutriResult" style="margin-top:14px;">
+    <div class="card" style="text-align:center;color:var(--muted);padding:28px 16px;">
+      <div style="font-size:32px;margin-bottom:6px;">✍️</div>
+      <div style="font:600 14px Manrope;color:var(--ink);">Prêt à analyser ta journée</div>
+      <div style="font-size:12px;margin-top:6px;">Écris au moins 2-3 repas, ou clique sur <b>Exemple</b>.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INJURY PREDICTION ================= -->
+<section id="blessure" class="hidden">
+  <header>
+    <div>
+      <p class="eyebrow">ACCÈS RAPIDE · BLESSURE</p>
+      <h1>🩺 Prédiction de blessure IA</h1>
+      <p class="sub">L'IA scanne tes 8 dernières semaines et détecte 5 patterns dangereux avant que la blessure arrive. Score de risque 0-100 + actions concrètes.</p>
+      <p class="sub" style="margin-top:6px;font-size:11px;">🔑 <b>Codes d'accès rapide</b> : tape <b>BLESSURE</b> (ou INJURY / RISK / SANTE / SANTÉ / PREVENTION) dans le champ en bas du dashboard.</p>
+    </div>
+  </header>
+  <div class="card" style="margin-top:14px;">
+    <div class="tm-toolbar">
+      <h2 style="margin:0;font-size:16px;">Analyse de risque</h2>
+      <button class="btn lime" id="injuryRefreshBtn" style="padding:7px 12px;font-size:11px;">🔄 Recalculer</button>
+    </div>
+    <div id="injuryRiskPanel" style="margin-top:18px;"></div>
+    <p class="nutri-disclaimer">⚠️ Estimation heuristique basée sur tes 8 dernières semaines. Ne remplace pas un avis médical.</p>
+  </div>
+</section>
+
+<!-- ================= TIME MACHINE ================= -->
+<section id="timemachine" class="hidden">
+  <header>
+    <div>
+      <p class="eyebrow">ACCÈS RAPIDE · TIMEMACHINE</p>
+      <h1>⏳ Time Machine — projette ton futur toi</h1>
+      <p class="sub">Choisis un objectif (exo + cible + horizon). L'IA extrapole ta progression historique avec un modèle réaliste (plateau intégré) et te sort un plan hebdo + reality check.</p>
+      <p class="sub" style="margin-top:6px;font-size:11px;">🔑 <b>Codes d'accès rapide</b> : tape <b>TIMEMACHINE</b> (ou FUTUR / PROJECTION / GOAL / OBJECTIF) dans le champ en bas du dashboard.</p>
+    </div>
+  </header>
+  <div class="card" style="margin-top:14px;">
+    <div class="tm-toolbar">
+      <h2 style="margin:0;font-size:16px;">Configurer l'objectif</h2>
+      <button class="btn lime" id="tmSampleBtn" style="padding:7px 12px;font-size:11px;">📋 Exemple</button>
+    </div>
+    <div class="tm-form">
+      <label>
+        Exercice à projeter
+        <select id="tmExo"></select>
+      </label>
+      <label>
+        Valeur actuelle (kg)
+        <input type="number" id="tmCurrent" step="0.5" placeholder="ex: 80">
+      </label>
+      <label>
+        🎯 Cible (kg)
+        <input type="number" id="tmTarget" step="0.5" placeholder="ex: 100">
+      </label>
+      <label>
+        Horizon
+        <select id="tmHorizon">
+          <option value="13">3 mois (13 sem)</option>
+          <option value="26" selected>6 mois (26 sem)</option>
+          <option value="52">12 mois (52 sem)</option>
+        </select>
+      </label>
+      <button class="btn lime" id="tmComputeBtn" style="padding:12px;font-size:13px;grid-column:1/-1;">🚀 PROJETER LA COURBE</button>
+    </div>
+    <div id="timeMachinePanel" style="margin-top:24px;"></div>
+    <p class="nutri-disclaimer">Modèle : régression linéaire amortie des 8 dernières semaines · Gain(t) = pente × t / (1 + 0.10×t) → plateau réaliste. Ne remplace pas l'avis d'un coach.</p>
+  </div>
+</section>
+
 <!-- ================= GHOST PROTOCOL ================= -->
 
 <section
@@ -1396,13 +1490,16 @@ Enregistrer
 
 </dialog>
 
-<script src="stats-gallery.js?v=60"></script>
-<script src="app.js?v=60"></script>
-<script src="ai-improved.js?v=60"></script>
-<script src="stats-progress.js?v=60"></script>
-<script src="stats-extended.js?v=60"></script>
-<script src="quickmap.js?v=60"></script>
+<script src="stats-gallery.js?v=99"></script>
+<script src="app.js?v=102"></script>
+<script src="ai-improved.js?v=85"></script>
+<script src="stats-progress.js?v=85"></script>
+<script src="stats-extended.js?v=85"></script>
+<script src="quickmap.js?v=85"></script>
 <script src="quickghost.js?v=65"></script>
+<script src="quicknutrition.js?v=99"></script>
+<script src="quickinjuryprediction.js?v=106"></script>
+<script src="quicktimemachine.js?v=106"></script>
 
 </body>
 
