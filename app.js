@@ -963,6 +963,24 @@ function renderNutriMeals(input){
     var lines = input.split("\n").map(function(l){ return l.trim(); }).filter(Boolean);
     if(lines.length === 0) return '';
     var currentKey = "autre";
+    // Mapping des labels reconnus (post-normalisation lowercase + strip non-[a-zà-ÿ0-9])
+    // vers les sections canoniques du jour. Tout label non mappé retombe sur "autre".
+    var keyMap = {
+        "matin": "matin",
+        "petitdej": "matin",
+        "midi": "midi",
+        "dejeuner": "midi",
+        "déjeuner": "midi",
+        "lunch": "midi",
+        "16h": "16h",
+        "collation": "16h",
+        "snack": "16h",
+        "goûter": "16h",
+        "gouter": "16h",
+        "soir": "soir",
+        "diner": "soir",
+        "dîner": "soir"
+    };
 
     lines.forEach(function(line){
         var m = line.match(/^(matin|midi|16h|collation|snack|goûter|gouter|soir|diner|dîner|petit[- ]?dej|dejeuner|déjeuner|lunch|déjeuner)\s*[:\-–—]?\s*(.*)$/i);
