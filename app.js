@@ -731,6 +731,25 @@ function getWeekSessions(){
                 }
                 return;
             }
+            // 🔧 DEBUG nutri : génère et insère le diagnostic pour la date cliquée
+            if(e.target && e.target.closest && e.target.closest("[data-nutri-debug-btn]")){
+                var debugBtn = e.target.closest("[data-nutri-debug-btn]");
+                var debugDate = debugBtn && debugBtn.dataset ? debugBtn.dataset.date : null;
+                var existingPanel = content.querySelector("[data-nutri-debug-panel]");
+                if(existingPanel && existingPanel.dataset.date === debugDate){
+                    existingPanel.remove();
+                    return;
+                }
+                if(existingPanel){ existingPanel.remove(); }
+                var debugHtml = renderNutriDebugForDate(debugDate);
+                var nutriCard = content.querySelector(".nutri-calendar-card");
+                if(nutriCard){
+                    nutriCard.insertAdjacentHTML("beforeend", debugHtml);
+                } else {
+                    content.insertAdjacentHTML("beforeend", debugHtml);
+                }
+                return;
+            }
         });
         const closeBtn = calendarModal.querySelector(".close");
         if(closeBtn){
@@ -1177,6 +1196,83 @@ function renderNutriFallback(analysis){
     }
 }
 
+// === DEBUG NUTRI (overlay diagnostic mobile) ===
+// Affiche une carte de diagnostic dans le calendar modal quand l'utilisateur
+// clique le bouton 🔧 Debug. Teste chaque path de rendu avec try/catch et
+// affiche le résultat (et l'erreur) ligne par ligne.
+function renderNutriDebugForDate(dateKey){
+    var rows = [];
+    function add(icon, label, val, kind){
+        var color = kind === "ok" ? "#0a8031" : kind === "fail" ? "#c2381f" : kind === "warn" ? "#cdb13a" : "#555";
+        var bg = kind === "ok" ? "#e8f5e9" : kind === "fail" ? "#ffebee" : kind === "warn" ? "#fff8e1" : "#f5f5f5";
+        rows.push('<div style="margin:3px 0;padding:5px 8px;border-left:3px solid ' + color + ';background:' + bg + ';font:600 11px ui-monospace,Menlo,monospace;color:' + color + '"><b>' + icon + ' ' + escapeHtml(label) + '</b>: ' + escapeHtml(String(val)) + '</div>');
+    }
+    try {
+        if(typeof window.localStorage === "undefined"){
+            add("🚫", "LOCALSTORAGE", "indisponible (mode privé ?)", "fail");
+        } else {
+            try {
+                var raw = window.localStorage.getItem(STORAGE_KEY) || "{}";
+                add("ℹ️", "STORAGE_KEY", STORAGE_KEY, "info");
+                add("ℹ️", "STORAGE_SIZE", raw.length + " chars", "info");
+                var parsed;
+                try { parsed = JSON.parse(raw); }
+                catch(parseErr){
+                    add("❌", "JSON_PARSE", parseErr.message, "fail");
+                    parsed = {};
+                }
+                var nutriHistory = (parsed && parsed.nutriHistory) || [];
+                add("ℹ️", "NUTRI_HISTORY_LENGTH", nutriHistory.length, "info");
+                var match = null;
+                if(dateKey && nutriHistory.length > 0){
+                    match = nutriHistory.find(function(a){ return a && a.date === dateKey; }) ||
+                            nutriHistory.find(function(a){ return a && String(a.date).trim() === String(dateKey).trim(); }) ||
+                            nutriHistory.find(function(a){ return a && a.date && String(a.date).substring(0,10) === dateKey.substring(0,10); });
+                }
+                add(match ? "✅" : "⚠️", "MATCH_FOR_DATE", match ? "✅ " + match.date : "❌ " + (dateKey || "no-date"), match ? "ok" : "fail");
+                if(match){
+                    add("ℹ️", "ANALYSIS_DATE", String(match.date), "info");
+                    add("ℹ️", "ANALYSIS_INPUT_LENGTH", (match.input || "").length + " chars", "info");
+                    add("ℹ️", "ANALYSIS_SCORE_TOTAL", match.score && match.score.total, "info");
+                    add("ℹ️", "ANALYSIS_MACROS_KCAL", (match.score && match.score.macros && match.score.macros.kcal) || "—", "info");
+                }
+                var hasFromSaved = typeof window.renderNutriFromSaved === "function";
+                add(hasFromSaved ? "✅" : "⚠️", "RENDER_NUTRI_FROM_SAVED", hasFromSaved ? "function disponible" : "absent", hasFromSaved ? "ok" : "warn");
+                if(match && hasFromSaved){
+                    try {
+                        var r1 = window.renderNutriFromSaved(match);
+                        add("✅", "FROM_SAVED_CALL", "OK · " + (r1 ? r1.length : 0) + " chars", "ok");
+                    } catch(err1){
+                        add("❌", "FROM_SAVED_THROW", String(err1 && err1.message || err1), "fail");
+                        try { console.error("FROM_SAVED threw:", err1); } catch(_){}
+                    }
+                }
+                if(match){
+                    try {
+                        var r2 = renderNutriFallback(match);
+                        var isError = r2 && typeof r2 === "string" && r2.indexOf("a échoué") !== -1;
+                        if(isError){
+                            var innerMatch = String(r2).match(/a échoué\s*:\s*([^<]*)/);
+                            add("❌", "RENDER_NUTRI_FALLBACK", "Interne : " + (innerMatch ? innerMatch[1].trim() : "(erreur inconnue)"), "fail");
+                        } else {
+                            add("✅", "RENDER_NUTRI_FALLBACK", "OK · " + (r2 ? r2.length : 0) + " chars", "ok");
+                        }
+                    } catch(err2){
+                        add("❌", "RENDER_NUTRI_FALLBACK_THROW", String(err2 && err2.message || err2), "fail");
+                        try { console.error("RENDER_NUTRI_FALLBACK threw:", err2); } catch(_){}
+                    }
+                }
+            } catch(innerErr){
+                add("❌", "DEBUG_LOCALSTORAGE_STEP", String(innerErr && innerErr.message || innerErr), "fail");
+            }
+        }
+        try { console.log("[DEBUG NUTRI " + dateKey + "] " + rows.length + " lignes"); } catch(_){}
+    } catch(err){
+        add("❌", "DEBUG_ITSELF_CRASH", String(err && err.message || err), "fail");
+    }
+    return '<div data-nutri-debug-panel data-date="' + escapeHtml(dateKey || "") + '" style="margin-top:14px;padding:14px;background:#fff8e1;border:2px solid #cdb13a;border-radius:10px;"><h4 style="margin:0 0 8px;font:700 12px ui-monospace,Menlo,monospace;color:var(--ink)">🔧 DEBUG NUTRI · ' + escapeHtml(dateKey || "no-date") + '</h4>' + rows.join("") + '</div>';
+}
+
 function openCalendarModal(date, sessions){
     const modal = document.getElementById("calendarModal");
     const content = document.getElementById("calendarModalContent");
@@ -1204,7 +1300,7 @@ function openCalendarModal(date, sessions){
         const nutriExists = nutriAnalysis || nutriHistory.length > 0;
         if(nutriExists){
         html += '<div class="card nutri-calendar-card" style="margin-bottom:14px;background:linear-gradient(135deg,#f7f8f5 0%,#e8f5e9 100%);border:2px solid var(--lime);padding:14px;">';
-        html += '  <h3 style="display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:14px;">🥗 Analyse nutrition du jour</h3>';
+        html += '  <h3 style="display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:14px;justify-content:space-between"><span>🥗 Analyse nutrition du jour</span><button type="button" data-nutri-debug-btn data-date="' + dateKey + '" style="background:#fff;color:var(--ink);border:1px solid var(--line);padding:4px 10px;border-radius:6px;font-weight:700;cursor:pointer;font-size:11px;font-family:ui-monospace,Menlo,monospace;">🔧 Debug</button></h3>';
         if(nutriAnalysis && nutriAnalysis.score) {
             html += '  <div class="nutri-calendar-render">';
             if(typeof window.renderNutriFromSaved === "function"){
