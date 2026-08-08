@@ -1,4 +1,6 @@
 const STORAGE_KEY = "carnetMuscuData";
+function localDateStr(d){ var y = d.getFullYear(); var m = String(d.getMonth()+1).padStart(2,'0'); var da = String(d.getDate()).padStart(2,'0'); return y + '-' + m + '-' + da; }
+window.localDateStr = localDateStr;
 const MAX_STORAGE_KEY = "carnetMuscuMax";
 
 
@@ -702,6 +704,32 @@ function getWeekSessions(){
         calendarModal.addEventListener("click", e=>{
             if(e.target === calendarModal){
                 calendarModal.close();
+                return;
+            }
+            // CTA: ouvre la page Nutrition depuis l'empty-state nutri du calendrier
+            if(e.target && e.target.closest && e.target.closest("[data-nutri-cta]")){
+                var ctaBtn = e.target.closest("[data-nutri-cta]");
+                var ctaDate = ctaBtn && ctaBtn.dataset ? ctaBtn.dataset.date : null;
+                calendarModal.close();
+                if(ctaDate){
+                    window.__nutriTargetDate = ctaDate;
+                }
+                if(typeof showPage === "function"){
+                    showPage("nutrition");
+                }
+                return;
+            }
+            // Suppression d'une analyse nutri corrompue depuis le modal calendrier
+            if(e.target && e.target.closest && e.target.closest("[data-stale-nutri-date]")){
+                var staleBtn = e.target.closest("[data-stale-nutri-date]");
+                var staleDate = staleBtn && staleBtn.dataset ? staleBtn.dataset.staleNutriDate : null;
+                if(staleDate && window.confirm("Supprimer définitement l'analyse nutri du " + staleDate + " ?")){
+                    if(window.deleteNutriAnalysis && window.deleteNutriAnalysis(staleDate)){
+                        if(window.refreshNutriViews) window.refreshNutriViews();
+                        calendarModal.close();
+                    }
+                }
+                return;
             }
         });
         const closeBtn = calendarModal.querySelector(".close");
@@ -713,6 +741,13 @@ function getWeekSessions(){
     }
 
     initSessionEditModal();
+
+    // API globale pour rafraîchir les vues nutri (calendrier + historique)
+    // quand une nouvelle analyse est enregistrée.
+    window.refreshNutriViews = function(){
+        try { if(typeof renderCalendar === "function") renderCalendar(); } catch(e){}
+        try { if(typeof renderHistory === "function") renderHistory(); } catch(e){}
+    };
 
 });
 function initNavigation(){
@@ -776,6 +811,16 @@ function showPage(page){
         if(page === "history") renderHistory();
 
         if(page === "calendar") renderCalendar();
+
+        if(page === "nutrition"){
+            if(window.__nutriTargetDate){
+                try {
+                    var dateIn = document.getElementById("nutriDateInput");
+                    if(dateIn){ dateIn.value = window.__nutriTargetDate; }
+                } catch(e){}
+                try { delete window.__nutriTargetDate; } catch(e){}
+            }
+        }
 
     }
 
@@ -890,7 +935,7 @@ function renderCalendar(){
 
         html += `
             <div class="day-cell">
-                <button class="day-button" data-day="${day}" ${sessions.length === 0 ? "disabled" : ""}>
+                <button class="day-button" data-day="${day}"${sessions.length === 0 ? " data-empty=\"1\"" : ""}>
                     <span class="day-number">${day}</span>
                     <span class="day-emoji">${emoji}</span>
                 </button>
@@ -910,16 +955,264 @@ function renderCalendar(){
     });
 }
 
+// Parse les repas par section (matin, midi, 16h/collation, soir, autre).
+// Helper utilisé par renderNutriFallback + le renderer principal.
+function renderNutriMeals(input){
+    if(!input || typeof input !== "string") return '';
+    var sections = { matin:[], midi:[], "16h":[], soir:[], autre:[] };
+    var lines = input.split("\n").map(function(l){ return l.trim(); }).filter(Boolean);
+    if(lines.length === 0) return '';
+    var currentKey = "autre";
+
+    lines.forEach(function(line){
+        var m = line.match(/^(matin|midi|16h|collation|snack|goûter|gouter|soir|diner|dîner|petit[- ]?dej|dejeuner|déjeuner|lunch|déjeuner)\s*[:\-–—]?\s*(.*)$/i);
+        if(m){
+            var key = m[1].toLowerCase().replace(/[^a-zà-ÿ0-9]/g, "");
+            currentKey = keyMap[key] || "autre";
+            if(m[2] && m[2].trim()) sections[currentKey].push(m[2].trim());
+        } else {
+            sections[currentKey].push(line);
+        }
+    });
+    var sectionsConfig = [
+        {key:"matin", icon:"🌅", label:"Matin"},
+        {key:"midi", icon:"☀️", label:"Midi"},
+        {key:"16h", icon:"🥨", label:"Collation"},
+        {key:"soir", icon:"🌙", label:"Soir"}
+    ];
+    var html = '<div class="nf-meals">';
+    var rendered = 0;
+    sectionsConfig.forEach(function(cfg){
+        var items = sections[cfg.key];
+        if(!items || items.length === 0) return;
+        rendered++;
+        html += '<div class="nf-meal">';
+        html += '<div class="nf-meal-icon">' + cfg.icon + '</div>';
+        html += '<div class="nf-meal-content">';
+        html += '<div class="nf-meal-label">' + escapeHtml(cfg.label) + '</div>';
+        html += '<div class="nf-meal-text">' + escapeHtml(items.join("\n")) + '</div>';
+        html += '</div></div>';
+    });
+    // Sections "autre" (matin non reconnu OU fallback global)
+    var otherItems = sections.autre.filter(function(s){ return s.trim().length > 0; });
+    if(rendered === 0 && otherItems.length === 0){
+        // Pas de structure reconnue — fallback : tout dans une seule meal labelée "Repas"
+        html += '<div class="nf-meal">';
+        html += '<div class="nf-meal-icon">🍴</div>';
+        html += '<div class="nf-meal-content">';
+        html += '<div class="nf-meal-label">Repas</div>';
+        html += '<div class="nf-meal-text" style="max-height:150px;overflow:auto">' + escapeHtml(input.slice(0, 400)) + (input.length > 400 ? "…" : "") + '</div>';
+        html += '</div></div>';
+        rendered++;
+    } else if(otherItems.length > 0){
+        html += '<div class="nf-meal">';
+        html += '<div class="nf-meal-icon">🍴</div>';
+        html += '<div class="nf-meal-content">';
+        html += '<div class="nf-meal-label">Autres aliments</div>';
+        html += '<div class="nf-meal-text">' + escapeHtml(otherItems.join("\n")) + '</div>';
+        html += '</div></div>';
+        rendered++;
+    }
+    html += '</div>';
+    return rendered > 0 ? html : '';
+}
+
+// Render fallback nutri : autonome dans app.js, marche même si window.renderNutriFromSaved indispo.
+// Cas d'usage : si quicknutrition.js IIFE a crashé et que window.renderNutriFromSaved est undefined (bug des exports en queue d'IIFE),
+// le modal calendrier peut quand même afficher les données nutri basiques (score + macros + repas) au lieu d'être vide.
+function renderNutriFallback(analysis){
+    try {
+        if(!analysis || typeof analysis !== "object"){
+            return '<div class="nf-empty">⚠ Analyse nutri vides</div>';
+        }
+        var score = analysis.score || {};
+        var macros = score.macros || {};
+        var input = analysis.input || "";
+        var items = input.split(/[\n,]+/).filter(function(s){ return s.trim().length > 0; });
+        var itemCount = items.length || 1;
+        var total = typeof score.total === "number" ? score.total : 0;
+        var ringDeg = Math.max(0, Math.min(360, Math.round((total/10) * 360)));
+        var ringColor = total >= 7 ? "var(--lime)" : (total >= 5 ? "#cdb13a" : "var(--red)");
+        var ringColorHex = total >= 7 ? "#b8e94c" : (total >= 5 ? "#cdb13a" : "#ad4238");
+        // Targets : si absents, on les synthétise depuis les macros × 1.5 avec minimas sains.
+        var targets = analysis.targets;
+        if(!targets || typeof targets !== "object"){
+            targets = {
+                p: Math.max((macros.p||0)*1.5, 100),
+                g: Math.max((macros.g||0)*1.5, 280),
+                l: Math.max((macros.l||0)*1.5, 65),
+                fiber: 28,
+                kcal: Math.max((macros.kcal||0)*1.5, 2200)
+            };
+        }
+        function satPct(v, t){
+            if(!t || t <= 0) return 0;
+            return Math.max(0, Math.min(100, (v/t)*100));
+        }
+        function saturatedColor(p){
+            if(p >= 80) return "var(--lime)";
+            if(p >= 50) return "#cdb13a";
+            return "var(--red)";
+        }
+        function macroBox(icon, label, val, target){
+            var p = satPct(val, target);
+            var color = saturatedColor(p);
+            return '<div class="nutri-macro">' +
+                '<div style="font-size:22px;line-height:1;margin-bottom:6px">' + icon + '</div>' +
+                '<div class="nutri-macro-label">' + escapeHtml(label) + '</div>' +
+                '<div class="nutri-macro-val">' + (val||0).toFixed(1) + '<span style="font-size:11px;font-weight:600;color:var(--muted);margin-left:3px">g</span></div>' +
+                '<div class="nutri-macro-sub">cible ' + (target||0).toFixed(0) + ' g</div>' +
+                '<div class="nf-macro-progress"><div class="nf-macro-bar" style="width:' + p.toFixed(1) + '%;background:' + color + '"></div></div>' +
+                '</div>';
+        }
+        // Context pill (séance aujourd'hui / hier / repos)
+        var ctxLabel = "";
+        var ctxClass = "";
+        if(score.ctx){
+            if(score.ctx.trainedToday){ ctxLabel = "🏋️ Séance aujourd'hui"; ctxClass = ""; }
+            else if(score.ctx.trainedYesterday){ ctxLabel = "🛌 Récupération (hier)"; ctxClass = "warn"; }
+            else { ctxLabel = "🧘 Repos"; ctxClass = ""; }
+        }
+        var html = '<div class="nf-fallback">';
+        // === HERO ===
+        html += '<div class="nutri-score-hero">';
+        html += '<div class="nutri-score-circle" style="background:conic-gradient(' + ringColor + ' ' + ringDeg + 'deg, #eef1ec ' + ringDeg + 'deg)">';
+        html += '<div class="nutri-score-inner">';
+        html += '<div class="nutri-score-num" style="color:' + ringColorHex + '">' + total.toFixed(1) + '</div>';
+        html += '<div class="nutri-score-of">/10</div>';
+        html += '</div></div>';
+        html += '<div class="nutri-score-side">';
+        html += '<div class="nutri-score-title">🥗 Recap nutrition</div>';
+        html += '<div class="nutri-score-stats">' + (macros.kcal || 0) + ' kcal · ' + itemCount + ' items</div>';
+        if(analysis.date) html += '<div class="nutri-score-context">📅 ' + escapeHtml(String(analysis.date)) + '</div>';
+        if(ctxLabel) html += '<span class="nf-context-pill ' + escapeHtml(ctxClass) + '">' + escapeHtml(ctxLabel) + '</span>';
+        html += '</div></div>';
+        // === MACRO GRID ===
+        html += '<div class="nutri-grid">';
+        html += macroBox("💪", "Protéines", macros.p || 0, targets.p);
+        html += macroBox("🌾", "Glucides", macros.g || 0, targets.g);
+        html += macroBox("🥑", "Lipides", macros.l || 0, targets.l);
+        html += macroBox("🌈", "Fibres", macros.fiber || 0, targets.fiber);
+        html += '</div>';
+        // === KCAL VS TARGET BAR ===
+        var kcalPct = satPct(macros.kcal || 0, targets.kcal);
+        var kcalColor = saturatedColor(kcalPct);
+        html += '<div class="nutri-card" style="padding:14px 16px">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">';
+        html += '<div style="font:700 12px Manrope;color:var(--ink)">⚡ Calories vs cible</div>';
+        html += '<div style="font:700 13px Manrope;color:' + kcalColor + '">' + (macros.kcal || 0) + ' / ' + (targets.kcal || 0).toFixed(0) + ' kcal</div>';
+        html += '</div>';
+        html += '<div class="nf-macro-progress" style="height:8px"><div class="nf-macro-bar" style="width:' + kcalPct.toFixed(1) + '%;background:' + kcalColor + '"></div></div>';
+        html += '</div>';
+        // === SCORE BREAKDOWN CARD ===
+        if(score.breakdown && typeof score.breakdown === "object"){
+            var bd = [
+                {k:"proteins", icon:"💪", title:"Protéines"},
+                {k:"carbs", icon:"🌾", title:"Glucides"},
+                {k:"lipids", icon:"🥑", title:"Lipides"},
+                {k:"variety", icon:"🌈", title:"Variété"},
+                {k:"timing", icon:"⏱️", title:"Timing / Contexte"}
+            ];
+            var anyRow = false;
+            var bdHtml = '<div class="nutri-card">';
+            bdHtml += '<div class="nutri-card-title">🎯 Détail du score</div>';
+            bd.forEach(function(item){
+                var b = score.breakdown[item.k];
+                if(!b) return;
+                var p = satPct(b.score||0, b.max||1);
+                var color = saturatedColor(p);
+                anyRow = true;
+                bdHtml += '<div class="nutri-row">';
+                bdHtml += '<div class="nutri-row-head"><span>' + item.icon + ' ' + escapeHtml(item.title) + '</span><b>' + (b.score||0).toFixed(1) + '/' + (b.max||0) + '</b></div>';
+                bdHtml += '<div class="nutri-bar"><div class="nutri-bar-fill" style="width:' + p.toFixed(0) + '%;background:' + color + '"></div></div>';
+                if(b.detail) bdHtml += '<div class="nutri-row-detail">' + escapeHtml(String(b.detail)) + '</div>';
+                bdHtml += '</div>';
+            });
+            bdHtml += '</div>';
+            if(anyRow) html += bdHtml;
+        }
+        // === ADVICE CARDS ===
+        if(Array.isArray(analysis.advice) && analysis.advice.length){
+            html += '<div class="nutri-card">';
+            html += '<div class="nutri-card-title">💡 Conseils personnalisés</div>';
+            analysis.advice.forEach(function(a){
+                if(!a || !(a.label || a.text)) return;
+                html += '<div class="nutri-tip nutri-tip-' + escapeHtml(String(a.kind || "info")) + '">';
+                if(a.label) html += '<div class="nutri-tip-label">' + escapeHtml(a.label) + '</div>';
+                if(a.text) html += '<div class="nutri-tip-text">' + escapeHtml(a.text) + '</div>';
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+        // === MEALS LIST (parsed matin/midi/16h/soir) ===
+        var mealsHtml = renderNutriMeals(input);
+        if(mealsHtml){
+            html += '<div class="nutri-card">';
+            html += '<div class="nutri-card-title">🍽️ Repas saisis</div>';
+            html += mealsHtml;
+            html += '</div>';
+        }
+        html += '</div>';
+        return html;
+    } catch(_e){
+        return '<div class="nf-empty" style="color:var(--red);border-color:var(--red)">⚠ Renderer fallback a échoué : ' + escapeHtml(String(_e && _e.message || _e)) + '</div>';
+    }
+}
+
 function openCalendarModal(date, sessions){
     const modal = document.getElementById("calendarModal");
     const content = document.getElementById("calendarModalContent");
     if(!modal || !content) return;
 
     const dateLabel = date.toLocaleDateString("fr-FR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+    const dateKey = localDateStr(date);
+    let hasNutriContent = false;
     let html = `<h2>${dateLabel}</h2>`;
 
+    // Afficher l'analyse nutritionnelle si elle existe
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY) || "{}";
+        const data = JSON.parse(raw);
+        const nutriHistory = data.nutriHistory || [];
+        if(nutriHistory.length > 0) hasNutriContent = true;
+        // Lookup robuste : exact > loose > substring YYYY-MM-DD > substring MM-DD+year
+        let nutriAnalysis = nutriHistory.find(a => a && a.date === dateKey);
+        if(!nutriAnalysis){
+            nutriAnalysis = nutriHistory.find(a => a && String(a.date).trim() === String(dateKey).trim());
+        }
+        if(!nutriAnalysis && dateKey && dateKey.length >= 10){
+            nutriAnalysis = nutriHistory.find(a => a && a.date && String(a.date).substring(0,10) === dateKey.substring(0,10));
+        }
+        const nutriExists = nutriAnalysis || nutriHistory.length > 0;
+        if(nutriExists){
+        html += '<div class="card nutri-calendar-card" style="margin-bottom:14px;background:linear-gradient(135deg,#f7f8f5 0%,#e8f5e9 100%);border:2px solid var(--lime);padding:14px;">';
+        html += '  <h3 style="display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:14px;">🥗 Analyse nutrition du jour</h3>';
+        if(nutriAnalysis && nutriAnalysis.score) {
+            html += '  <div class="nutri-calendar-render">';
+            if(typeof window.renderNutriFromSaved === "function"){
+                try { html += window.renderNutriFromSaved(nutriAnalysis); }
+                catch(_rErr) { html += renderNutriFallback(nutriAnalysis); }
+            } else {
+                html += renderNutriFallback(nutriAnalysis);
+            }
+            html += '  </div>';
+        } else if(nutriHistory.length > 0) {
+            html += '  <div class="empty nutri-calendar-empty" style="padding:16px 14px;background:#fff;border-radius:8px;color:var(--muted);font-size:12px;line-height:1.6;">';
+            html += '    <strong style="display:block;color:var(--text);font-size:13px;margin-bottom:6px;">Pas d\'analyse pour ce jour</strong>';
+            html += '    <button type="button" data-nutri-cta data-date="' + dateKey + '" style="background:var(--lime);color:#1c291e;border:0;padding:5px 12px;border-radius:6px;font-weight:700;cursor:pointer;font-size:11px;font-family:inherit;">🥗 Aller à Nutrition</button>';
+            html += '  </div>';
+        }
+        html += '</div>';
+        }
+    } catch(e) {
+        // Ignorer les erreurs de chargement de l'historique nutrition
+    }
+
+    if(hasNutriContent && sessions.length > 0){
+        html += '<div style="border-top:1px dashed var(--line);margin:6px 0 14px;opacity:0.7;"></div>';
+    }
     if(sessions.length === 0){
-        html += `<p>Aucune séance enregistrée.</p>`;
+        html += '<p>Aucune séance enregistrée.</p>';
     } else {
         sessions.forEach(session => {
             const groups = groupExercisesForDisplay(session.exercises || []);
@@ -1891,15 +2184,8 @@ function renderDashboard(){
 
 
 
-    if(activity){
-
-
-        if(!last){
-
-            activity.innerHTML =
-            "Aucune séance enregistrée.";
-
-
+    if(activity){        if(!last){
+            activity.innerHTML = "Aucune séance enregistrée.";
         }
         else{
 
@@ -3306,7 +3592,60 @@ document.getElementById("cancelLog")
     showPage("dashboard");
 
 
-});function renderHistory(){
+});function renderNutriInHistory(){
+    var container = document.getElementById("historyContainer");
+    if(!container) return;
+    try {
+        var raw = localStorage.getItem("carnetMuscuData") || "{}";
+        var d = JSON.parse(raw);
+        var histori = d.nutriHistory || [];
+        if(histori.length === 0) return;
+        histori.sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
+        var html = '<div class="nutri-history-section" style="margin-top:36px;padding-top:18px;border-top:2px dashed var(--line);">';
+        html += '  <h3 style="font-size:14px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin:0 0 14px;">📊 Historique nutritionnel <span style="text-transform:none;color:var(--muted);font-weight:500;">(' + histori.length + ' analyse' + (histori.length > 1 ? 's' : '') + ')</span></h3>';
+        if(window.renderNutriCompactCard){
+            histori.forEach(function(analysis){
+                html += window.renderNutriCompactCard(analysis);
+            });
+        }
+        html += '</div>';
+        container.insertAdjacentHTML('beforeend', html);
+        container.querySelectorAll('.nutri-history-card').forEach(function(card){
+            var dateKey = card.getAttribute("data-nutri-date");
+            var openBtn = card.querySelector('[data-action="open-calendar"]');
+            if(openBtn){
+                openBtn.addEventListener("click", function(e){
+                    e.stopPropagation();
+                    var dt = new Date(dateKey);
+                    if(isNaN(dt.getTime())) return;
+                    if(typeof navigateToPage === "function"){ navigateToPage("calendar"); }
+                    setTimeout(function(){
+                        var dayBtns = document.querySelectorAll(".day-button");
+                        for(var i = 0; i < dayBtns.length; i++){
+                            if(dayBtns[i].dataset.day === dateKey){
+                                dayBtns[i].click();
+                                break;
+                            }
+                        }
+                    }, 140);
+                });
+            }
+            var delBtn = card.querySelector('[data-action="delete-nutri"]');
+            if(delBtn){
+                delBtn.addEventListener("click", function(e){
+                    e.stopPropagation();
+                    if(confirm("Supprimer l'analyse nutrition du " + dateKey + " ?")){
+                        if(window.deleteNutriAnalysis && window.deleteNutriAnalysis(dateKey)){
+                            renderHistory();
+                        }
+                    }
+                });
+            }
+        });
+    } catch(e){
+        console.warn("renderNutriInHistory failed:", e);
+    }
+}function renderHistory(){
 
 
     const container =
@@ -3320,11 +3659,9 @@ document.getElementById("cancelLog")
 
     if(data.sessions.length===0){
 
-        container.innerHTML=
-        `<div class="empty">
-        Aucune séance enregistrée.
-        </div>`;
+        container.innerHTML='<div class="empty">Aucune séance enregistrée.</div>';
 
+        renderNutriInHistory();
         return;
     }
 
@@ -3409,6 +3746,7 @@ document.getElementById("cancelLog")
 
 
 
+renderNutriInHistory();
 }
 
 // Construit un résumé visuel (badges de circuits + chips de types) pour l'historique.
@@ -3955,10 +4293,7 @@ function renderChart(exerciseName){
     if(values.length===0){
 
 
-        box.innerHTML=
-        `<div class="empty">
-        Pas encore de données pour cet exercice.
-        </div>`;
+        box.innerHTML='<div class="empty">Pas encore de données pour cet exercice.</div>';
 
 
         return;

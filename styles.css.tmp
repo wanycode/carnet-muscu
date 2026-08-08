@@ -438,6 +438,79 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
     .nf-fallback .nf-meal-text{font-size:12px}
 }
 
+/* ============================================================
+   EMPTY STATES — inspirants (remplace tous les .empty plats)
+   ============================================================ */
+.empty-hero{
+    background: linear-gradient(135deg, #f7f8f5 0%, #eef5d8 60%, #f0f7e5 100%);
+    border: 1.5px dashed var(--lime-border);
+    border-radius: 18px;
+    padding: 40px 24px;
+    text-align: center;
+    margin: 14px 0;
+    display:flex;flex-direction:column;align-items:center;gap:14px;
+    position:relative;overflow:hidden;
+}
+.empty-hero::before{
+    content:"";position:absolute;inset:-40px;
+    background:radial-gradient(circle at 50% 20%,rgba(213,255,62,0.22),transparent 60%);
+    z-index:0;pointer-events:none;
+}
+.empty-hero > *{position:relative;z-index:1}
+.empty-hero-art{
+    font-size:54px;line-height:1;margin-bottom:2px;
+    animation: emptyFloaty 3.5s ease-in-out infinite;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,0.06));
+}
+@keyframes emptyFloaty{
+    0%,100%{transform:translateY(0) scale(1)}
+    50%{transform:translateY(-8px) scale(1.04)}
+}
+.empty-hero-title{font:800 17px Manrope;color:var(--ink);letter-spacing:-.02em}
+.empty-hero-message{font:500 13px Manrope;color:var(--muted);max-width:480px;line-height:1.55}
+.empty-hero-cta{padding:11px 22px;font-size:12px}
+.empty-hero-deco{
+    display:flex;gap:6px;margin-top:6px;
+    opacity:0.6;font-size:11px;color:var(--muted);
+}
+
+/* Variants par page */
+.empty-hero-seance{
+    background: linear-gradient(135deg, #f4f7e8 0%, #eaf6e0 100%);
+    border-color: #a8d36c;
+}
+.empty-hero-historique{
+    background: linear-gradient(135deg, #f7f8f5 0%, #eef5d8 50%, #f0f7e5 100%);
+    border-color: var(--lime-border);
+}
+.empty-hero-nutri{
+    background: linear-gradient(135deg, #fff8e1 0%, #fcefbf 100%);
+    border-color: #d6c184;
+}
+.empty-hero-stats{
+    background: linear-gradient(135deg, #ecf0f7 0%, #dde4ef 100%);
+    border-color: #95a8c4;
+}
+.empty-hero-programme{
+    background: linear-gradient(135deg, #f7e9dd 0%, #f0d9c0 100%);
+    border-color: #cda37a;
+}
+.empty-hero-1rm{
+    background: linear-gradient(135deg, #ecf0f7 0%, #dde6f0 100%);
+    border-color: #95a8c4;
+}
+.empty-hero-calendrier{
+    background: linear-gradient(135deg, #f7f8f5 0%, #eef0e8 100%);
+    border-color: #b8b8a8;
+}
+
+@media (max-width:760px){
+    .empty-hero{padding:30px 18px;border-radius:14px}
+    .empty-hero-art{font-size:42px}
+    .empty-hero-title{font-size:15px}
+    .empty-hero-message{font-size:12px}
+}
+
 /* ========== INJURY PREDICTION ========== */
 #blessure .injury-header{
     display:flex;align-items:center;gap:18px;flex-wrap:wrap;

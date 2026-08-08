@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carnet Muscu</title>
 
-    <link rel="stylesheet" href="styles.css?v=101">
+    <link rel="stylesheet" href="styles.css?v=125">
     
     <!-- Icône pour appli web -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -215,12 +215,7 @@ Dernière activité
 </h2>
 
 <div
-id="lastActivity"
-class="empty">
-
-Aucune séance enregistrée.
-
-</div>
+id="lastActivity" class="empty">Aucune séance enregistrée.</div>
 
 </div>
 
@@ -370,7 +365,7 @@ D
 
 <div style="display:flex;gap:8px;">
 
-<input type="text" id="quickAccessCode" placeholder="Entre le code NUTRI, 1RM, MAP, GHOST, BLESSURE ou TIMEMACHINE" style="flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font:13px Manrope;">
+<input type="text" id="quickAccessCode" placeholder="Entre le code NUTRI, 1RM, MAP, GHOST, BLESSURE ou TIMEMACHINE" style="flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font:13px Manrope;color:var(--ink);background:#fff;-webkit-text-fill-color:var(--ink);" autocomplete="off">
 
 <button class="btn lime" id="openQuickAccess" style="padding:10px 14px;">Ouvrir</button>
 
@@ -646,11 +641,7 @@ Toutes tes séances réalisées.
 class="card history"
 id="historyContainer">
 
-<div class="empty">
-
-Aucune séance enregistrée.
-
-</div>
+<div class="empty">Aucune séance enregistrée.</div>
 
 </div>
 
@@ -1179,9 +1170,7 @@ Calculer et sauvegarder
 
 <div class="card" style="margin-top:20px;">
 <h2 style="margin-bottom:12px;">📈 Historique des 1RM</h2>
-<div id="maxHistory">
-<div class="empty">Aucun 1RM enregistré.</div>
-</div>
+<div id="maxHistory" class="empty">Aucun 1RM enregistré.</div>
 </div>
 
 </section>
@@ -1206,28 +1195,46 @@ Calculer et sauvegarder
       <p class="sub" style="margin-top:6px;font-size:11px;">💡 Le même analyseur considère aussi ton dernier entraînement : séance aujourd'hui = priorité protéines + glucides, séance hier = récupération, sinon repos = lipides + légumes.</p>
       <p class="sub" style="margin-top:6px;font-size:11px;">🔑 <b>Code d'accès rapide</b> : tapez <b>NUTRI</b> (ou MANGER / REPAS / ALIM / NUTRITION) dans le champ « accès rapide » en bas du dashboard pour ouvrir cette page à tout moment.</p></p>
     </div>
+    <div style="display:flex;gap:6px;align-self:flex-start;flex-wrap:wrap;">
+      <button class="btn" data-nutri-tab="analyze" style="padding:7px 12px;font-size:11px;border:1px solid var(--lime);background:var(--lime);color:#1c291e;font-weight:700;border-radius:8px;">Analyser</button>
+      <button class="btn" data-nutri-tab="history" style="padding:7px 12px;font-size:11px;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;">Historique</button>
+    </div>
   </header>
 
-  <div class="card" style="margin-top:14px;">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-      <h2 style="margin:0;font-size:16px;">Qu'as-tu mangé aujourd'hui ?</h2>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="btn lime" id="nutriSample" style="padding:7px 12px;font-size:11px;">Exemple</button>
-        <button class="btn" id="nutriClearBtn" style="padding:7px 12px;font-size:11px;">Effacer</button>
+  <div id="nutriAnalyzeTab">
+    <div class="card" style="margin-top:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <h2 style="margin:0;font-size:16px;">Qu'as-tu mangé aujourd'hui ?</h2>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn lime" id="nutriSample" style="padding:7px 12px;font-size:11px;">Exemple</button>
+          <button class="btn" id="nutriClearBtn" style="padding:7px 12px;font-size:11px;">Effacer</button>
+        </div>
+      </div>
+      <textarea id="nutriInput" placeholder="Un aliment ou un repas par ligne. Ex :&#10;matin : 2 tartines pain complet + beurre de cacahuète + banane&#10;midi : 150 g poulet + riz basmati + brocoli&#10;16h : skyr + myrtilles&#10;soir : pates completes + parmesan + 1 verre de vin" style="width:100%;min-height:140px;padding:12px;border:1px solid var(--line);border-radius:10px;font:13px Manrope;resize:vertical;line-height:1.5;"></textarea>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;flex-wrap:wrap;">
+        <span style="font-size:11px;color:var(--muted);">Astuce : précise les quantités (150g de poulet, 2 bols de riz…) pour une estimation plus juste. <b>⌘/Ctrl + Enter</b> pour analyser.</span>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);font-weight:600;"><span>📅</span><input type="date" id="nutriDateInput" style="padding:7px 10px;font:13px Manrope;font-weight:600;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text);"></label>
+          <button class="btn lime" id="nutriAnalyzeBtn" style="padding:9px 18px;font-size:13px;">Analyser 🥗</button>
+        </div>
       </div>
     </div>
-    <textarea id="nutriInput" placeholder="Un aliment ou un repas par ligne. Ex :&#10;matin : 2 tartines pain complet + beurre de cacahuète + banane&#10;midi : 150 g poulet + riz basmati + brocoli&#10;16h : skyr + myrtilles&#10;soir : pates completes + parmesan + 1 verre de vin" style="width:100%;min-height:140px;padding:12px;border:1px solid var(--line);border-radius:10px;font:13px Manrope;resize:vertical;line-height:1.5;"></textarea>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;flex-wrap:wrap;">
-      <span style="font-size:11px;color:var(--muted);">Astuce : précise les quantités (150g de poulet, 2 bols de riz…) pour une estimation plus juste. <b>⌘/Ctrl + Enter</b> pour analyser.</span>
-      <button class="btn lime" id="nutriAnalyzeBtn" style="padding:9px 18px;font-size:13px;">Analyser 🥗</button>
+
+    <div id="nutriResult" style="margin-top:14px;">
+      <div class="card" style="text-align:center;color:var(--muted);padding:28px 16px;">
+        <div style="font-size:32px;margin-bottom:6px;">✍️</div>
+        <div style="font:600 14px Manrope;color:var(--ink);">Prêt à analyser ta journée</div>
+        <div style="font-size:12px;margin-top:6px;">Écris au moins 2-3 repas, ou clique sur <b>Exemple</b>.</div>
+      </div>
     </div>
   </div>
 
-  <div id="nutriResult" style="margin-top:14px;">
-    <div class="card" style="text-align:center;color:var(--muted);padding:28px 16px;">
-      <div style="font-size:32px;margin-bottom:6px;">✍️</div>
-      <div style="font:600 14px Manrope;color:var(--ink);">Prêt à analyser ta journée</div>
-      <div style="font-size:12px;margin-top:6px;">Écris au moins 2-3 repas, ou clique sur <b>Exemple</b>.</div>
+  <div id="nutriHistoryTab" class="hidden">
+    <div class="card" style="margin-top:14px;">
+      <h2 style="margin:0;font-size:16px;margin-bottom:12px;">📅 Historique des analyses</h2>
+      <div id="nutriHistoryList" style="max-height:400px;overflow-y:auto;">
+        <div class="empty" style="text-align:center;padding:32px;color:var(--muted);">Aucune analyse enregistrée</div>
+      </div>
     </div>
   </div>
 </section>
@@ -1491,15 +1498,15 @@ Enregistrer
 </dialog>
 
 <script src="stats-gallery.js?v=99"></script>
-<script src="app.js?v=102"></script>
+<script src="app.js?v=125"></script>
 <script src="ai-improved.js?v=85"></script>
 <script src="stats-progress.js?v=85"></script>
 <script src="stats-extended.js?v=85"></script>
 <script src="quickmap.js?v=85"></script>
 <script src="quickghost.js?v=65"></script>
-<script src="quicknutrition.js?v=99"></script>
-<script src="quickinjuryprediction.js?v=106"></script>
-<script src="quicktimemachine.js?v=106"></script>
+<script src="quicknutrition.js?v=123"></script>
+<script src="quickinjuryprediction.js?v=108"></script>
+<script src="quicktimemachine.js?v=108"></script>
 
 </body>
 

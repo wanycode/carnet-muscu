@@ -44,8 +44,22 @@
                 (s.exercises || []).forEach(function(ex){
                     var key = (ex.exerciseKey || ex.name || "").toLowerCase().trim();
                     if(!key) return;
-                    // Fuzzy match : si "squat" est dans le nom
-                    if(!(key === target || key.indexOf(target) !== -1 || target.indexOf(key) !== -1)) return;
+                    // Match exact ou fuzzy amélioré
+                    var isMatch = false;
+                    if(key === target) {
+                        isMatch = true;
+                    } else if(target.indexOf("session:") === 0) {
+                        // Match pour les séances complètes
+                        var sessionName = target.replace("session:", "");
+                        var sessionKey = (s.name || "").toLowerCase().trim();
+                        isMatch = (sessionKey === sessionName || sessionKey.indexOf(sessionName) !== -1 || sessionName.indexOf(sessionKey) !== -1);
+                    } else {
+                        // Fuzzy match pour les exercices
+                        var targetClean = target.replace(/[^a-z0-9]/g, "");
+                        var keyClean = key.replace(/[^a-z0-9]/g, "");
+                        isMatch = (keyClean === targetClean || keyClean.indexOf(targetClean) !== -1 || targetClean.indexOf(keyClean) !== -1);
+                    }
+                    if(!isMatch) return;
                     if(!weeksMap[wk]) weeksMap[wk] = { wk: wk, max: 0, date: d };
                     (ex.sets || []).forEach(function(st){
                         var w = safeNum(st.weight);
@@ -76,15 +90,17 @@
                     var rawName = ex.name || ex.exerciseName || "Inconnu";
                     var key = (ex.exerciseKey || rawName).toLowerCase().trim();
                     if(!key) return;
-                    if(!counts[key]) counts[key] = { name: rawName, key: key, count: 0 };
+                    if(!counts[key]) counts[key] = { name: rawName, key: key, count: 0, type: ex.type || "weight" };
                     counts[key].count += 1;
+                    // Stocker le type d'exercice pour l'affichage
+                    if(ex.type) counts[key].type = ex.type;
                 });
                 // Si pas d'exos dans la séance, on crée une entrée virtuelle basée sur le nom de séance
                 if(!hasAny && s.name){
                     var sname = String(s.name).trim();
                     if(sname){
                         var skey = "session:" + sname.toLowerCase();
-                        if(!sessNames[skey]) sessNames[skey] = { name: "🏋 "+sname+" (séance complète)", key: skey, count: 0 };
+                        if(!sessNames[skey]) sessNames[skey] = { name: "🏋 "+sname+" (séance complète)", key: skey, count: 0, type: "session" };
                         sessNames[skey].count += 1;
                     }
                 }
@@ -93,7 +109,7 @@
         var arr = Object.keys(counts).map(function(k){ return counts[k]; });
         Object.keys(sessNames).forEach(function(k){ arr.push(sessNames[k]); });
         arr.sort(function(a,b){ return b.count - a.count; });
-        return arr.filter(function(e){ return e.count >= 1; }).slice(0, 10);
+        return arr.filter(function(e){ return e.count >= 1; }).slice(0, 15); // Augmenté à 15 pour plus d'exos
     }
 
     // ============================================================
@@ -255,11 +271,12 @@
             '<text x="' + (padding + 108) + '" y="20" font-size="11" fill="#1c291e">Prédite (plage)</text>' +
         '</svg>';
     }
-    function renderWeeklyPlan(slope, current, horizonWeeks){
+    function renderWeeklyPlan(slope, current, horizonWeeks, unitLabel){
         // Plan: 4 séances/sem, deload -20% toutes les 4 sem, +slope kg / sem avec amortissement
         var lines = [];
         var weeksDone = 0;
         var stepLabel = 0;
+        var unit = unitLabel || "kg";
         while(weeksDone < horizonWeeks){
             var blockSize = 4;
             var blockIdx = Math.floor(weeksDone / 4);
@@ -273,14 +290,14 @@
             lines.push('<div class="tm-block ' + (isDeload ? "deload" : "work") + '">' +
                 '<span class="tm-block-tag">' + tag + '</span>' +
                 '<span class="tm-block-label">Sem ' + (weeksDone + 1) + ' → ' + Math.min(weeksDone + 4, horizonWeeks) + '</span>' +
-                '<span class="tm-block-load">' + formatNum(blockLoad) + ' kg cible</span>' +
+                '<span class="tm-block-load">' + formatNum(blockLoad) + ' ' + unit + ' cible</span>' +
             '</div>');
             weeksDone += blockSize;
             stepLabel++;
         }
         return lines.join("");
     }
-    function renderTimeline(sessions, exoKey, target, horizonWeeks){
+    function renderTimeline(sessions, exoKey, target, horizonWeeks, currentOverride){
         // 1. Récupérer l'historique
         var weeks = exerciseWeeklyEstimates(sessions, exoKey);
         if(weeks.length < 2){
@@ -295,26 +312,34 @@
         var futurePoints = [];
         var stepW = Math.max(1, Math.floor(horizonWeeks / 12));
         for(var t = stepW; t <= horizonWeeks; t += stepW){
-            var projY = dampenedProjection(reg.slope, t, points[points.length - 1].y, horizonWeeks);
+            var projY = dampenedProjection(reg.slope, t, currentOverride || points[points.length - 1].y, horizonWeeks);
             futurePoints.push({ x: lastWkIdx + t, y: projY });
         }
         if(futurePoints.length === 0 || futurePoints[futurePoints.length - 1].x < lastWkIdx + horizonWeeks){
-            futurePoints.push({ x: lastWkIdx + horizonWeeks, y: dampenedProjection(reg.slope, horizonWeeks, points[points.length - 1].y, horizonWeeks) });
+            futurePoints.push({ x: lastWkIdx + horizonWeeks, y: dampenedProjection(reg.slope, horizonWeeks, currentOverride || points[points.length - 1].y, horizonWeeks) });
         }
         // 4. Confidence band
-        var band = confidenceBand(points[points.length - 1].y, reg.slope, horizonWeeks);
+        var band = confidenceBand(currentOverride || points[points.length - 1].y, reg.slope, horizonWeeks);
         // 5. Reality check
-        var rc = realityCheck(points[points.length - 1].y, target, reg.slope, horizonWeeks);
+        var rc = realityCheck(currentOverride || points[points.length - 1].y, target, reg.slope, horizonWeeks);
         // 6. Build HTML
-        var currentVal = points[points.length - 1].y;
+        var currentVal = currentOverride || points[points.length - 1].y;
         var projectedVal = futurePoints[futurePoints.length - 1].y;
         var delta = projectedVal - currentVal;
         var color = rc.verdict === "À PORTÉE" || rc.verdict === "ATTEIGNABLE" ? "ok" : rc.verdict === "AMBITIEUX" ? "warn" : rc.verdict === "STAGNANT" ? "bad" : "warn";
+        
+        // Déterminer le type d'exercice pour l'affichage
+        var exoType = "poids";
+        if(exoKey.indexOf("session:") === 0) exoType = "séance";
+        else if(exoKey.indexOf("time") !== -1 || exoKey.indexOf("durée") !== -1) exoType = "temps";
+        
+        var unitLabel = exoType === "temps" ? "s" : "kg";
+        
         return '<div class="tm-summary ' + color + '">' +
-                '<div class="tm-stat"><span class="tm-stat-label">Actuelle</span><span class="tm-stat-value">' + formatNum(currentVal) + ' kg</span></div>' +
-                '<div class="tm-stat"><span class="tm-stat-label">Prédite</span><span class="tm-stat-value">' + formatNum(projectedVal) + ' kg</span></div>' +
-                '<div class="tm-stat"><span class="tm-stat-label">Cible</span><span class="tm-stat-value">' + formatNum(target) + ' kg</span></div>' +
-                '<div class="tm-stat"><span class="tm-stat-label">' + (delta >= 0 ? "Gain prévu" : "Perte prévue") + '</span><span class="tm-stat-value">' + (delta >= 0 ? "+" : "") + formatNum(delta) + ' kg</span></div>' +
+                '<div class="tm-stat"><span class="tm-stat-label">Actuelle</span><span class="tm-stat-value">' + formatNum(currentVal) + ' ' + unitLabel + '</span></div>' +
+                '<div class="tm-stat"><span class="tm-stat-label">Prédite</span><span class="tm-stat-value">' + formatNum(projectedVal) + ' ' + unitLabel + '</span></div>' +
+                '<div class="tm-stat"><span class="tm-stat-label">Cible</span><span class="tm-stat-value">' + formatNum(target) + ' ' + unitLabel + '</span></div>' +
+                '<div class="tm-stat"><span class="tm-stat-label">' + (delta >= 0 ? "Gain prévu" : "Perte prévue") + '</span><span class="tm-stat-value">' + (delta >= 0 ? "+" : "") + formatNum(delta) + ' ' + unitLabel + '</span></div>' +
             '</div>' +
             renderCurve(points, futurePoints, band, currentVal, target, horizonWeeks) +
             '<div class="tm-reality ' + color + '">' +
@@ -322,8 +347,24 @@
                 '<p>' + escapeHtml(rc.msg) + '</p>' +
             '</div>' +
             '<h3 style="margin:24px 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:0.04em;">📅 Plan hebdo sur ' + horizonWeeks + ' semaines</h3>' +
-            '<div class="tm-blocks">' + renderWeeklyPlan(reg.slope, currentVal, horizonWeeks) + '</div>' +
-            '<p class="sub" style="margin-top:18px;font-size:11px;line-height:1.5;">R² = ' + (reg.r2 * 100).toFixed(0) + '% · pente = ' + reg.slope.toFixed(3) + ' kg/sem · modèle = linéaire amortie (plateau)</p>';
+            '<div class="tm-blocks">' + renderWeeklyPlan(reg.slope, currentVal, horizonWeeks, unitLabel) + '</div>' +
+            '<div class="tm-info" style="margin-top:16px;padding:12px;background:#f7f8f5;border-radius:8px;font-size:11px;color:var(--muted);">' +
+                '<strong>ℹ️ Comment ça marche :</strong><br>' +
+                '• <strong>Actuelle</strong> : Ta meilleure performance récente (1RM estimé = charge × (1 + reps/30))<br>' +
+                '• <strong>Prédite</strong> : Projection basée sur ta progression historique avec plateau réaliste<br>' +
+                '• <strong>Cible</strong> : L\'objectif que tu veux atteindre<br>' +
+                '• <strong>Plan hebdo</strong> : Charge cible par semaine avec deload automatique toutes les 4 semaines<br>' +
+                '• Les exercices de type "temps" utilisent la durée en secondes au lieu du poids' +
+            '</div>' +
+            '<p class="sub" style="margin-top:12px;font-size:11px;line-height:1.5;">R² = ' + (reg.r2 * 100).toFixed(0) + '% · pente = ' + reg.slope.toFixed(3) + ' ' + unitLabel + '/sem · modèle = linéaire amortie (plateau)</p>';
+    }
+    function updateCurrentOnInput(){
+        var currentInput = document.getElementById("tmCurrent");
+        if(!currentInput) return;
+        currentInput.addEventListener("input", function(){
+            // L'utilisateur a changé la valeur manuellement, on respecte son choix
+            // Pas de recalcul automatique
+        });
     }
     function renderTimeMachine(){
         var container = document.getElementById("timeMachinePanel");
@@ -348,14 +389,18 @@
         if(!horizonWeeks || horizonWeeks <= 0){
             horizonWeeks = 12;
         }
-        // Calcule la valeur actuelle auto si pas remplie
-        var weeks = exerciseWeeklyEstimates(sessions, exoKey);
-        var autoCurrent = 0;
-        if(weeks.length > 0) autoCurrent = weeks[weeks.length - 1].max;
-        if(!parseFloat(currentInput.value) || parseFloat(currentInput.value) <= 0){
-            currentInput.value = autoCurrent.toFixed(1);
+        // Utiliser la valeur actuelle entrée par l'utilisateur, ou auto-calculer si vide
+        var current = parseFloat(currentInput.value);
+        if(!current || current <= 0){
+            var weeks = exerciseWeeklyEstimates(sessions, exoKey);
+            if(weeks.length > 0){
+                current = weeks[weeks.length - 1].max;
+                currentInput.value = current.toFixed(1);
+            } else {
+                current = 0;
+            }
         }
-        container.innerHTML = renderTimeline(sessions, exoKey, target, horizonWeeks);
+        container.innerHTML = renderTimeline(sessions, exoKey, target, horizonWeeks, current);
     }
     function populateExoSelect(){
         var sel = document.getElementById("tmExo");
@@ -366,8 +411,21 @@
             sel.innerHTML = '<option value="">(aucun exo tracked)</option>';
             return;
         }
+        
+        // Ajouter un indicateur de type pour chaque exercice
+        var typeIcon = function(type){
+            if(type === "time") return "⏱️ ";
+            if(type === "elastic") return "➰ ";
+            if(type === "session") return "🏋️ ";
+            return "⚖️ ";
+        };
+        
         sel.innerHTML = '<option value="">— Choisir un exo —</option>' +
-            exos.map(function(e){ return '<option value="' + escapeHtml(e.key) + '">' + escapeHtml(e.name) + ' (' + e.count + '\u00d7)</option>'; }).join("");
+            exos.map(function(e){ 
+                var icon = typeIcon(e.type);
+                var typeLabel = e.type === "time" ? "(temps)" : (e.type === "elastic" ? "(élastique)" : (e.type === "session" ? "(séance)" : "(poids)"));
+                return '<option value="' + escapeHtml(e.key) + '">' + icon + escapeHtml(e.name) + ' ' + typeLabel + ' · ' + e.count + '×</option>'; 
+            }).join("");
         // Auto-fill current value on selection
         sel.addEventListener("change", function(){
             var exoKey = sel.value.trim();
@@ -383,6 +441,7 @@
     function initTimeMachine(){
         populateExoSelect();
         renderTimeMachine();
+        updateCurrentOnInput();
     }
     window.__initTimeMachine = initTimeMachine;
     window.__renderTimeMachine = renderTimeMachine;
