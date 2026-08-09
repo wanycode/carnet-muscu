@@ -446,29 +446,26 @@ function getCanonicalWorkouts(){
 const calendarState = {
     date: new Date()
 };function loadData(){
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if(saved){
+            data = JSON.parse(saved);
+            migrateDataShape(data);
+        } else {
+            saveData();
+        }
 
-    const saved = localStorage.getItem(STORAGE_KEY);
-
-
-    if(saved){
-
-        data = JSON.parse(saved);
-
-        migrateDataShape(data);    // persiste les seed/garanties canoniques
-
-    }
-
-    else{
-
+        const maxSaved = localStorage.getItem(MAX_STORAGE_KEY);
+        if(maxSaved){
+            maxData = JSON.parse(maxSaved);
+        }
+    } catch(e){
+        console.error("Erreur lors du chargement des données:", e);
+        // Réinitialiser les données en cas d'erreur
+        data = { program: defaultProgram, sessions: [] };
+        maxData = { records: [] };
         saveData();
-
-    }
-
-
-
-    const maxSaved = localStorage.getItem(MAX_STORAGE_KEY);
-    if(maxSaved){
-        maxData = JSON.parse(maxSaved);
+        saveMaxData();
     }
 }
 
@@ -578,40 +575,21 @@ function refreshSessionViews(){
 
 
 function calculateVolume(session){
-
     let total = 0;
 
-
-    session.exercises.forEach(ex=>{
-
+    session.exercises.forEach(ex => {
         // Les séries en temps (gainage, ...) et en élastique à résistance
         // pondérée n'entrent pas dans le volume en kg.
-        if(ex.type === "time") return;
+        if(ex.type === "time" || ex.type === "elastic") return;
 
-        ex.sets.forEach(set=>{
-
-
+        ex.sets.forEach(set => {
             const weight = Number(set.weight) || 0;
-
             const reps = Number(set.reps) || 0;
-
-
-            // Pour l'élastique, "weight" représente une résistance indicielle
-            // (1=léger, 2=moyen, 3=fort). On l'exclut du volume en kg.
-            const effectiveWeight = ex.type === "elastic" ? 0 : weight;
-
-
-            total += effectiveWeight * reps;
-
-
+            total += weight * reps;
         });
-
-
     });
 
-
     return total;
-
 }
 
 
@@ -770,128 +748,51 @@ function getWeekSessions(){
 
 });
 function initNavigation(){
-
     const links = document.querySelectorAll("nav a, [data-page]");
-
-
-    links.forEach(link=>{
-
-
-        link.addEventListener("click", e=>{
-
-
+    links.forEach(link => {
+        link.addEventListener("click", e => {
             e.preventDefault();
-
-
             const page = link.dataset.page;
-
-
             if(!page) return;
-
-
             showPage(page);
-
-
         });
-
-
     });
-
-
 }
 
 
 
 function showPage(page){
-
-
     const sections = document.querySelectorAll("main section");
-
-
-    sections.forEach(section=>{
-
-
-        section.classList.add("hidden");
-
-
-    });
-
+    sections.forEach(section => section.classList.add("hidden"));
 
     const target = document.getElementById(page);
+    if(!target) return;
 
+    target.classList.remove("hidden");
 
-    if(target){
-
-        target.classList.remove("hidden");
-
-        if(page === "stats") renderAdvancedStats();
-        if(page === "gallery") renderPhotos();
-
-        if(page === "history") renderHistory();
-
-        if(page === "calendar") renderCalendar();
-
-        if(page === "nutrition"){
+    // Mapping des pages vers leurs fonctions de rendu
+    const pageRenderers = {
+        stats: () => renderAdvancedStats(),
+        gallery: () => renderPhotos(),
+        history: () => renderHistory(),
+        calendar: () => renderCalendar(),
+        dashboard: () => renderDashboard(),
+        programme: () => renderProgram(),
+        log: () => { fillSessionSelect(); initSessionDateField(); },
+        progress: () => fillProgressExercises(),
+        calculator: () => {}, // Pas de rendu spécifique
+        nutrition: () => {
             if(window.__nutriTargetDate){
                 try {
-                    var dateIn = document.getElementById("nutriDateInput");
-                    if(dateIn){ dateIn.value = window.__nutriTargetDate; }
+                    const dateIn = document.getElementById("nutriDateInput");
+                    if(dateIn) dateIn.value = window.__nutriTargetDate;
                 } catch(e){}
                 try { delete window.__nutriTargetDate; } catch(e){}
             }
         }
+    };
 
-    }
-
-
-
-    if(page==="dashboard"){
-
-        renderDashboard();
-
-    }
-
-
-    if(page==="programme"){
-
-        renderProgram();
-
-    }
-
-
-    if(page==="history"){
-
-        renderHistory();
-
-    }
-
-
-    if(page==="log"){
-
-        fillSessionSelect();
-        initSessionDateField();
-
-    }
-
-
-    if(page==="progress"){
-
-        fillProgressExercises();
-
-    }
-
-    if(page==="calendar"){
-
-        renderCalendar();
-
-    }
-
-    if(page==="calculator"){
-
-        // Calculator page doesn't need specific rendering
-
-    }
-
+    if(pageRenderers[page]) pageRenderers[page]();
 }
 
 
@@ -946,17 +847,34 @@ function renderCalendar(){
         html += `<div class="day-cell empty"></div>`;
     }
 
+    // Charger les analyses nutritionnelles pour le mois
+    const nutriData = {};
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY) || "{}";
+        const data = JSON.parse(raw);
+        const nutriHistory = data.nutriHistory || [];
+        nutriHistory.forEach(analysis => {
+            if(analysis.date) nutriData[analysis.date] = analysis;
+        });
+    } catch(e){}
+
     for(let day = 1; day <= daysInMonth; day++){
         const currentDate = new Date(year, month, day);
         const sessions = getSessionsForDay(currentDate);
         const session = sessions[0];
         const emoji = session ? getDayEmojiForSession(session) : "";
+        
+        // Vérifier s'il y a une analyse nutritionnelle
+        const dateKey = currentDate.toISOString().split('T')[0];
+        const hasNutri = nutriData[dateKey];
+        const nutriIndicator = hasNutri ? '<span class="nutri-indicator">🥗</span>' : '';
 
         html += `
             <div class="day-cell">
                 <button class="day-button" data-day="${day}"${sessions.length === 0 ? " data-empty=\"1\"" : ""}>
                     <span class="day-number">${day}</span>
                     <span class="day-emoji">${emoji}</span>
+                    ${nutriIndicator}
                 </button>
             </div>
         `;
@@ -1397,6 +1315,28 @@ function openCalendarModal(date, sessions){
     });
 
     modal.showModal();
+}
+
+function renderHistory(){
+    const container = document.getElementById("historyContainer");
+    if(!container) return;
+
+    if(data.sessions.length === 0){
+        container.innerHTML = '<div class="empty">Aucune séance enregistrée.</div>';
+        return;
+    }
+
+    const sortedSessions = [...data.sessions].sort((a, b) => new Date(b.date) - new Date(a.date));
+    let html = sortedSessions.map(session => buildSessionSummaryHTML(session)).join("");
+    container.innerHTML = html;
+
+    container.querySelectorAll(".edit-session-btn").forEach(button => {
+        button.addEventListener("click", () => {
+            const session = data.sessions.find(item => item.id === Number(button.dataset.sessionId));
+            if(!session) return;
+            openSessionEditor(session);
+        });
+    });
 }
 
 function escapeHtml(value){
@@ -2291,6 +2231,8 @@ function renderDashboard(){
 
     }
 
+    renderRecordSpotlight();
+
 
 
     const activity =
@@ -2373,11 +2315,7 @@ function getNextWorkoutName(lastWorkoutName){
 
     return canonical[nextIndex].name;
 
-}function calculateRecords(){
-
-    let count = 0;
-
-
+}function getPersonalRecords(){
     const best = {};
 
 
@@ -2397,15 +2335,10 @@ function getNextWorkoutName(lastWorkoutName){
                 const weight =
                     Number(set.weight)||0;
 
-                if(
-                    !best[ex.name] ||
-                    weight > best[ex.name]
-                ){
-
-                    best[ex.name]=weight;
-
-                    count++;
-
+                const key = normalizeExerciseName(ex.name);
+                if(!key || weight <= 0) return;
+                if(!best[key] || weight > best[key].weight){
+                    best[key] = { name:ex.name, weight:weight, reps:Number(set.reps)||0, date:session.date };
                 }
 
 
@@ -2418,104 +2351,166 @@ function getNextWorkoutName(lastWorkoutName){
     });
 
 
-    return count;
-
-
+    return Object.keys(best).map(function(key){ return best[key]; });
 }
 
+function calculateRecords(){
+    return getPersonalRecords().length;
+}
 
-
-
-
-
-function renderProgram(){
-
-
-    const container =
-        document.getElementById("programContainer");
-
-
+function renderRecordSpotlight(){
+    const container = document.getElementById("recordSpotlight");
     if(!container) return;
+    const records = getPersonalRecords();
+    if(!records.length){
+        container.innerHTML = '<div class="record-empty"><span>🏆</span><div><b>Ton tableau des records t’attend.</b><br>Chaque meilleure charge par exercice sera conservée ici.</div></div>';
+        return;
+    }
+    const recentCutoff = Date.now() - 1000 * 60 * 60 * 24 * 28;
+    records.sort(function(a,b){
+        const aRecent = new Date(a.date).getTime() >= recentCutoff ? 1 : 0;
+        const bRecent = new Date(b.date).getTime() >= recentCutoff ? 1 : 0;
+        return bRecent - aRecent || new Date(b.date) - new Date(a.date) || b.weight - a.weight;
+    });
+    const medals = ["🥇","🥈","🥉"];
+    container.innerHTML = records.slice(0,3).map(function(record, index){
+        const date = record.date ? new Date(record.date).toLocaleDateString("fr-FR", {day:"numeric",month:"short"}) : "";
+        const repText = record.reps ? " · " + record.reps + " reps" : "";
+        return '<article class="record-card" style="--record-index:' + index + '">' +
+            '<span class="record-medal">' + medals[index] + '</span>' +
+            '<div class="record-main"><b>' + escapeHtml(record.name) + '</b><span>Record personnel · ' + date + '</span></div>' +
+            '<div class="record-value"><strong>' + formatNumber(record.weight) + '<small> kg</small></strong><span>' + repText.replace(" · ", "") + '</span></div>' +
+        '</article>';
+    }).join("");
+}// === Programme (refonte visuelle v2 : cards par thème de séance) ===
+// Chaque séance canonique reçoit son propre univers visuel (emoji hero,
+// couleur d'accent, gradient, chips de muscles, stats row glass, dots de
+// séries, PR badges, footer hint). Un header récap sombre affiche la
+// semaine-type.
+function renderProgram(){
+    const container = document.getElementById("programContainer");
+    if(!container) return;
+    container.innerHTML = "";
 
+    const canonical = getCanonicalWorkouts();
+    if(canonical.length === 0){
+        container.innerHTML = '<div class="prog-empty">Aucun programme configuré. Clique sur « Modifier » pour en créer un.</div>';
+        return;
+    }
 
+    // Thèmes visuels : un par séance canonique pour que la page soit
+    // immédiatement reconnaissable (rose = pecs, bleu = triceps/dos,
+    // violet = épaules, orange = jambes).
+    var themes = {
+        "PECS + BICEPS":      { emoji: "💪", color: "#ff6b8e", gradient: "linear-gradient(135deg,#ff7eb3 0%,#ff5e62 100%)", muscles: ["Pecs","Biceps"],   tag: "Push · Pull" },
+        "TRICEPS + DOS":      { emoji: "🦾", color: "#4a90e2", gradient: "linear-gradient(135deg,#4a90e2 0%,#6ab7ff 100%)", muscles: ["Triceps","Dos"],   tag: "Push · Pull" },
+        "ÉPAULES + ABDOS":     { emoji: "🛡️", color: "#9b59b6", gradient: "linear-gradient(135deg,#9b59b6 0%,#c084d6 100%)", muscles: ["Épaules","Abdos"], tag: "Stabilité" },
+        "LEGDAY":              { emoji: "🦵", color: "#e97451", gradient: "linear-gradient(135deg,#e97451 0%,#ffa07a 100%)", muscles: ["Jambes"],         tag: "Lower body" }
+    };
 
-    container.innerHTML="";
-
-
-
-    getCanonicalWorkouts().forEach(workout=>{
-
-
-        const card =
-        document.createElement("div");
-
-
-        card.className =
-            "card template";
-
-
-
-        let exercises="";
-
-
-
-        workout.exercises.forEach(ex=>{
-
-            // Trouver le meilleur 1RM pour cet exercice
-            const bestRecord = maxData.records
-                .filter(r => r.exercise === ex.name)
-                .sort((a, b) => b.estimated1RM - a.estimated1RM)[0];
-            
-            const maxDisplay = bestRecord 
-                ? `<span style="color:var(--lime);font-size:11px;margin-left:8px;">🏆 ${formatNumber(bestRecord.estimated1RM)}kg</span>` 
-                : '';
-
-            exercises += `
-
-            <div class="exercise">
-
-                <b>${ex.name}${maxDisplay}</b>
-
-                <span>
-
-                ${ex.weight} kg · ${ex.sets}×${ex.reps}
-
-                </span>
-
-            </div>
-
-            `;
-
-
-        });
-
-
-
-        card.innerHTML = `
-
-        <h2>
-
-        ${workout.name}
-
-        </h2>
-
-
-        ${exercises}
-
-
-
-        `;
-
-
-
-        container.appendChild(card);
-
-
-
+    // === Récap global de la semaine-type ===
+    var totalExosAll = 0;
+    var totalSetsAll = 0;
+    var totalMinAll = 0;
+    canonical.forEach(function(w){
+        var exs = (w.exercises || []);
+        totalExosAll += exs.length;
+        var s = 0;
+        exs.forEach(function(e){ s += Number(e.sets) || 0; });
+        totalSetsAll += s;
+        totalMinAll += Math.round(s * 3 + 8); // ~3min/série + warmup/cool-down
     });
 
+    var summaryHtml = ''
+        + '<div class="prog-summary">'
+        +   '<div class="prog-summary-text">'
+        +     '<div class="prog-summary-eyebrow">📅 Semaine type</div>'
+        +     '<div class="prog-summary-title">' + canonical.length + ' séances · ' + totalExosAll + ' exos · ~' + totalMinAll + ' min d\'effort</div>'
+        +     '<div class="prog-summary-sub">Programme PPL + Stabilité : alterne les groupes musculaires pour maximiser récupération et progression.</div>'
+        +   '</div>'
+        +   '<div class="prog-summary-shapes" aria-hidden="true">'
+        +     '<span class="prog-shape prog-shape-1"></span>'
+        +     '<span class="prog-shape prog-shape-2"></span>'
+        +     '<span class="prog-shape prog-shape-3"></span>'
+        +   '</div>'
+        + '</div>';
 
+    // === Cards par séance ===
+    var cardsHtml = canonical.map(function(workout){
+        var theme = themes[workout.name] || { emoji: "🏋️", color: "#d5ff3e", gradient: "linear-gradient(135deg,#d5ff3e 0%,#9bcc1d 100%)", muscles: [], tag: "Workout" };
+        var exs = (workout.exercises || []);
+        var totalSets = 0;
+        var totalVolume = 0;
+        exs.forEach(function(ex){
+            var sets = Number(ex.sets) || 0;
+            var reps = Number(ex.reps) || 0;
+            var w = Number(ex.weight) || 0;
+            totalSets += sets;
+            totalVolume += w * sets * reps;
+        });
+        var exCount = exs.length;
+        var estDuration = Math.round(totalSets * 3 + 8);
+        var volumeDisplay = totalVolume >= 1000 ? (Math.round(totalVolume/100)/10) + 'k' : Math.round(totalVolume);
 
+        var muscleChips = theme.muscles.map(function(m){
+            return '<span class="prog-muscle-chip">' + escapeHtml(m) + '</span>';
+        }).join('');
+
+        var exercisesHtml = exs.map(function(ex){
+            // Record perso estimé (1RM)
+            var records = maxData.records.filter(function(r){ return r.exercise === ex.name; })
+                .sort(function(a,b){ return b.estimated1RM - a.estimated1RM; });
+            var bestRecord = records[0];
+            var prDisplay = bestRecord ? '<span class="pr-badge" title="Record perso estimé 1RM">🏆 ' + escapeHtml(formatNumber(bestRecord.estimated1RM)) + 'kg</span>' : '';
+
+            var sets = Math.max(0, Number(ex.sets) || 0);
+            var reps = ex.reps === "échec" ? "échec" : (Number(ex.reps) || 0);
+            var weight = Number(ex.weight) || 0;
+
+            // Pour les exos au poids du corps (Tractions, Dips, Captain's chair...)
+            // on affiche un label explicite plutôt que "0kg" qui serait trompeur.
+            var weightDisplay = weight > 0
+                ? '<span class="prog-weight">' + weight + '<span class="prog-unit">kg</span></span>'
+                : '<span class="prog-weight prog-weight-bw">🏠 poids du corps</span>';
+
+            // Une ligne meta épurée : juste le poids et les reps, séparés par
+            // un point médian (pas un ×). Le seul × restant est la notation
+            // universelle « sets × reps ».
+            return ''
+                + '<div class="prog-exercise">'
+                +   '<div class="prog-exercise-head">'
+                +     '<span class="prog-exercise-name">' + escapeHtml(ex.name) + '</span>'
+                +     prDisplay
+                +   '</div>'
+                +   '<div class="prog-exercise-meta">'
+                +     weightDisplay
+                +     '<span class="prog-meta-sep">·</span>'
+                +     '<span class="prog-sets">' + sets + '<span class="prog-meta-x">×</span>' + escapeHtml(String(reps)) + '</span>'
+                +   '</div>'
+                + '</div>';
+        }).join('');
+
+        return ''
+            + '<article class="prog-card" style="--accent:' + theme.color + ';--accent-grad:' + theme.gradient + '">'
+            +   '<div class="prog-card-header">'
+            +     '<div class="prog-emoji-bubble">' + theme.emoji + '</div>'
+            +     '<div class="prog-title-wrap">'
+            +       '<div class="prog-tag">' + escapeHtml(theme.tag) + '</div>'
+            +       '<h2 class="prog-title">' + escapeHtml(workout.name) + '</h2>'
+            +       '<div class="prog-muscles">' + muscleChips + '</div>'
+            +     '</div>'
+            +   '</div>'
+            +   '<div class="prog-stats-row">'
+            +     '<div class="prog-stat"><b>' + exCount + '</b><span>exercices</span></div>'
+            +     '<div class="prog-stat"><b>' + totalSets + '</b><span>séries</span></div>'
+            +     '<div class="prog-stat"><b>' + volumeDisplay + '</b><span>kg volume</span></div>'
+            +     '<div class="prog-stat"><b>' + estDuration + '<small>′</small></b><span>durée</span></div>'
+            +   '</div>'
+            +   '<div class="prog-exercises">' + (exercisesHtml || '<div class="prog-empty-mini">Aucun exercice dans cette séance.</div>') + '</div>'
+            + '</article>';
+    }).join('');
+
+    container.innerHTML = summaryHtml + cardsHtml;
 }function fillSessionSelect(){
 
 

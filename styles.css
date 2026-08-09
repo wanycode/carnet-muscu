@@ -374,6 +374,45 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
     font:500 13px Manrope;color:var(--muted);
     text-align:center;
 }
+
+#nutrition .nutri-profile-fields,#nutrition .nutri-custom-fields{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:9px;align-items:end;margin-top:12px}
+#nutrition .nutri-custom-fields{grid-template-columns:1.5fr repeat(5,minmax(88px,1fr)) auto}
+#nutrition .nutri-profile-fields label{font-size:10px;color:var(--muted);font-weight:700}
+#nutrition .nutri-profile-fields input,#nutrition .nutri-profile-fields select,#nutrition .nutri-custom-fields input{padding:8px;font-size:12px;margin-top:4px}
+#nutrition .nutri-profile-fields .btn,#nutrition .nutri-custom-fields .btn{padding:10px 12px;white-space:nowrap}
+.nutri-editor-row{display:grid;grid-template-columns:1fr 86px auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:12px}
+.nutri-editor-row input{padding:6px 8px;font-size:12px}
+@media(max-width:760px){#nutrition .nutri-profile-fields,#nutrition .nutri-custom-fields{grid-template-columns:1fr 1fr}#nutrition .nutri-profile-fields .btn,#nutrition .nutri-custom-fields .btn{width:100%}.nutri-editor-row{grid-template-columns:1fr 72px}}
+
+/* === DASHBOARD — visual refresh === */
+#dashboard{max-width:1180px}
+#dashboard header{padding:7px 0 2px}
+#dashboard header h1{font-size:clamp(38px,5vw,58px);letter-spacing:-.075em}
+#dashboard header .sub{max-width:530px;font-size:15px;line-height:1.55}
+#dashboard .next{position:relative;overflow:hidden;padding:30px 34px;border-radius:20px;background:radial-gradient(circle at 88% 15%,rgba(213,255,62,.25),transparent 28%),linear-gradient(135deg,#172b1b,#263d28);box-shadow:0 18px 38px rgba(20,32,22,.18)}
+#dashboard .next:before{content:"";position:absolute;right:-35px;bottom:-86px;width:230px;height:230px;border:1px solid rgba(213,255,62,.22);border-radius:50%;box-shadow:0 0 0 27px rgba(213,255,62,.05),0 0 0 55px rgba(213,255,62,.035)}
+#dashboard .next>div,#dashboard .next>.btn{position:relative;z-index:1}
+#dashboard .next h2{font-size:32px;letter-spacing:-.055em}
+#dashboard .next .btn{box-shadow:0 8px 22px rgba(0,0,0,.18)}
+#dashboard .stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0 26px}
+#dashboard .stat{min-height:126px;padding:19px 20px;position:relative;overflow:hidden;background:linear-gradient(145deg,#fff,#f8faf6);border-radius:16px}
+#dashboard .stat:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--lime);opacity:.9}
+#dashboard .stat:nth-child(2):before{background:#9cb8ff}#dashboard .stat:nth-child(3):before{background:#ffcd70}#dashboard .stat:nth-child(4):before{background:#d5ff3e}
+#dashboard .stat b{font-size:34px;line-height:1.05;margin-top:13px;color:var(--ink)}
+#dashboard .stat span{font-size:10px;text-transform:uppercase;letter-spacing:.09em;font-weight:800}
+#dashboard .dashboard-records{margin:8px 0 26px;padding:24px;border:1px solid #dce6d4;border-radius:20px;background:linear-gradient(135deg,#fbfff3 0%,#fff 58%,#f8faf6 100%)}
+#dashboard .dashboard-section-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:14px}
+#dashboard .dashboard-section-head .eyebrow{margin-bottom:4px;color:#6b7a64}
+#dashboard .dashboard-section-head h2{font-size:22px}
+.dashboard-link{font-size:11px;font-weight:800;color:#426e22;text-decoration:none;white-space:nowrap}.dashboard-link:hover{text-decoration:underline}
+.record-spotlight{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.record-card{display:flex;align-items:center;gap:11px;padding:15px 14px;border:1px solid #e2e8dd;border-radius:14px;background:#fff;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.record-card:hover{transform:translateY(-3px);border-color:#b9d96b;box-shadow:0 12px 24px rgba(50,76,35,.09)}
+.record-medal{font-size:23px;line-height:1}.record-main{display:grid;gap:3px;min-width:0;flex:1}.record-main b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.record-main span,.record-value span{font-size:10px;color:var(--muted)}.record-value{text-align:right;display:grid;gap:1px}.record-value strong{font-size:22px;line-height:1;letter-spacing:-.06em}.record-value small{font-size:10px;letter-spacing:0;color:var(--muted)}
+.record-empty{min-height:82px;display:flex;align-items:center;justify-content:center;gap:13px;padding:16px;border:1px dashed #cbd8c1;border-radius:14px;color:var(--muted);font-size:12px;line-height:1.5}.record-empty span{font-size:28px}.record-empty b{color:var(--ink)}
+#dashboard .coach-card{border-radius:20px;padding:25px;background:#fff}#dashboard .coach-card>.coach-header{gap:18px}#dashboard .coach-card>.coach-header>.card{border-radius:14px;background:#f8faf6;box-shadow:none}#dashboard .ai-coach{border-radius:17px;background:linear-gradient(135deg,#fff,#f8fdf2);border-color:#dce8c9}#dashboard .ai-coach h2{font-size:19px}
+#dashboard .card{border-radius:16px}
+@media(max-width:760px){#dashboard .next{padding:25px 20px;border-radius:18px}#dashboard .next h2{font-size:27px}#dashboard .stats{grid-template-columns:1fr 1fr;gap:9px;margin:14px 0 19px}#dashboard .stat{min-height:108px;padding:14px}.record-spotlight{grid-template-columns:1fr}.dashboard-link{font-size:10px}#dashboard .dashboard-records{padding:18px 14px;border-radius:17px}#dashboard .dashboard-section-head{align-items:center}#dashboard .dashboard-section-head h2{font-size:19px}}
 #nutrition .nutri-loading{
     background:#fbfcfa;border:1px dashed var(--line);
     border-radius:10px;padding:24px;

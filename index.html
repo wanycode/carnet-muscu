@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carnet Muscu</title>
 
-    <link rel="stylesheet" href="styles.css?v=125">
+    <link rel="stylesheet" href="styles.css?v=130">
     
     <!-- Icône pour appli web -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -19,17 +19,420 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Carnet Muscu">
 <style>
-.next-tips{margin-top:14px;max-width:620px;padding:11px 13px;border-left:3px solid var(--lime);background:#ffffff12;border-radius:0 8px 8px 0;font-size:12px;color:#e0e9df}.next-tips strong{font-size:11px;text-transform:uppercase;letter-spacing:.04em}.next-tips p{margin:7px 0 0!important;color:#e0e9df!important}.next-tips b{color:white}
-.history-tip{margin-top:6px;font-size:11px;line-height:1.4;color:var(--muted)}.history-tip strong{color:var(--ink)}
-.map-muscle{cursor:pointer;transition:all 0.3s ease}
-.map-muscle:hover{filter:brightness(1.1);transform:scale(1.02)}
-.map-muscle.active{animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
-.map-muscle.high-intensity{filter:drop-shadow(0 0 8px rgba(76,175,80,0.6))}
-.map-muscle.medium-intensity{filter:drop-shadow(0 0 4px rgba(255,152,0,0.4))}
-.map-muscle.low-intensity{filter:drop-shadow(0 0 2px rgba(158,158,158,0.3))}
-.muscle-tooltip{position:absolute;background:rgba(0,0,0,0.85);color:white;padding:8px 12px;border-radius:6px;font-size:12px;pointer-events:none;z-index:1000;max-width:200px}
-.muscle-tooltip strong{display:block;margin-bottom:4px;color:var(--lime)}
+.card{transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);box-shadow:0 4px 20px rgba(0,0,0,0.08),0 2px 8px rgba(0,0,0,0.04)}.card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 12px 40px rgba(0,0,0,0.15),0 4px 16px rgba(0,0,0,0.08);background:linear-gradient(135deg,#ffffff 0%,#f0f4f8 100%)}
+.stat{transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);background:linear-gradient(135deg,var(--lime) 0%,#4caf50 100%);border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(76,175,80,0.3);position:relative;overflow:hidden}.stat::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.25) 0%,transparent 70%);transition:transform 0.6s ease}.stat:hover::before{transform:scale(1.5)}.stat:hover{transform:scale(1.05) translateY(-4px);box-shadow:0 8px 30px rgba(76,175,80,0.4),0 0 20px rgba(76,175,80,0.2)}
+.stat b{font-size:32px;font-weight:800;color:#1c291e;text-shadow:0 2px 4px rgba(0,0,0,0.1);position:relative;z-index:1}
+.stat span{color:#1c291e;font-weight:600;position:relative;z-index:1}
+.btn{transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);background:linear-gradient(135deg,var(--lime) 0%,#4caf50 100%);border-radius:12px;box-shadow:0 4px 20px rgba(76,175,80,0.3);position:relative;overflow:hidden}.btn::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.3);border-radius:50%;transform:translate(-50%,-50%);transition:width 0.5s,height 0.5s}.btn:hover::after{width:400px;height:400px}.btn:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(76,175,80,0.4),0 0 15px rgba(76,175,80,0.3)}.btn:active{transform:translateY(-1px) scale(0.98)}
+.day-button{transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);position:relative;overflow:hidden}.day-button::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.4);border-radius:50%;transform:translate(-50%,-50%);transition:width 0.4s,height 0.4s}.day-button:hover::before{width:200px;height:200px}.day-button:hover{background:linear-gradient(135deg,var(--lime) 0%,#4caf50 100%);color:#1c291e;transform:scale(1.08);box-shadow:0 4px 15px rgba(76,175,80,0.3)}.day-button:active{transform:scale(0.97)}
+.nutri-indicator{position:absolute;bottom:2px;right:2px;font-size:12px;animation:bounce 2s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.calendar-card{background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);box-shadow:0 8px 30px rgba(0,0,0,0.1);border-radius:20px}
+.history .card{transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);border-left:4px solid var(--lime);background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);box-shadow:0 4px 20px rgba(0,0,0,0.08)}.history .card:hover{transform:translateX(8px) scale(1.01);box-shadow:0 8px 30px rgba(0,0,0,0.12),0 0 15px rgba(76,175,80,0.15);border-left-width:5px}
+.history-card-wrapper{margin-bottom:16px}
+.logged{transition:all 0.3s ease;padding:12px 16px;background:linear-gradient(135deg,#f7f8f5 0%,#ffffff 100%);border-radius:12px;margin-bottom:8px;border:1px solid #e8e8e8}.logged:hover{transform:scale(1.02) translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08),0 0 10px rgba(76,175,80,0.1);background:linear-gradient(135deg,#f0f4f8 0%,#ffffff 100%);border-color:var(--lime)}
+input,select,textarea{transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);border:2px solid #e0e0e0;border-radius:12px;padding:12px 16px;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);box-shadow:0 2px 8px rgba(0,0,0,0.04)}input:focus,select:focus,textarea:focus{outline:none;border-color:var(--lime);box-shadow:0 4px 20px rgba(76,175,80,0.2),0 0 10px rgba(76,175,80,0.15);transform:scale(1.01)}
+input:hover,select:hover,textarea:hover{border-color:#c0c0c0;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+dialog .card{background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);border-radius:24px;box-shadow:0 16px 60px rgba(0,0,0,0.2),0 4px 16px rgba(0,0,0,0.1)}
+.close{transition:all 0.3s ease;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f0f0f0 0%,#e0e0e0 100%);box-shadow:0 4px 12px rgba(0,0,0,0.1)}.close:hover{background:linear-gradient(135deg,#ff6b6b 0%,#ee5a5a 100%);transform:rotate(90deg) scale(1.1);color:white;box-shadow:0 0 20px rgba(255,107,107,0.4)}
+aside nav a{transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);border-radius:12px;padding:12px 16px;margin:4px 0;font-weight:600;position:relative;overflow:hidden}aside nav a::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--lime) 0%,#4caf50 100%);transform:translateX(-100%);transition:transform 0.3s ease;border-radius:4px 0 0 4px}aside nav a:hover::before{transform:translateX(0)}aside nav a:hover{background:linear-gradient(90deg,rgba(76,175,80,0.15) 0%,transparent 100%);transform:translateX(4px);color:var(--lime);box-shadow:0 0 15px rgba(76,175,80,0.2)}aside nav a.active{background:linear-gradient(90deg,rgba(76,175,80,0.25) 0%,transparent 100%);color:var(--lime)}aside nav a.active::before{transform:translateX(0)}
+aside .logo{background:linear-gradient(135deg,var(--lime) 0%,#4caf50 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;text-shadow:0 2px 10px rgba(76,175,80,0.3);transition:all 0.3s ease}aside .logo:hover{transform:scale(1.05);filter:brightness(1.1)}
+main{background:linear-gradient(135deg,#f5f7fa 0%,#e8ecf1 100%);min-height:100vh}
+#nutrition .card{background:linear-gradient(135deg,#ffffff 0%,#f0f8ff 100%);border:2px solid #e3f2fd;box-shadow:0 4px 20px rgba(33,150,243,0.1)}#nutrition .card:hover{box-shadow:0 8px 30px rgba(33,150,243,0.2),0 0 15px rgba(33,150,243,0.15);border-color:#bbdefb}
+.nutri-score{background:linear-gradient(135deg,#4caf50 0%,#66bb6a 100%);border-radius:16px;padding:16px 24px;color:#1c291e;font-weight:800;box-shadow:0 4px 20px rgba(76,175,80,0.3);transition:all 0.3s ease}.nutri-score:hover{transform:scale(1.05);box-shadow:0 8px 30px rgba(76,175,80,0.4),0 0 20px rgba(76,175,80,0.3)}
+.nutri-macro{background:linear-gradient(135deg,#f7f8f5 0%,#ffffff 100%);border-radius:12px;padding:12px 16px;border:1px solid #e8e8e8;transition:all 0.3s ease}.nutri-macro:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,0.08),0 0 10px rgba(76,175,80,0.15);border-color:var(--lime)}
+.nutri-advice{background:linear-gradient(135deg,#fff3e0 0%,#ffffff 100%);border-left:4px solid #ff9800;border-radius:8px;padding:12px 16px;margin:8px 0;transition:all 0.3s ease}.nutri-advice:hover{transform:translateX(4px) scale(1.01);box-shadow:0 4px 12px rgba(255,152,0,0.15),0 0 15px rgba(255,152,0,0.2);border-left-width:5px}
+.nutri-history-item{transition:all 0.3s ease;padding:12px 16px;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);border-radius:12px;margin-bottom:8px;border:1px solid #e8e8e8;cursor:pointer}.nutri-history-item:hover{transform:scale(1.02) translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08),0 0 15px rgba(76,175,80,0.2);background:linear-gradient(135deg,#f0f4f8 0%,#ffffff 100%);border-color:var(--lime)}
+/* ================= PROGRAMME (refonte v2) ================= */
+/* Note : grille 2×2 fixe pour éviter qu'une card ne se retrouve isolée sur
+   la 2e ligne quand le viewport est entre 760-1600px. Sur très grand
+   écran (≥1600px) on passe en 4 colonnes. Mobile : 1 colonne. */
+#programme .templates{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:22px;
+    padding:8px 0 28px;
+    max-width:1200px;
+    margin:0 auto;
+}
+@media (min-width:1600px){
+    #programme .templates{grid-template-columns:repeat(4,minmax(0,1fr));max-width:none}
+}
+#programme .prog-empty{
+    grid-column:1/-1;
+    text-align:center;
+    padding:60px 20px;
+    color:var(--muted);
+    font:500 14px Manrope,sans-serif;
+}
+
+/* === Header récap sombre (week at a glance) === */
+#programme .prog-summary{
+    grid-column:1/-1;
+    background:linear-gradient(135deg,#1c291e 0%,#2a3f30 60%,#3a5a45 100%);
+    color:#fff;
+    border-radius:22px;
+    padding:24px 28px;
+    margin-bottom:6px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 16px 48px rgba(28,41,30,0.25),0 2px 8px rgba(28,41,30,0.12);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+}
+#programme .prog-summary-text{position:relative;z-index:2;flex:1;min-width:0}
+#programme .prog-summary-eyebrow{
+    display:inline-flex;
+    align-items:center;
+    font:700 10px Manrope,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.18em;
+    color:var(--lime);
+    background:rgba(216,255,62,0.15);
+    padding:5px 12px;
+    border-radius:20px;
+    margin-bottom:10px;
+}
+#programme .prog-summary-title{
+    font:800 22px Manrope,sans-serif;
+    margin-bottom:6px;
+    line-height:1.2;
+    color:#fff;
+    letter-spacing:-0.01em;
+}
+#programme .prog-summary-sub{
+    font:500 13px Manrope,sans-serif;
+    color:rgba(255,255,255,0.65);
+    max-width:60ch;
+    line-height:1.5;
+}
+#programme .prog-summary-shapes{
+    position:absolute;
+    right:-60px;top:-60px;
+    width:280px;height:280px;
+    z-index:1;
+    pointer-events:none;
+}
+#programme .prog-shape{position:absolute;border-radius:50%;filter:blur(0.5px);will-change:transform}
+#programme .prog-shape-1{
+    width:200px;height:200px;
+    top:20px;right:20px;
+    background:radial-gradient(circle,rgba(255,107,142,0.5) 0%,rgba(255,107,142,0) 70%);
+    animation:progFloat 14s ease-in-out infinite;
+}
+#programme .prog-shape-2{
+    width:140px;height:140px;
+    bottom:-30px;right:140px;
+    background:radial-gradient(circle,rgba(74,144,226,0.45) 0%,rgba(74,144,226,0) 70%);
+    animation:progFloat 18s ease-in-out infinite reverse;
+}
+#programme .prog-shape-3{
+    width:100px;height:100px;
+    top:50px;right:180px;
+    background:radial-gradient(circle,rgba(216,255,62,0.5) 0%,rgba(216,255,62,0) 70%);
+    animation:progFloat 22s ease-in-out infinite;
+}
+@keyframes progFloat{
+    0%,100%{transform:translate(0,0) scale(1)}
+    33%{transform:translate(18px,-22px) scale(1.06)}
+    66%{transform:translate(-12px,12px) scale(0.94)}
+}
+
+/* Accessibilité : réduit l'animation pour les utilisateurs qui le demandent */
+@media (prefers-reduced-motion:reduce){
+    #programme .prog-shape{animation:none}
+    #programme .prog-card{transition:none}
+    #programme .prog-card:hover{transform:none}
+    #programme .prog-emoji-bubble{transition:none}
+    #programme .prog-card:hover .prog-emoji-bubble{transform:none}
+    #programme .prog-exercise{transition:none}
+    #programme .prog-exercise:hover{transform:none}
+}
+
+/* === Card d'une séance === */
+#programme .prog-card{
+    background:#fff;
+    border-radius:22px;
+    padding:0;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 6px 28px rgba(0,0,0,0.06),0 1px 4px rgba(0,0,0,0.04);
+    border:1px solid rgba(0,0,0,0.04);
+    transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.45s cubic-bezier(0.4,0,0.2,1);
+    display:flex;
+    flex-direction:column;
+}
+#programme .prog-card::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;
+    height:5px;
+    background:var(--accent-grad);
+    z-index:1;
+}
+#programme .prog-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 20px 60px rgba(0,0,0,0.12),0 0 0 1.5px var(--accent);
+}
+
+/* === Header de la card === */
+#programme .prog-card-header{
+    padding:22px 20px 14px;
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    position:relative;
+    background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 10%,transparent) 0%,transparent 100%);
+}
+#programme .prog-emoji-bubble{
+    width:56px;height:56px;
+    border-radius:18px;
+    background:var(--accent-grad);
+    display:flex;align-items:center;justify-content:center;
+    font-size:28px;
+    flex-shrink:0;
+    box-shadow:0 8px 22px color-mix(in srgb,var(--accent) 38%,transparent);
+    transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1);
+}
+#programme .prog-card:hover .prog-emoji-bubble{
+    transform:scale(1.1) rotate(-6deg);
+}
+#programme .prog-title-wrap{flex:1;min-width:0}
+#programme .prog-tag{
+    display:inline-block;
+    font:700 9px Manrope,sans-serif;
+    letter-spacing:0.16em;
+    color:var(--accent);
+    background:color-mix(in srgb,var(--accent) 14%,transparent);
+    padding:4px 10px;
+    border-radius:20px;
+    margin-bottom:6px;
+    text-transform:uppercase;
+}
+#programme .prog-title{
+    font:800 18px Manrope,sans-serif;
+    color:var(--ink);
+    margin:0 0 8px;
+    line-height:1.2;
+    letter-spacing:-0.01em;
+}
+#programme .prog-muscles{display:flex;flex-wrap:wrap;gap:6px}
+#programme .prog-muscle-chip{
+    font:600 10px Manrope,sans-serif;
+    padding:3px 9px;
+    border-radius:14px;
+    background:color-mix(in srgb,var(--accent) 12%,white);
+    color:var(--accent);
+    border:1px solid color-mix(in srgb,var(--accent) 22%,transparent);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+}
+
+/* === Stats row glass (4 mini-cards séparées par lignes) === */
+#programme .prog-stats-row{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1px;
+    padding:0 20px;
+    margin:4px 0 16px;
+    background:rgba(0,0,0,0.05);
+    border-radius:14px;
+    overflow:hidden;
+}
+#programme .prog-stat{
+    background:#fff;
+    padding:11px 6px;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+#programme .prog-stat b{
+    font:800 16px Manrope,sans-serif;
+    color:var(--ink);
+    line-height:1;
+    display:flex;align-items:baseline;
+}
+#programme .prog-stat b small{
+    font:700 11px Manrope,sans-serif;
+    color:var(--muted);
+    margin-left:1px;
+}
+#programme .prog-stat span{
+    font:500 9px Manrope,sans-serif;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    margin-top:4px;
+}
+/* Coloration des stats : les 2 valeurs "achievement" (séries + volume) prennent
+   la couleur d'accent. Les compteurs structurels (exercices, durée) restent neutres. */
+#programme .prog-stat:nth-child(2) b,
+#programme .prog-stat:nth-child(3) b{color:var(--accent)}
+
+/* === Exercice row === */
+#programme .prog-exercises{
+    padding:0 20px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+#programme .prog-exercise{
+    padding:13px 14px;
+    border-radius:12px;
+    background:linear-gradient(135deg,#fafbf9 0%,#fff 100%);
+    border:1px solid rgba(0,0,0,0.04);
+    transition:all 0.25s ease;
+}
+#programme .prog-exercise:hover{
+    background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 7%,white) 0%,white 100%);
+    border-color:color-mix(in srgb,var(--accent) 35%,transparent);
+    transform:translateX(3px);
+}
+#programme .prog-exercise-head{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:8px;
+    margin-bottom:4px;
+}
+#programme .prog-exercise-name{
+    font:800 15px Manrope,sans-serif;
+    color:var(--ink);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    flex:1;min-width:0;
+    letter-spacing:-0.01em;
+}
+#programme .pr-badge{
+    font:700 10px Manrope,sans-serif;
+    color:#b88217;
+    background:linear-gradient(135deg,#fff5d9 0%,#fff 100%);
+    border:1px solid #f0d678;
+    padding:2px 7px;
+    border-radius:10px;
+    white-space:nowrap;
+    flex-shrink:0;
+}
+#programme .prog-exercise-meta{
+    display:flex;align-items:baseline;gap:8px;
+}
+#programme .prog-weight{
+    color:var(--accent);
+    font-weight:800;
+    font-size:14px;
+    line-height:1;
+}
+#programme .prog-unit{
+    font:700 10px Manrope,sans-serif;
+    color:var(--muted);
+    margin-left:2px;
+}
+#programme .prog-meta-sep{
+    color:var(--muted);
+    font-weight:700;
+    font-size:14px;
+    line-height:1;
+}
+#programme .prog-sets{
+    color:var(--ink);
+    font-weight:800;
+    font-size:14px;
+    line-height:1;
+}
+#programme .prog-meta-x{
+    color:var(--muted);
+    font-weight:500;
+    font-size:12px;
+    margin:0 4px;
+}
+#programme .prog-weight-bw{
+    color:var(--muted);
+    font-weight:700;
+    font-size:14px;
+    line-height:1;
+    letter-spacing:0.02em;
+}
+
+/* === Empty mini (le hint « modèle » reste dans le sub du header global) === */
+#programme .prog-empty-mini{
+    text-align:center;padding:20px 12px;color:var(--muted);font:500 12px Manrope,sans-serif;
+}
+
+/* === Header global existant + bouton Modifier === */
+#programme header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:24px;
+    padding:20px;
+    background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);
+    border-radius:16px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.08);
+}
+#programme .eyebrow{
+    font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;
+    color:var(--muted);margin-bottom:8px;
+}
+#programme h1{
+    font-size:28px;font-weight:800;color:var(--ink);margin-bottom:8px;
+    background:linear-gradient(135deg,var(--ink) 0%,var(--lime) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+#programme .sub{font-size:14px;color:var(--muted);line-height:1.5}
+#programme #editProgram{
+    transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+    background:linear-gradient(135deg,var(--lime) 0%,#4caf50 100%);
+    border-radius:12px;padding:12px 24px;font-weight:600;
+    box-shadow:0 4px 20px rgba(76,175,80,0.3);
+    position:relative;overflow:hidden;
+}
+#programme #editProgram::after{
+    content:'';position:absolute;top:50%;left:50%;width:0;height:0;
+    background:rgba(255,255,255,0.3);border-radius:50%;
+    transform:translate(-50%,-50%);transition:width 0.5s,height 0.5s;
+}
+#programme #editProgram:hover::after{width:300px;height:300px}
+#programme #editProgram:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 30px rgba(76,175,80,0.4),0 0 15px rgba(76,175,80,0.3);
+}
+
+/* === Responsive mobile === */
+@media (max-width:760px){
+    #programme .templates{gap:16px;grid-template-columns:1fr}
+    #programme header{flex-direction:column;gap:14px;padding:16px}
+    #programme header > div{max-width:100%}
+    #programme #editProgram{align-self:flex-start}
+    #programme h1{font-size:24px}
+    #programme .prog-summary{padding:18px 20px;flex-direction:column;align-items:flex-start;gap:0}
+    #programme .prog-summary-shapes{right:-80px;top:-80px;width:200px;height:200px}
+    #programme .prog-summary-title{font-size:18px}
+    #programme .prog-card-header{padding:18px 16px 12px}
+    #programme .prog-stats-row{padding:0 16px}
+    #programme .prog-stat b{font-size:14px}
+    #programme .prog-exercises{padding:0 16px}
+    #programme .prog-emoji-bubble{width:48px;height:48px;font-size:24px;border-radius:15px}
+    #programme .prog-title{font-size:16px}
+}
+
+#gallery .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;padding:20px 0}
+#gallery .photo-card{transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);position:relative}#gallery .photo-card img{width:100%;height:200px;object-fit:cover;transition:transform 0.4s ease}#gallery .photo-card:hover img{transform:scale(1.1)}#gallery .photo-card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 12px 40px rgba(0,0,0,0.15),0 0 20px rgba(76,175,80,0.15)}
+#gallery .photo-card .photo-info{padding:12px;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);border-top:1px solid #e8e8e8}
+#gallery .photo-card .photo-date{font-size:12px;color:var(--muted);margin-bottom:4px}
+#gallery .photo-card .photo-note{font-size:13px;color:var(--ink);font-weight:500}
+#stats .chart-container{transition:all 0.3s ease;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,0.08);margin-bottom:16px}#stats .chart-container:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,0.12),0 0 15px rgba(76,175,80,0.1)}
+#stats .stat-card{transition:all 0.3s ease;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);border-radius:12px;padding:16px;border:2px solid #e8e8e8;box-shadow:0 2px 12px rgba(0,0,0,0.06)}#stats .stat-card:hover{transform:scale(1.02) translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,0.1),0 0 10px rgba(76,175,80,0.15);border-color:var(--lime)}
+#stats .stat-value{font-size:24px;font-weight:700;color:var(--lime);margin-bottom:4px}
+#stats .stat-label{font-size:13px;color:var(--muted)}
+#log .form{transition:all 0.3s ease;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08)}#log .form:hover{box-shadow:0 8px 30px rgba(0,0,0,0.12),0 0 15px rgba(76,175,80,0.1)}
+#log .form label{display:block;margin-bottom:8px;font-weight:600;color:var(--ink);font-size:14px}
+#log .exercise-row{transition:all 0.2s ease;padding:16px;background:linear-gradient(135deg,#f7f8f5 0%,#ffffff 100%);border-radius:12px;margin-bottom:12px;border:1px solid #e8e8e8}#log .exercise-row:hover{transform:translateX(4px);box-shadow:0 4px 12px rgba(0,0,0,0.08);border-color:var(--lime)}
+#log .add-exercise-btn{transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);background:linear-gradient(135deg,var(--lime) 0%,#4caf50 100%);border-radius:12px;padding:12px 24px;font-weight:600;box-shadow:0 4px 20px rgba(76,175,80,0.3);position:relative;overflow:hidden}#log .add-exercise-btn::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.3);border-radius:50%;transform:translate(-50%,-50%);transition:width 0.5s,height 0.5s}#log .add-exercise-btn:hover::after{width:300px;height:300px}#log .add-exercise-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(76,175,80,0.4),0 0 15px rgba(76,175,80,0.3)}
+#calculator .calc-card{transition:all 0.3s ease;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08)}#calculator .calc-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,0.12),0 0 15px rgba(76,175,80,0.1)}
+#calculator .result-box{transition:all 0.3s ease;background:linear-gradient(135deg,var(--lime) 0%,#4caf50 100%);border-radius:12px;padding:20px;text-align:center;box-shadow:0 4px 20px rgba(76,175,80,0.3);margin-top:16px}#calculator .result-box:hover{transform:scale(1.02);box-shadow:0 8px 30px rgba(76,175,80,0.4),0 0 20px rgba(76,175,80,0.3)}
+#calculator .result-value{font-size:36px;font-weight:800;color:#1c291e;text-shadow:0 2px 4px rgba(0,0,0,0.1)}
+#calculator .result-label{font-size:14px;color:#1c291e;font-weight:600;margin-top:4px}
 </style>
 </head>
 
@@ -201,6 +604,19 @@ Records
 </div>
 
 </div>
+
+<section class="dashboard-records" aria-labelledby="recordsSpotlightTitle">
+  <div class="dashboard-section-head">
+    <div>
+      <p class="eyebrow">TON HALL OF FAME</p>
+      <h2 id="recordsSpotlightTitle">Records personnels</h2>
+    </div>
+    <a href="#" data-page="stats" class="dashboard-link">Voir toute la progression →</a>
+  </div>
+  <div id="recordSpotlight" class="record-spotlight">
+    <div class="record-empty">Enregistre ta première séance : tes records apparaîtront ici.</div>
+  </div>
+</section>
 
 <div class="card coach-card">
 
@@ -1191,7 +1607,7 @@ Calculer et sauvegarder
     <div>
       <p class="eyebrow">ACCÈS RAPIDE · NUTRI</p>
       <h1>🥗 Recap nutrition IA</h1>
-      <p class="sub">Dis-moi ce que tu as mangé dans la journée — l'IA locale t'analyse : macros, score sur 10 et conseils personnalisés tied à ta séance du jour.</p>
+      <p class="sub">Note ce que tu as mangé dans la journée : l'assistant estime les macros, vérifie la cohérence des données et propose un bilan adapté à ta séance.</p>
       <p class="sub" style="margin-top:6px;font-size:11px;">💡 Le même analyseur considère aussi ton dernier entraînement : séance aujourd'hui = priorité protéines + glucides, séance hier = récupération, sinon repos = lipides + légumes.</p>
       <p class="sub" style="margin-top:6px;font-size:11px;">🔑 <b>Code d'accès rapide</b> : tapez <b>NUTRI</b> (ou MANGER / REPAS / ALIM / NUTRITION) dans le champ « accès rapide » en bas du dashboard pour ouvrir cette page à tout moment.</p></p>
     </div>
@@ -1202,6 +1618,28 @@ Calculer et sauvegarder
   </header>
 
   <div id="nutriAnalyzeTab">
+    <div class="card" style="margin-top:14px;padding:16px 18px;">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;"><h2 style="font-size:15px;">🎯 Mon profil nutrition</h2><span style="font-size:11px;color:var(--muted);">Tes cibles deviennent personnelles</span></div>
+      <div class="nutri-profile-fields">
+        <label>Poids (kg)<input id="nutriWeight" type="number" min="35" max="250" step="0.1" placeholder="ex. 75"></label>
+        <label>Objectif<select id="nutriGoal"><option value="maintain">Maintien</option><option value="cut">Sèche</option><option value="gain">Prise de masse</option></select></label>
+        <label>Activité<select id="nutriActivity"><option value="low">Légère</option><option value="medium" selected>Modérée</option><option value="high">Élevée</option></select></label>
+        <button class="btn" id="nutriSaveProfile" type="button">Enregistrer le profil</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px;padding:16px 18px;">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;"><h2 style="font-size:15px;">➕ Aliment ou produit personnalisé</h2><span style="font-size:11px;color:var(--muted);">Mémorisé sur cet appareil</span></div>
+      <div class="nutri-custom-fields">
+        <input id="nutriCustomName" placeholder="Nom de l'aliment">
+        <input id="nutriCustomKcal" type="number" min="0" placeholder="kcal / 100 g">
+        <input id="nutriCustomP" type="number" min="0" step="0.1" placeholder="protéines">
+        <input id="nutriCustomG" type="number" min="0" step="0.1" placeholder="glucides">
+        <input id="nutriCustomL" type="number" min="0" step="0.1" placeholder="lipides">
+        <input id="nutriCustomPortion" type="number" min="1" placeholder="portion g (150)">
+        <button class="btn" id="nutriSaveCustomFood" type="button">Ajouter</button>
+      </div>
+      <div style="display:flex;gap:7px;margin-top:10px;align-items:center;flex-wrap:wrap;"><input id="nutriBarcode" inputmode="numeric" placeholder="Code-barres (EAN)" style="max-width:220px;"><button class="btn" id="nutriLookupBarcode" type="button">Rechercher le produit</button><span id="nutriBarcodeStatus" style="font-size:11px;color:var(--muted);"></span></div>
+    </div>
     <div class="card" style="margin-top:14px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
         <h2 style="margin:0;font-size:16px;">Qu'as-tu mangé aujourd'hui ?</h2>
@@ -1498,13 +1936,13 @@ Enregistrer
 </dialog>
 
 <script src="stats-gallery.js?v=99"></script>
-<script src="app.js?v=129"></script>
+<script src="app.js?v=133"></script>
 <script src="ai-improved.js?v=85"></script>
 <script src="stats-progress.js?v=85"></script>
 <script src="stats-extended.js?v=85"></script>
 <script src="quickmap.js?v=85"></script>
 <script src="quickghost.js?v=65"></script>
-<script src="quicknutrition.js?v=123"></script>
+<script src="quicknutrition.js?v=127"></script>
 <script src="quickinjuryprediction.js?v=108"></script>
 <script src="quicktimemachine.js?v=108"></script>
 

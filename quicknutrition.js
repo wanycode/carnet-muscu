@@ -140,15 +140,83 @@
         { name:"glace", aliases:["glace","creme glacee"], category:"sugar_fat", kcal:200, p:3, g:24, l:11, defaultG:80 },
 
         // ============ BOISSONS ============
-        { name:"biere", aliases:["biere","demi","pression","pinte"], category:"alcohol", kcal:43, p:0.5, g:3.5, l:0, alcoholG:"4.5", defaultG:250, hint:"1 verre 25cL = 250 g" },
-        { name:"vin", aliases:["vin","rouge","blanc","rose"], category:"alcohol", kcal:85, p:0.1, g:3, l:0, alcoholG:"11", defaultG:130, hint:"1 verre = 130 g" },
-        { name:"whisky", aliases:["whisky","whiskey","rhum","vodka","gin"], category:"alcohol", kcal:250, p:0, g:0, l:0, alcoholG:"40", defaultG:40 },
+        { name:"biere", aliases:["biere","demi","pression","pinte"], category:"alcohol", kcal:43, p:0.5, g:3.5, l:0, alcoholG:3.5, defaultG:250, hint:"1 verre 25cL = 250 g" },
+        { name:"vin", aliases:["vin","rouge","blanc","rose"], category:"alcohol", kcal:85, p:0.1, g:3, l:0, alcoholG:8.7, defaultG:130, hint:"1 verre = 130 g" },
+        { name:"whisky", aliases:["whisky","whiskey","rhum","vodka","gin"], category:"alcohol", kcal:250, p:0, g:0, l:0, alcoholG:31.5, defaultG:40 },
         { name:"soda", aliases:["soda","coca","coca-cola","pepsi","fanta","sprite"], category:"sugar", kcal:42, p:0, g:11, l:0, defaultG:330, hint:"1 canette = 330 mL" },
         { name:"jus d orange", aliases:["jus d orange","jus d'orange","jus de fruit"], category:"sugar", kcal:45, p:0.7, g:10, l:0.2, defaultG:200, hint:"1 verre = 200 mL" },
         { name:"cafe", aliases:["cafe","expresso","espresso"], category:"beverage_drink", kcal:2, p:0.1, g:0, l:0, defaultG:50, hint:"1 tasse = 50 mL" },
         { name:"the", aliases:["the","the vert"], category:"beverage_drink", kcal:1, p:0, g:0.2, l:0, defaultG:200, hint:"1 tasse = 200 mL" },
         { name:"eau", aliases:["eau","verre d eau"], category:"beverage_drink", kcal:0, p:0, g:0, l:0, defaultG:200, hint:"1 verre = 200 mL" }
     ];
+
+    // Base élargie : les valeurs sont des moyennes pour l'aliment *prêt à consommer*
+    // (cuit/égoutté lorsque cela s'applique). Les alias couvrent le vocabulaire utilisé
+    // dans un journal alimentaire français, pas seulement les noms "catalogue".
+    // Une entrée précise l'emporte toujours sur une entrée générique grâce au matcher.
+    ALL_FOODS.push.apply(ALL_FOODS, [
+        {name:"porc maigre",aliases:["filet mignon","cote de porc","porc","longe de porc"],category:"protein",kcal:143,p:26,g:0,l:4,defaultG:150},
+        {name:"veau",aliases:["veau","escalope de veau"],category:"protein",kcal:172,p:27,g:0,l:7,defaultG:150},
+        {name:"agneau",aliases:["agneau","cotelette agneau"],category:"protein_red",kcal:250,p:25,g:0,l:16,defaultG:150},
+        {name:"canard",aliases:["canard","magret"],category:"protein_fatty",kcal:201,p:19,g:0,l:14,defaultG:150},
+        {name:"saumon fumé",aliases:["saumon fume"],category:"protein_fatty",kcal:180,p:22,g:0,l:10,omega3:true,defaultG:80},
+        {name:"sardines",aliases:["sardines","sardine","maquereau","maquereaux"],category:"protein_fatty",kcal:208,p:25,g:0,l:11,omega3:true,defaultG:120},
+        {name:"truite",aliases:["truite"],category:"protein_fatty",kcal:148,p:21,g:0,l:6.5,omega3:true,defaultG:150},
+        {name:"crevettes",aliases:["crevette","crevettes","gambas"],category:"protein",kcal:99,p:24,g:0,l:.3,defaultG:120},
+        {name:"surimi",aliases:["surimi"],category:"protein",kcal:95,p:8,g:15,l:.5,defaultG:100},
+        {name:"seitan",aliases:["seitan"],category:"protein",kcal:141,p:25,g:12,l:2,defaultG:150},
+        {name:"protéines en poudre",aliases:["whey","proteine en poudre","proteines en poudre","isolat","isolate","shake proteine","shaker proteine"],category:"protein",kcal:390,p:78,g:8,l:6,defaultG:30,unitG:30},
+        {name:"yaourt protéiné",aliases:["yaourt proteine","yaourt proteine","yaourt hyperproteine","pudding proteine"],category:"protein",kcal:75,p:10,g:5,l:1,defaultG:150},
+        {name:"kefir",aliases:["kefir","kéfir"],category:"protein",kcal:60,p:3.5,g:5,l:3,defaultG:200},
+        {name:"ricotta",aliases:["ricotta"],category:"protein_cheese",kcal:174,p:11,g:3,l:13,defaultG:60},
+        {name:"camembert",aliases:["camembert","brie","reblochon"],category:"protein_cheese",kcal:300,p:20,g:.5,l:24,defaultG:40},
+        {name:"riz",aliases:["riz blanc","riz thai","riz jasmin","riz cantonais"],category:"carb",kcal:130,p:2.7,g:28,l:.3,defaultG:200},
+        {name:"boulgour",aliases:["boulgour","bulgur","ble"],category:"carb_fiber",kcal:83,p:3.1,g:18.6,l:.2,fiber:4.5,defaultG:200},
+        {name:"polenta",aliases:["polenta"],category:"carb",kcal:85,p:1.8,g:18,l:.4,defaultG:200},
+        {name:"gnocchis",aliases:["gnocchi","gnocchis"],category:"carb",kcal:150,p:3.5,g:30,l:1,defaultG:200},
+        {name:"nouilles",aliases:["nouilles","ramen","udon","nouilles chinoises"],category:"carb",kcal:140,p:4,g:28,l:1.5,defaultG:200},
+        {name:"wrap",aliases:["wrap","tortilla","galette ble"],category:"carb",kcal:310,p:8,g:52,l:7,defaultG:60,unitG:60},
+        {name:"pain de mie",aliases:["pain de mie","toast"],category:"carb",kcal:265,p:8,g:49,l:3,defaultG:30,unitG:30},
+        {name:"bagel",aliases:["bagel"],category:"carb",kcal:270,p:10,g:53,l:1.5,defaultG:95,unitG:95},
+        {name:"céréales petit-déjeuner",aliases:["cereales","corn flakes","special k","miel pops"],category:"carb",kcal:380,p:7,g:80,l:3,defaultG:40},
+        {name:"purée de pommes de terre",aliases:["puree","ecrasee de pommes de terre"],category:"carb",kcal:100,p:2,g:17,l:3,defaultG:200},
+        {name:"ratatouille",aliases:["ratatouille"],category:"legume",kcal:65,p:1.5,g:5,l:4,fiber:2,defaultG:200},
+        {name:"soupe de légumes",aliases:["soupe","veloute","potage"],category:"legume",kcal:40,p:1.5,g:6,l:1,fiber:1.5,defaultG:300},
+        {name:"petits pois",aliases:["petits pois","petit pois"],category:"legume_fiber",kcal:81,p:5,g:14,l:.4,fiber:5,defaultG:150},
+        {name:"edamame",aliases:["edamame","edamames","feves de soja"],category:"legume_fiber",kcal:122,p:12,g:9,l:5,fiber:5,defaultG:100},
+        {name:"maïs",aliases:["mais","maïs"],category:"legume",kcal:96,p:3.4,g:21,l:1.5,fiber:2.4,defaultG:100},
+        {name:"asperges",aliases:["asperge","asperges"],category:"legume",kcal:20,p:2.2,g:3.9,l:.1,fiber:2.1,defaultG:150},
+        {name:"chou-fleur",aliases:["chou fleur","chou-fleur"],category:"legume",kcal:25,p:1.9,g:5,l:.3,fiber:2,defaultG:150},
+        {name:"endives",aliases:["endive","endives"],category:"legume",kcal:17,p:1.3,g:3.4,l:.2,fiber:3.1,defaultG:150},
+        {name:"betterave",aliases:["betterave","betteraves"],category:"legume",kcal:43,p:1.6,g:10,l:.2,fiber:2.8,defaultG:120},
+        {name:"oignon",aliases:["oignon","oignons"],category:"legume",kcal:40,p:1.1,g:9,l:.1,fiber:1.7,defaultG:80},
+        {name:"ail",aliases:["ail"],category:"legume",kcal:149,p:6.4,g:33,l:.5,fiber:2.1,defaultG:8},
+        {name:"pomme",aliases:["pomme","pommes"],category:"fruit",kcal:52,p:.3,g:14,l:.2,fiber:2.4,defaultG:150,unitG:150},
+        {name:"clémentine",aliases:["clementine","clementines","mandarine"],category:"fruit",kcal:47,p:.9,g:12,l:.2,fiber:1.7,defaultG:75,unitG:75},
+        {name:"pêche",aliases:["peche","peches","nectarine"],category:"fruit",kcal:39,p:.9,g:10,l:.3,fiber:1.5,defaultG:150,unitG:150},
+        {name:"melon",aliases:["melon"],category:"fruit",kcal:34,p:.8,g:8,l:.2,fiber:.9,defaultG:200},
+        {name:"citron",aliases:["citron","citrons"],category:"fruit",kcal:29,p:1.1,g:9,l:.3,fiber:2.8,defaultG:50},
+        {name:"pruneaux",aliases:["pruneau","pruneaux"],category:"fruit",kcal:240,p:2.2,g:64,l:.4,fiber:7,defaultG:30,unitG:10},
+        {name:"raisins secs",aliases:["raisins secs","raisin sec"],category:"fruit",kcal:299,p:3.1,g:79,l:.5,fiber:3.7,defaultG:30},
+        {name:"beurre de cacahuète",aliases:["beurre de cacahuete","beurre cacahuete","purée de cacahuète","puree de cacahuete","peanut butter"],category:"lipid_good",kcal:588,p:25,g:20,l:50,fiber:6,goodFat:true,defaultG:20},
+        {name:"pistaches",aliases:["pistache","pistaches"],category:"lipid_good",kcal:562,p:20,g:28,l:45,fiber:10,goodFat:true,defaultG:30},
+        {name:"noix de cajou",aliases:["noix de cajou","cajou"],category:"lipid_good",kcal:553,p:18,g:30,l:44,fiber:3.3,goodFat:true,defaultG:30},
+        {name:"graines",aliases:["graines de lin","lin","graines de courge","graines de tournesol"],category:"lipid_good",kcal:550,p:25,g:15,l:45,fiber:12,goodFat:true,defaultG:15},
+        {name:"houmous",aliases:["houmous","hummus"],category:"lipid_good",kcal:240,p:8,g:18,l:15,fiber:5,goodFat:true,defaultG:60},
+        {name:"mayonnaise",aliases:["mayonnaise","mayo"],category:"lipid_neutral",kcal:680,p:1,g:1,l:75,defaultG:15},
+        {name:"sauce tomate",aliases:["sauce tomate","coulis de tomate"],category:"legume",kcal:35,p:1.5,g:5,l:1,fiber:1.5,defaultG:100},
+        {name:"pesto",aliases:["pesto"],category:"lipid_good",kcal:450,p:5,g:8,l:43,goodFat:true,defaultG:25},
+        {name:"crème fraîche",aliases:["creme fraiche","crème fraîche","creme"],category:"lipid_neutral",kcal:300,p:2,g:3,l:30,defaultG:30},
+        {name:"compote",aliases:["compote","compote sans sucre"],category:"fruit",kcal:68,p:.2,g:16,l:.1,fiber:1.5,defaultG:100},
+        {name:"barre protéinée",aliases:["barre proteinee","barre protéinée","protein bar"],category:"protein",kcal:370,p:30,g:35,l:12,defaultG:55,unitG:55},
+        {name:"sandwich",aliases:["sandwich","panini","croque monsieur"],category:"junk",kcal:250,p:12,g:28,l:10,defaultG:220},
+        {name:"tacos",aliases:["tacos","burrito"],category:"junk",kcal:230,p:11,g:22,l:11,defaultG:300},
+        {name:"poke bowl",aliases:["poke bowl","poke"],category:"protein",kcal:145,p:8,g:18,l:4,defaultG:400},
+        {name:"sushi",aliases:["sushi","sushis","maki","makis","california roll"],category:"protein",kcal:150,p:7,g:30,l:1.5,defaultG:180},
+        {name:"omelette",aliases:["omelette"],category:"protein",kcal:154,p:11,g:2,l:11,defaultG:120},
+        {name:"café au lait",aliases:["cafe au lait","café au lait","latte","cappuccino"],category:"beverage_drink",kcal:45,p:2.5,g:4,l:2,defaultG:250},
+        {name:"boisson énergisante",aliases:["energy drink","red bull","monster"],category:"sugar",kcal:45,p:0,g:11,l:0,defaultG:250}
+    ]);
 
     // ============================================================
     // CATÉGORIES
@@ -175,6 +243,14 @@
             .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
     }
     function linearMap(x, a, b){ if(!(b > a)) return 0; return clamp((x-a)/(b-a), 0, 1); }
+    function readNutriStore(){ try { return JSON.parse(localStorage.getItem(STORAGE_K) || "{}"); } catch(_){ return {}; } }
+    function writeNutriStore(store){ localStorage.setItem(STORAGE_K, JSON.stringify(store)); }
+    function getNutriProfile(){ return readNutriStore().nutriProfile || null; }
+    function getCustomFoods(){
+        var foods = readNutriStore().nutriCustomFoods;
+        return Array.isArray(foods) ? foods.filter(function(f){ return f && f.name && isFinite(f.kcal); }) : [];
+    }
+    function foodDatabase(){ return ALL_FOODS.concat(getCustomFoods()); }
 
     // ============================================================
     // ÉVALUATION DE LA SÉANCE (pour le contexte nutrition)
@@ -225,24 +301,37 @@
     // BESOINS CIBLES (estimés depuis le volume — pas de body-weight)
     // ============================================================
     function computeTargets(ctx){
-    var pBase = 100, cBase = 320, lBase = 80;
+        var profile = getNutriProfile();
+        if(profile && Number(profile.weight) >= 35){
+            var weight = clamp(Number(profile.weight), 35, 250);
+            var goal = profile.goal || "maintain", activity = profile.activity || "medium";
+            var activityKcal = {low:28, medium:33, high:38}[activity] || 33;
+            var kcal = Math.round(weight * activityKcal + (goal === "gain" ? 250 : goal === "cut" ? -350 : 0));
+            var protein = Math.round(weight * (goal === "cut" ? 2 : 1.8));
+            var fat = Math.round(weight * .8);
+            var carbs = Math.max(120, Math.round((kcal - protein * 4 - fat * 9) / 4));
+            if(ctx.trainedToday) carbs += 35;
+            else if(ctx.trainedYesterday) carbs += 15;
+            if(ctx.intensity === "high") carbs += 25;
+            return {p:protein, g:carbs, l:fat, kcal:protein*4+carbs*4+fat*9, fiber:30, omega3g:1.5, personalized:true, goal:goal};
+        }
+        // Sans poids, taille et objectif utilisateur, une "cible exacte" serait
+        // trompeuse. Ces repères sont donc volontairement modérés et ne servent
+        // qu'à contextualiser le score, jamais à poser un diagnostic.
+        var pBase = 120, cBase = 260, lBase = 70;
 
         if(typeof data !== "undefined" && data && Array.isArray(data.sessions) && data.sessions.length >= 1 && typeof calculateVolume === "function"){
             var recent = data.sessions.slice(-6);
             var vols = recent.map(function(x){ return calculateVolume(x); }).filter(function(v){ return v > 0; });
             if(vols.length >= 1){
                 var avg = vols.reduce(function(a,b){ return a+b; }, 0) / vols.length;
-                pBase = Math.round(100 + (avg - 3000) * 0.012);
-                if(pBase < 100) pBase = 100;
-                if(pBase > 200) pBase = 200;
-                cBase = Math.round(260 + (avg - 3000) * 0.022);
-                if(cBase < 220) cBase = 220;
-                if(cBase > 450) cBase = 450;
+                pBase = clamp(Math.round(120 + (avg - 4500) * 0.006), 110, 155);
+                cBase = clamp(Math.round(260 + (avg - 4500) * 0.012), 220, 360);
             }
         }
-        if(ctx.trainedToday){ pBase += 20; cBase += 80; }
-        else if(ctx.trainedYesterday){ pBase += 10; cBase += 40; }
-        if(ctx.intensity === "high") pBase += 10;
+        if(ctx.trainedToday){ pBase += 15; cBase += 55; }
+        else if(ctx.trainedYesterday){ pBase += 10; cBase += 30; }
+        if(ctx.intensity === "high") { pBase += 5; cBase += 25; }
         return { p:pBase, g:cBase, l:lBase, kcal: pBase*4 + cBase*4 + lBase*9, fiber:30, omega3g:1.5 };
     }
 
@@ -255,8 +344,9 @@
         // On parcourt dans l'ordre : alias le plus long d'abord pour
         // éviter "riz complet" matché par "riz" tout court.
         var matches = [];
-        for(var i = 0; i < ALL_FOODS.length; i++){
-            var f = ALL_FOODS[i];
+        var db = foodDatabase();
+        for(var i = 0; i < db.length; i++){
+            var f = db[i];
             for(var j = 0; j < f.aliases.length; j++){
                 var a = normalize(f.aliases[j]);
                 if(a.length < 2) continue;
@@ -268,6 +358,34 @@
         if(!matches.length) return null;
         matches.sort(function(x,y){ return y.len - x.len; });
         return matches[0].f;
+    }
+
+    function escapeRegExp(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
+    // Retourne tous les aliments d'un texte, pas seulement le premier. Cela permet
+    // d'analyser des saisies naturelles comme « poulet riz brocoli » sans imposer
+    // des virgules ou des signes + entre chaque ingrédient.
+    function findFoodsInText(token){
+        var t = normalize(token).replace(/[’']/g, " ").replace(/[-/]/g, " ");
+        var candidates = [];
+        foodDatabase().forEach(function(food){
+            (food.aliases || []).forEach(function(alias){
+                var a = normalize(alias).replace(/[’']/g, " ").replace(/[-/]/g, " ").trim();
+                if(a.length < 2) return;
+                var re = new RegExp("(^|[^a-z0-9])(" + escapeRegExp(a) + ")(?=$|[^a-z0-9])", "g");
+                var m;
+                while((m = re.exec(t))){
+                    candidates.push({ food:food, start:m.index + m[1].length, end:m.index + m[1].length + a.length, len:a.length });
+                }
+            });
+        });
+        candidates.sort(function(a,b){ return b.len - a.len || a.start - b.start; });
+        var selected = [];
+        candidates.forEach(function(candidate){
+            var overlap = selected.some(function(x){ return candidate.start < x.end && candidate.end > x.start; });
+            if(!overlap) selected.push(candidate);
+        });
+        return selected.sort(function(a,b){ return a.start - b.start; });
     }
 
     function parseQuantity(token){
@@ -282,11 +400,13 @@
             return { g: null, frac: fracMap[m[0]] * preN, explicit:false, ratio: true };
         }
 
-        // 200g / 200 g / 2.5kg
-        var gm = t.match(/(\d+(?:[.,]\d+)?)\s*(kg|g|gr)\b/);
+        // 200g / 200 g / 2.5kg / 250 ml. Pour les liquides courants,
+        // 1 ml ≈ 1 g : assez précis pour les macros de lait, jus ou boissons.
+        var gm = t.match(/(\d+(?:[.,]\d+)?)\s*(kg|g|gr|ml|cl|l)\b/);
         if(gm){
             var v = parseFloat(gm[1].replace(",", "."));
-            return { g: gm[2] === "kg" ? v * 1000 : v, explicit: true };
+            var unitWeight = { kg:1000, g:1, gr:1, ml:1, cl:10, l:1000 };
+            return { g: v * unitWeight[gm[2]], explicit: true };
         }
 
         // 2 tranches / 2 pots / 2 bols / 1 cs
@@ -321,39 +441,25 @@
         segments.forEach(function(seg){
             var s = seg.trim();
             if(!s) return;
-            var qty = parseQuantity(s);
-            var food = findFood(s);
-            if(!food){
-                var words = s.split(/\s+/).slice(0,3).join(" ");
-                food = findFood(words);
-            }
-            if(!food){
-                var parts = s.split(/\s+/);
-                for(var pi = Math.min(parts.length-1, 4); pi >= 0 && !food; pi--){
-                    food = findFood(parts.slice(0, pi+1).join(" "));
-                }
-            }
-            if(!food) return;
-            var grams = qty.g;
-            // PRIORITY: if user typed "1 X" or "2 X" (count-based) and the food has a
-            // per-unit weight (unitG), use unitG * count. This fixes the generic
-            // bug where "1 amande" inflated to 30g (defaultG) instead of ~1.5g.
-            // v91: floor 1g (au lieu de 5g) pour des valeurs REALISTES meme sur petites unités.
-            // "1 amande" = 1.5g (pas 5g), "1 datte" = 8g, "3 amandes" = 4.5g, etc.
-            // Si l'utilisateur veut arrondir à la portion, il tape "30 g amandes" ou "1 poignee amandes".
-            if(grams == null && qty.count != null && food.unitG != null){
-                grams = Math.max(1, food.unitG * qty.count);
-            } else if(grams == null && qty.frac != null){
-                grams = food.defaultG * qty.frac;
-            } else if(grams == null && qty.count != null){
-                grams = (food.defaultG || 60) * qty.count;
-            } else if(grams == null){
-                grams = food.defaultG;
-            }
-            // v91: plus de clamp if(grams < 5) grams = 5 — laisser les petites valeurs realistes
-            // (1.5g amandes, 0.6g raisin, etc.) mais cap à 1500g pour eviter les abus.
-            if(grams > 1500) grams = 1500;
-            results.push({ food: food, grams: grams, rawLine: s });
+            var matches = findFoodsInText(s);
+            matches.forEach(function(match, index){
+                var food = match.food;
+                // La quantité est cherchée juste avant l'aliment, puis juste après.
+                // Une quantité ne peut pas être réutilisée par l'ingrédient suivant.
+                var previousEnd = index ? matches[index - 1].end : Math.max(0, match.start - 24);
+                var nextStart = index < matches.length - 1 ? matches[index + 1].start : Math.min(s.length, match.end + 18);
+                var before = s.slice(previousEnd, match.start);
+                var after = s.slice(match.end, nextStart);
+                var qty = parseQuantity(before) || {g:null};
+                if(qty.g == null && qty.count == null && qty.frac == null) qty = parseQuantity(after);
+                var grams = qty.g;
+                if(grams == null && qty.count != null && food.unitG != null) grams = Math.max(1, food.unitG * qty.count);
+                else if(grams == null && qty.frac != null) grams = food.defaultG * qty.frac;
+                else if(grams == null && qty.count != null) grams = (food.defaultG || 60) * qty.count;
+                else if(grams == null) grams = food.defaultG;
+                grams = clamp(grams, 1, 1500);
+                results.push({ food:food, grams:grams, rawLine:s, quantityExplicit:!!qty.explicit });
+            });
         });
         return results;
     }
@@ -378,7 +484,8 @@
                 merged.push({ food: it.food, grams: it.grams, rawLines: [it.rawLine] });
             }
         });
-        return { lines: rawLines.length, items: merged };
+        var unmatched = rawLines.filter(function(line){ return findFoodsInText(line).length === 0; });
+        return { lines: rawLines.length, items: merged, unmatched:unmatched };
     }
 
     // ============================================================
@@ -398,7 +505,8 @@
             tot.l += (f.l || 0) * factor;
             tot.fiber += (f.fiber || 0) * factor;
             if(f.omega3) tot.omega3 += (f.l || 0) * factor * 0.3;
-            if(f.alcoholG) { var aG = parseFloat(f.alcoholG) || 0; tot.alcoholG += aG * (it.grams / (f.hint ? parseFloat((f.hint.match(/=\s*(\d+)/)||[0,250])[1]) : 250)); }
+            // alcoholG est exprimé en grammes d'éthanol pour 100 g/mL.
+            if(f.alcoholG) { var aG = parseFloat(f.alcoholG) || 0; tot.alcoholG += aG * factor; }
 
             if(PROTEIN_CATS.indexOf(f.category) !== -1) nProteins++;
             if(LEGUME_CATS.indexOf(f.category) !== -1) nLegumes++;
@@ -414,8 +522,10 @@
         var pScore;
         if(pRatio < 0.3) pScore = 0;
         else if(pRatio < 0.55) pScore = 1.0 * linearMap(pRatio, 0.3, 0.55);
-        else if(pRatio < 0.85) pScore = 1.0 + 1.0 * linearMap(pRatio, 0.55, 0.85);
-        else if(pRatio <= 1.25) pScore = 2.0 + 1.0 * linearMap(pRatio, 0.85, 1.25);
+        else if(pRatio < 0.8) pScore = 1.0 + 2.0 * linearMap(pRatio, 0.55, 0.8);
+        // Une journée à 80–135 % de l'objectif est déjà très bien couverte :
+        // ne pas retirer des points à un repas équilibré pour quelques grammes.
+        else if(pRatio <= 1.35) pScore = 3.0;
         else pScore = 3.0 - Math.min(1.0, (pRatio - 1.25) * 1.5);
         pScore = clamp(pScore, 0, 3);
 
@@ -429,6 +539,9 @@
         else if(gRatio < 1.0)  gScore = 1.2 + 0.6 * linearMap(gRatio, 0.7, 1.0);
         else if(gRatio <= 1.3) gScore = 1.8 + 0.2 * linearMap(gRatio, 1.0, 1.3);
         else gScore = 2.0 - Math.min(0.6, (gRatio - 1.3) * 0.8);
+        // Le score de qualité ne sanctionne pas une journée riche en aliments
+        // complets parce qu'une cible énergétique personnelle est élevée.
+        if(nCarb >= 2 && tot.g >= 160) gScore = Math.max(gScore, 2.0);
         if(tot.fiber >= targets.fiber * 0.8) gScore = Math.min(2.0, gScore + 0.1);
         gScore = clamp(gScore, 0, 2);
 
@@ -440,6 +553,7 @@
         if(hasJunk >= 2) lScore -= 0.4;
         if(lRatio > 1.6) lScore -= 0.2;
         if(tot.alcoholG > 10) lScore -= 0.2;
+        if(hasLipidGood >= 1 && lRatio >= 0.45 && lRatio <= 1.35 && hasJunk === 0 && tot.alcoholG === 0) lScore = 1;
         lScore = clamp(lScore, 0, 1);
 
         // ========== Variété (sur 2.0) ==========
@@ -465,6 +579,7 @@
             if(hasLipidGood >= 1) tScore += 0.2;
         }
         if(tot.alcoholG > 20) tScore -= 0.3;
+        if(foodCount >= 7 && nProteins >= 1 && nCarb >= 2 && nLegumes >= 1 && nFruit >= 1 && hasJunk === 0) tScore = 2;
         tScore = clamp(tScore, 0, 2);
 
         var total = pScore + gScore + lScore + vScore + tScore;
@@ -491,6 +606,19 @@
         };
     }
 
+    // Un seul aliment ou un seul repas ne représente pas une journée. Sans cette
+    // garde, une poignée d'amandes pouvait être notée 3/10 et déclencher des
+    // conseils absurdes sur les protéines ou les légumes de la "journée".
+    function assessInputScope(text, score){
+        var mealMarkers = String(text || "").match(/\b(matin|petit\s*dej|dejeuner|midi|brunch|gouter|collation|apres[- ]?midi|soir|diner|diner|repas)\b/gi) || [];
+        var lines = String(text || "").split(/\r?\n/).filter(function(x){ return x.trim().length > 3; }).length;
+        var hasSeveralMeals = mealMarkers.length >= 2 || lines >= 3;
+        // Le seuil ne rend pas une saisie "saine" : il indique seulement que
+        // l'utilisateur a probablement renseigné l'essentiel de sa journée.
+        if(hasSeveralMeals || score.macros.kcal >= 900) return "day";
+        return "partial";
+    }
+
     function timingDetail(ctx, np, hc, hj){
         if(ctx.trainedToday) return "entrainement aujourd'hui · combo P+G " + (np&&hc?"detecte":"manquant") + " · junk " + (hj>=2?"presents":"OK");
         if(ctx.trainedYesterday) return "recup d'hier · P " + (np>=2?"renforce":"a renforcer");
@@ -506,6 +634,11 @@
         var b = score.breakdown;
         var macros = score.macros;
         var cats = score.categories;
+
+        if(score.scope === "partial"){
+            return [{ kind:"info", label:"Saisie partielle — pas de score journalier",
+                text:"Tu as saisi " + Math.round(macros.kcal) + " kcal. Ajoute tes autres repas pour obtenir un bilan de journée fiable ; les cibles quotidiennes ne sont volontairement pas comparées ici." }];
+        }
 
         // Analyse de l'historique pour des conseils plus intelligents
         var historyAnalysis = analyzeNutriHistory();
@@ -761,29 +894,41 @@
     function renderResult(panel, parsed, score, targets, advice){
         var html = "";
 
-        var ring = ringByScore(score.total);
-        var ringDeg = Math.round((score.total / 10) * 360);
+        var isPartial = score.scope === "partial";
+        var ring = isPartial ? "#9c9c8a" : ringByScore(score.total);
+        var ringDeg = isPartial ? 0 : Math.round((score.total / 10) * 360);
         html += '<div class="nutri-score-hero">';
         html += '  <div class="nutri-score-circle" style="background: conic-gradient(' + ring + ' ' + ringDeg + 'deg, #e0e5dd ' + ringDeg + 'deg);">';
         html += '    <div class="nutri-score-inner">';
-        html += '      <div class="nutri-score-num" style="color:' + colorByScore(score.total) + '">' + score.total.toFixed(1) + '</div>';
-        html += '      <div class="nutri-score-of">/10</div>';
+        html += '      <div class="nutri-score-num" style="color:' + (isPartial ? "#6c756c" : colorByScore(score.total)) + '">' + (isPartial ? "—" : score.total.toFixed(1)) + '</div>';
+        html += '      <div class="nutri-score-of">' + (isPartial ? "partiel" : "/10") + '</div>';
         html += '    </div>';
         html += '  </div>';
         html += '  <div class="nutri-score-side">';
-        html += '    <div class="nutri-score-title">🥗 Recap nutrition</div>';
+        html += '    <div class="nutri-score-title">🥗 ' + (isPartial ? "Saisie alimentaire" : "Recap nutrition") + '</div>';
         html += '    <div class="nutri-score-stats">' + score.macros.kcal + ' kcal · ' + parsed.items.length + ' items</div>';
-        html += '    <div class="nutri-score-context">' + escape(describeContext(score.ctx)) + '</div>';
+        html += '    <div class="nutri-score-context">' + (isPartial ? 'Ajoute les autres repas pour un bilan journalier.' : escape(describeContext(score.ctx)) + (targets.personalized ? ' · 🎯 profil personnel' : ' · repères génériques')) + '</div>';
         html += '  </div>';
         html += '</div>';
 
+        if(parsed.unmatched && parsed.unmatched.length){
+            html += '<div class="nutri-card" style="border-left:3px solid #ffab91;padding:12px 14px">';
+            html += '<div class="nutri-card-title">⚠️ À préciser pour une estimation fiable</div>';
+            html += '<div style="font-size:12px;color:var(--text);line-height:1.5">Ces lignes ne correspondent pas encore à la base : ' + escape(parsed.unmatched.slice(0,3).join(' · ')) + '. Vérifie l’orthographe ou ajoute les ingrédients principaux.</div>';
+            html += '</div>';
+        }
+
+        var macroSub = function(target, unit){ return isPartial ? "apport saisi · pas de comparaison/jour" : "cible " + target + " " + unit; };
         html += '<div class="nutri-grid">';
-        html += macroBox("Proteines", score.macros.p + " g", "cible " + targets.p + " g");
-        html += macroBox("Glucides", score.macros.g + " g", "cible " + targets.g + " g");
-        html += macroBox("Lipides", score.macros.l + " g", "cible " + targets.l + " g");
-        html += macroBox("Fibres", score.macros.fiber + " g", "cible " + targets.fiber + " g");
+        html += macroBox("Proteines", score.macros.p + " g", macroSub(targets.p,"g"));
+        html += macroBox("Glucides", score.macros.g + " g", macroSub(targets.g,"g"));
+        html += macroBox("Lipides", score.macros.l + " g", macroSub(targets.l,"g"));
+        html += macroBox("Fibres", score.macros.fiber + " g", macroSub(targets.fiber,"g"));
         html += '</div>';
 
+        if(isPartial){
+            html += '<div class="nutri-card" style="border-left:3px solid #9c9c8a"><div class="nutri-card-title">🧠 Analyse fiable : données insuffisantes</div><div style="font-size:12px;line-height:1.5;color:var(--text)">Cette saisie ressemble à un aliment ou à un repas isolé, pas à une journée. Aucun score, déficit ou conseil de récupération n’est déduit avant d’avoir plus de données.</div></div>';
+        } else {
         html += '<div class="nutri-card">';
         html += '  <div class="nutri-card-title">🎯 Detail du score</div>';
         ["proteins","carbs","lipids","variety","timing"].forEach(function(k){
@@ -797,6 +942,7 @@
             html += '  </div>';
         });
         html += '</div>';
+        }
 
         if(parsed.items.length){
             html += '<div class="nutri-card">';
@@ -812,6 +958,10 @@
                 html += '  </div>';
             });
             html += '</div>';
+
+            html += '<div class="nutri-card"><div class="nutri-card-title">✏️ Corriger les portions</div><div style="font-size:11px;color:var(--muted);margin-bottom:7px">Modifie un gramme, puis recalcule avec les valeurs corrigées.</div>';
+            parsed.items.forEach(function(it, i){ html += '<div class="nutri-editor-row"><span>' + escape(it.food.name) + '</span><input type="number" min="1" value="' + Math.round(it.grams) + '" data-nutri-edit-grams="' + i + '"><span>g</span></div>'; });
+            html += '<button class="btn lime" type="button" id="nutriApplyEdits" style="margin-top:10px;padding:8px 12px">Appliquer les corrections</button></div>';
         }
 
         if(advice.length){
@@ -826,10 +976,21 @@
             html += '</div>';
         }
 
+        if(!isPartial){
+            html += '<div class="nutri-card" id="nutriAiInsight"><div class="nutri-card-title">🤖 Coach IA local</div><div class="nutri-loading" style="font-size:12px">Analyse qualitative par l’IA locale…</div></div>';
+        }
+
         // Disclaimer
-        html += '<div class="nutri-disclaimer">Estimations à partir d\'une base de données locale de ~100 aliments courants. Pour une analyse fine, consulte un diététicien ou utilise un suivi médical. Le score est indicatif.</div>';
+        html += '<div class="nutri-disclaimer">Base locale étendue (aliments courants, portions cuites/égouttées). ' + (targets.personalized ? 'Les cibles sont calculées depuis ton profil et restent des estimations.' : 'Les cibles sont des repères génériques faute de profil renseigné.') + ' Le score n’est affiché que pour une journée suffisamment complète.</div>';
 
         panel.innerHTML = html;
+        var editBtn = document.getElementById("nutriApplyEdits");
+        if(editBtn) editBtn.addEventListener("click", function(){
+            var values = panel.querySelectorAll("[data-nutri-edit-grams]");
+            var lines = [];
+            values.forEach(function(input){ var item = parsed.items[Number(input.dataset.nutriEditGrams)]; if(item) lines.push(Math.max(1, Number(input.value)||item.grams) + " g " + item.food.name); });
+            var ta = document.getElementById("nutriInput"); if(ta){ ta.value = lines.join("\n"); runAnalysis(); }
+        });
     }
 
     function describeContext(ctx){
@@ -1004,7 +1165,11 @@
             // Trier par date décroissante
             history.sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
             
-            var html = "";
+            var recent = history.slice(0,7), count = recent.length;
+            var avg = recent.reduce(function(sum,a){ return sum + Number(a.score && a.score.total || 0); },0) / count;
+            var avgP = recent.reduce(function(sum,a){ return sum + Number(a.score && a.score.macros && a.score.macros.p || 0); },0) / count;
+            var avgKcal = recent.reduce(function(sum,a){ return sum + Number(a.score && a.score.macros && a.score.macros.kcal || 0); },0) / count;
+            var html = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"><div style="padding:10px;background:#f7f8f5;border-radius:8px"><b style="display:block;font-size:18px">' + avg.toFixed(1) + '/10</b><span style="font-size:10px;color:var(--muted)">score moyen · 7 derniers</span></div><div style="padding:10px;background:#f7f8f5;border-radius:8px"><b style="display:block;font-size:18px">' + Math.round(avgP) + ' g</b><span style="font-size:10px;color:var(--muted)">protéines / jour</span></div><div style="padding:10px;background:#f7f8f5;border-radius:8px"><b style="display:block;font-size:18px">' + Math.round(avgKcal) + '</b><span style="font-size:10px;color:var(--muted)">kcal / jour</span></div></div>';
             history.forEach(function(analysis){
                 var date = new Date(analysis.date).toLocaleDateString("fr-FR", { weekday: 'short', day: 'numeric', month: 'short' });
                 var score = analysis.score ? analysis.score.total : 0;
@@ -1016,8 +1181,9 @@
                 html += '    <div style="font-weight:700;font-size:16px;color:' + scoreColor + '">' + score.toFixed(1) + '/10</div>';
                 html += '  </div>';
                 html += '  <div style="font-size:11px;color:var(--muted);margin-top:4px;">';
-                if(analysis.macros){
-                    html += '    ' + Math.round(analysis.macros.kcal) + ' kcal · P' + Math.round(analysis.macros.p) + ' · G' + Math.round(analysis.macros.g) + ' · L' + Math.round(analysis.macros.l);
+                if(analysis.score && analysis.score.macros){
+                    var hm = analysis.score.macros;
+                    html += '    ' + Math.round(hm.kcal) + ' kcal · P' + Math.round(hm.p) + ' · G' + Math.round(hm.g) + ' · L' + Math.round(hm.l);
                 }
                 html += '  </div>';
                 html += '</div>';
@@ -1081,6 +1247,49 @@
         }
     }
 
+    function lookupBarcodeProduct(){
+        var input = document.getElementById("nutriBarcode"), status = document.getElementById("nutriBarcodeStatus");
+        var code = (input && input.value || "").replace(/\D/g, "");
+        if(code.length < 8){ status.textContent = "Entre un code EAN valide."; return; }
+        status.textContent = "Recherche du produit…";
+        fetch("https://world.openfoodfacts.org/api/v2/product/" + encodeURIComponent(code) + ".json?fields=product_name,nutriments,serving_quantity")
+            .then(function(r){ if(!r.ok) throw new Error("service indisponible"); return r.json(); })
+            .then(function(result){
+                var product = result.product || {}, n = product.nutriments || {}, name = product.product_name;
+                if(!name || n["energy-kcal_100g"] == null) throw new Error("produit incomplet");
+                document.getElementById("nutriCustomName").value = name;
+                document.getElementById("nutriCustomKcal").value = Math.round(Number(n["energy-kcal_100g"]));
+                document.getElementById("nutriCustomP").value = Number(n.proteins_100g || 0).toFixed(1);
+                document.getElementById("nutriCustomG").value = Number(n.carbohydrates_100g || 0).toFixed(1);
+                document.getElementById("nutriCustomL").value = Number(n.fat_100g || 0).toFixed(1);
+                document.getElementById("nutriCustomPortion").value = Math.round(Number(product.serving_quantity || 100));
+                status.textContent = "✓ Produit trouvé : vérifie puis ajoute-le.";
+            }).catch(function(){ status.textContent = "Produit introuvable ou connexion indisponible."; });
+    }
+
+    // Le modèle ne calcule jamais les macros : elles viennent de la base locale.
+    // Il sert à comprendre le contexte et formuler une recommandation cohérente.
+    function requestNutriAi(text, score, targets){
+        if(score.scope === "partial") return;
+        var target = document.getElementById("nutriAiInsight");
+        if(!target) return;
+        var prompt = "Tu es un coach nutrition sportif francophone, prudent et concret. " +
+            "Tu reçois une journée alimentaire et des macros DEJA CALCULEES. Ne les recalcules pas, ne les invente pas, ne donne pas de diagnostic médical. " +
+            "Réponds uniquement en français, 90 mots maximum, avec : 1) un verdict court, 2) deux forces précises, 3) une seule amélioration utile si nécessaire. " +
+            "Si la journée est équilibrée, dis-le clairement sans chercher un défaut artificiel.\n\n" +
+            "Journal :\n" + text + "\n\nMacros calculées : " + score.macros.kcal + " kcal, protéines " + score.macros.p + " g, glucides " + score.macros.g + " g, lipides " + score.macros.l + " g, fibres " + score.macros.fiber + " g. " +
+            "Repères utilisateur : P " + targets.p + " g, G " + targets.g + " g, L " + targets.l + " g. Score qualité calculé : " + score.total + "/10.";
+        fetch("http://localhost:11434/api/generate", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({model:"llama3.2", prompt:prompt, stream:false, options:{temperature:0.25, num_predict:180}})})
+            .then(function(r){ if(!r.ok) throw new Error("Ollama indisponible"); return r.json(); })
+            .then(function(result){
+                var answer = String(result.response || "").trim();
+                if(!answer) throw new Error("réponse vide");
+                target.innerHTML = '<div class="nutri-card-title">🤖 Coach IA local <span style="font-size:10px;color:#426e22">● connecté</span></div><div style="white-space:pre-wrap;font-size:12px;line-height:1.6;color:var(--text)">' + escape(answer) + '</div>';
+            }).catch(function(){
+                target.innerHTML = '<div class="nutri-card-title">🤖 Coach IA local</div><div style="font-size:12px;line-height:1.5;color:var(--muted)">IA locale non connectée. Installe et lance Ollama avec <b>ollama pull llama3.2</b> pour obtenir une analyse rédigée par un vrai modèle ; les macros restent fiables grâce au calcul local.</div>';
+            });
+    }
+
     function init(){
         var btn = document.getElementById("nutriAnalyzeBtn");
         var ta = document.getElementById("nutriInput");
@@ -1088,6 +1297,29 @@
         var sample = document.getElementById("nutriSample");
         var clearBtn = document.getElementById("nutriClearBtn");
         if(!btn || !ta || !out) return;
+
+        var profile = getNutriProfile();
+        if(profile){
+            var pw = document.getElementById("nutriWeight"), pg = document.getElementById("nutriGoal"), pa = document.getElementById("nutriActivity");
+            if(pw) pw.value = profile.weight || ""; if(pg) pg.value = profile.goal || "maintain"; if(pa) pa.value = profile.activity || "medium";
+        }
+        var profileBtn = document.getElementById("nutriSaveProfile");
+        if(profileBtn) profileBtn.addEventListener("click", function(){
+            var weight = Number(document.getElementById("nutriWeight").value);
+            if(weight < 35 || weight > 250){ alert("Entre un poids entre 35 et 250 kg."); return; }
+            var store = readNutriStore(); store.nutriProfile = {weight:weight, goal:document.getElementById("nutriGoal").value, activity:document.getElementById("nutriActivity").value}; writeNutriStore(store);
+            profileBtn.textContent = "✓ Profil enregistré"; setTimeout(function(){ profileBtn.textContent = "Enregistrer le profil"; }, 1800);
+        });
+        var customBtn = document.getElementById("nutriSaveCustomFood");
+        if(customBtn) customBtn.addEventListener("click", function(){
+            var name = (document.getElementById("nutriCustomName").value || "").trim(), kcal = Number(document.getElementById("nutriCustomKcal").value);
+            if(!name || !isFinite(kcal) || kcal < 0){ alert("Renseigne au minimum le nom et les kcal / 100 g."); return; }
+            var food = {name:name, aliases:[name], category:"custom", kcal:kcal, p:Math.max(0,Number(document.getElementById("nutriCustomP").value)||0), g:Math.max(0,Number(document.getElementById("nutriCustomG").value)||0), l:Math.max(0,Number(document.getElementById("nutriCustomL").value)||0), defaultG:Math.max(1,Number(document.getElementById("nutriCustomPortion").value)||100)};
+            var store = readNutriStore(); store.nutriCustomFoods = (store.nutriCustomFoods || []).filter(function(f){ return normalize(f.name) !== normalize(name); }); store.nutriCustomFoods.push(food); writeNutriStore(store);
+            ["nutriCustomName","nutriCustomKcal","nutriCustomP","nutriCustomG","nutriCustomL","nutriCustomPortion"].forEach(function(id){ document.getElementById(id).value = ""; }); customBtn.textContent="✓ Ajouté"; setTimeout(function(){customBtn.textContent="Ajouter";},1500);
+        });
+        var barcodeBtn = document.getElementById("nutriLookupBarcode");
+        if(barcodeBtn) barcodeBtn.addEventListener("click", lookupBarcodeProduct);
 
         // Date picker — défaut = aujourd'hui (sauf si __nutriTargetDate pré-renseigné)
         var dateIn = document.getElementById("nutriDateInput");
@@ -1153,12 +1385,13 @@
             var ctx = detectContext();
             var targets = computeTargets(ctx);
             var score = scoreMeal(parsed, targets, ctx);
+            score.scope = assessInputScope(text, score);
             patchLabels(score);
             score.items = parsed.items.length;
             var advice = generateAdvice(score, ctx, targets);
 
             try{
-                if(parsed.items.length > 0){
+                if(parsed.items.length > 0 && score.scope === "day"){
                     // Sauvegarder l'analyse complète (date choisie par l'utilisateur via input date)
                     var dateIn = document.getElementById("nutriDateInput");
                     var dateKey = (dateIn && dateIn.value) ? dateIn.value : (localDateStr(new Date()));
@@ -1167,6 +1400,7 @@
             }catch(_){}
 
             renderResult(out, parsed, score, targets, advice);
+            requestNutriAi(text, score, targets);
         }, 120);
     }
 
@@ -1186,15 +1420,23 @@
         var ctx = detectContext();
         var targets = computeTargets(ctx);
         var score = scoreMeal(parsed, targets, ctx);
+        score.scope = assessInputScope(ta.value || "", score);
         console.log("🥗 NUTRI", { items: parsed.items.length, ctx: ctx, score: score.total, breakdown: score.breakdown });
         return score;
     };
+    window.__nutriParse = parseInput;
+    window.__nutriAssessScope = function(text){ var p = parseInput(text); var s = scoreMeal(p, computeTargets(detectContext()), detectContext()); return assessInputScope(text, s); };
+    window.__nutriEvaluate = function(text){ var p = parseInput(text), ctx = detectContext(), targets = computeTargets(ctx), s = scoreMeal(p, targets, ctx); s.scope = assessInputScope(text, s); return {score:s,targets:targets,items:p.items}; };
+
+    // Exports placés dans le bloc try : en mode strict, les déclarations de
+    // fonctions définies dans ce bloc ne sont pas visibles après son accolade.
+    // Les exporter après le try faisait planter le module en fin d'initialisation.
+    window.renderNutriFromSaved = renderNutriFromSaved;
+    window.renderNutriCompactCard = renderNutriCompactCard;
+    window.deleteNutriAnalysis = deleteNutriAnalysis;
 
     } catch(e) {
         window.__nutriErr = (e && e.message ? e.message : String(e)) + " :: " + ((e && e.stack) ? e.stack.split("\n").slice(0,4).join(" | ") : "no-stack");
         try { console.error("🛑 NUTRI IIFE crashed:", e); } catch(_){}
     }
-    window.renderNutriFromSaved = renderNutriFromSaved;
-    window.renderNutriCompactCard = renderNutriCompactCard;
-    window.deleteNutriAnalysis = deleteNutriAnalysis;
 })();
