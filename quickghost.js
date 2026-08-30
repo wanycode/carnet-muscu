@@ -125,57 +125,42 @@
         return m[b.length][a.length];
     }
 
-    function fuzzyClosest(target, candidates, maxDist){
-        // target is the name we want to match (e.g. "developpecouche").
-        // candidates is an array of (norm + original name) pairs.
-        // Returns the closest within maxDist edits, or null.
-        var best = null, bestDist = maxDist + 1;
-        for(var i = 0; i < candidates.length; i++){
-            var d = levenshtein(target, candidates[i].norm);
-            if(d < bestDist){ bestDist = d; best = candidates[i]; }
+    // Score de similarité 0..1 entre deux noms normalisés.
+    // Utilisé pour ne JAMAIS associer deux exercices différents qui ne
+    // partagent qu'un préfixe court (ex: "Curl barre" vs "Curl machine" →
+    // préfixe 4 "curl" ne suffit pas à matcher).
+    function matchScore(a, b){
+        if(!a || !b) return 0;
+        if(a === b) return 1;
+        var maxLen = Math.max(a.length, b.length);
+        if(maxLen < 4) return 0;
+        var sim = 1 - levenshtein(a, b) / maxLen;
+        // Bonus préfixe : si l'un commence par l'autre ET que le préfixe est
+        // assez long (>= 5), on considère que c'est le même exercice
+        // (ex: "developpecouche" vs "developpecoucheincline" → non, mais
+        //  "developpecouche" vs "developpe couche" → après normalisation c'est direct).
+        var shorter = Math.min(a.length, b.length);
+        if(shorter >= 5 && (a.indexOf(b) === 0 || b.indexOf(a) === 0)){
+            sim = Math.max(sim, 0.85);
         }
-        return best;
-    }
-
-    function prefixMatch(target, candidates){
-        // Si target ET candidate commencent par les 3 mêmes caractères et sont
-        // tous deux >= 3 caractères, on les considère comme match (couvre le cas
-        // "DC" vs "Développé couché" → "dc" vs "developpecouche" — NON matche
-        // mais couvre "Developpé couche" vs "Développé couché" → même préfixe 4+).
-        if(!target || target.length < 3) return null;
-        for(var i = 0; i < candidates.length; i++){
-            var c = candidates[i].norm;
-            if(!c || c.length < 3) continue;
-            // 3-char prefix match
-            if(target.substring(0, 3) === c.substring(0, 3)) return candidates[i];
-            // 4-char prefix if both longer
-            if(target.length >= 4 && c.length >= 4 && target.substring(0, 4) === c.substring(0, 4)) return candidates[i];
-        }
-        return null;
-    }
-
-    function substringMatch(target, candidates){
-        // Si target est contenu dans candidate ou inversement avec longueur >= 4.
-        if(!target || target.length < 4) return null;
-        for(var i = 0; i < candidates.length; i++){
-            var c = candidates[i].norm;
-            if(!c || c.length < 4) continue;
-            if(target.length >= c.length && target.indexOf(c) !== -1) return candidates[i];
-            if(c.length > target.length && c.indexOf(target) !== -1) return candidates[i];
-        }
-        return null;
+        return sim;
     }
 
     function findBestGhost(direct, candidates, priorMap){
-        // Stratégie de match en cascade : direct → prefix → substring → Levenshtein
+        // Stratégie : exact → score de similarité pondéré (jamais de préfixe 3-4 lettres).
         if(!direct || !candidates || !candidates.length) return null;
         if(priorMap[direct]) return { match: priorMap[direct], via: "direct" };
-        var m = prefixMatch(direct, candidates);
-        if(m) return { match: priorMap[m.norm] || null, via: "prefix(" + m.norm + ")" };
-        m = substringMatch(direct, candidates);
-        if(m) return { match: priorMap[m.norm] || null, via: "substring(" + m.norm + ")" };
-        m = fuzzyClosest(direct, candidates, 3);
-        if(m) return { match: priorMap[m.norm] || null, via: "fuzzy(" + m.norm + ")" };
+        var best = null, bestScore = 0.72; // seuil : on refuse les matches douteux
+        for(var i = 0; i < candidates.length; i++){
+            var c = candidates[i];
+            if(!c || !c.norm) continue;
+            var score = matchScore(direct, c.norm);
+            if(score > bestScore){
+                bestScore = score;
+                best = c;
+            }
+        }
+        if(best) return { match: priorMap[best.norm] || null, via: "fuzzy(" + Math.round(bestScore * 100) + "%)" };
         return null;
     }
     // Map<normalized exercise name> -> ghost session info
@@ -511,7 +496,12 @@
                     for(var q = 0; q < prev.exercises.length; q++){
                         var pe = prev.exercises[q];
                         if(!pe || !pe.name) continue;
-                        if(norm(pe.name) !== norm(ex.name)) continue;
+                        // Même exercice : priorité à exerciseKey (clé canonique sauvegardée
+                        // par app.js), sinon nom normalisé. Evite d'affronter un exo
+                        // différent qui porte un nom proche.
+                        var sameEx = norm(pe.name) === norm(ex.name)
+                            || (ex.exerciseKey && pe.exerciseKey && norm(pe.exerciseKey) === norm(ex.exerciseKey));
+                        if(!sameEx) continue;
                         if(!isComparableType(pe.type || "weight")) continue;
                         var prevSets = cleanSets(pe.sets);
                         if(!prevSets.length) continue;
@@ -619,12 +609,50 @@
         return head;
     }
 
+    function buildRunGhostSection(){
+        if(typeof computeRunGhostBattles !== "function") return '';
+        if(typeof runGhostBattleHTML !== "function") return '';
+        var runBattles = computeRunGhostBattles();
+        if(!runBattles || !runBattles.length) return '';
+        var wins = 0, losses = 0;
+        for(var rb = 0; rb < runBattles.length; rb++){
+            if(runBattles[rb].status === "win") wins++;
+            else if(runBattles[rb].status === "loss") losses++;
+        }
+        var rate = (wins + losses) > 0 ? Math.round(100 * wins / (wins + losses)) : 0;
+        var html = '';
+        html += '<div class="ghost-section" style="margin-top:26px;padding-top:18px;border-top:2px dashed #f0e0d0;">';
+        html += '  <div class="ghost-section-head">🏃 Ghost course — tes duels d\'allure</div>';
+        html += '  <div class="run-ghost-hero">';
+        html += '    <div class="ghost-stat big ' + (rate >= 60 ? "win" : rate >= 40 ? "tie" : "loss") + '"><b>' + rate + '%</b><span>win rate</span></div>';
+        html += '    <div class="ghost-stat"><b>' + runBattles.length + '</b><span>duels</span></div>';
+        html += '    <div class="ghost-stat win"><b>' + wins + '</b><span>gagnés</span></div>';
+        html += '    <div class="ghost-stat loss"><b>' + losses + '</b><span>perdus</span></div>';
+        html += '  </div>';
+        var recentRun = runBattles[0];
+        html += '  <div class="ghost-section-head" style="margin-top:12px;">📅 Dernier duel · ' + fmtShortFR(recentRun.date + "T12:00:00") + '</div>';
+        html += runGhostBattleHTML(recentRun, true);
+        if(runBattles.length > 1){
+            html += '  <div class="ghost-section-head" style="margin-top:14px;">📜 Derniers duels</div>';
+            for(var rb2 = 1; rb2 < Math.min(runBattles.length, 6); rb2++){
+                html += runGhostBattleHTML(runBattles[rb2], false);
+            }
+        }
+        html += '</div>';
+        return html;
+    }
+
     function renderGhostDashboard(){
         var root = document.getElementById("ghostStatsContainer");
         if(!root) return;
         var battles = gatherBattles();
         if(!battles.length){
-            root.innerHTML = '<div class="empty">Pas encore de batailles. Fais une 2e séance avec un même exercice pour affronter ton fantôme 👻</div>';
+            var emptyHtml = '<div class="empty">Pas encore de batailles. Fais une 2e séance avec un même exercice pour affronter ton fantôme 👻</div>';
+            // Invite running : 1 seule sortie = duel d'allure à créer
+            if(typeof data !== "undefined" && data.runs && data.runs.length === 1 && typeof computeRunGhostBattles === "function"){
+                emptyHtml += '<div class="empty" style="margin-top:14px;">🏃 Ajoute une 2ᵉ sortie pour créer ton premier duel d\'allure contre ton fantôme.</div>';
+            }
+            root.innerHTML = emptyHtml + buildRunGhostSection();
             return;
         }
         // Aggregate
@@ -688,6 +716,9 @@
             html +=     renderBattleCard(biggestLoss, false);
             html += '</div>';
         }
+        // ============ 🏃 GHOST COURSE ============
+        html += buildRunGhostSection();
+
         root.innerHTML = html;
     }
 

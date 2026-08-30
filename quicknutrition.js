@@ -215,7 +215,389 @@
         {name:"sushi",aliases:["sushi","sushis","maki","makis","california roll"],category:"protein",kcal:150,p:7,g:30,l:1.5,defaultG:180},
         {name:"omelette",aliases:["omelette"],category:"protein",kcal:154,p:11,g:2,l:11,defaultG:120},
         {name:"café au lait",aliases:["cafe au lait","café au lait","latte","cappuccino"],category:"beverage_drink",kcal:45,p:2.5,g:4,l:2,defaultG:250},
-        {name:"boisson énergisante",aliases:["energy drink","red bull","monster"],category:"sugar",kcal:45,p:0,g:11,l:0,defaultG:250}
+        {name:"boisson énergisante",aliases:["energy drink","red bull","monster"],category:"sugar",kcal:45,p:0,g:11,l:0,defaultG:250},
+        {name:"lentilles corail",aliases:["lentilles corail","lentille corail","dal"],category:"legume_fiber",kcal:110,p:9,g:18,l:.5,fiber:5,defaultG:200},
+        {name:"falafel",aliases:["falafel","falafels"],category:"protein",kcal:333,p:13,g:32,l:17,fiber:5,defaultG:80},
+        {name:"houmous betterave",aliases:["houmous betterave","houmous à la betterave"],category:"lipid_good",kcal:180,p:6,g:15,l:12,fiber:4,goodFat:true,defaultG:60},
+        {name:"guacamole",aliases:["guacamole","guac"],category:"lipid_good",kcal:160,p:2,g:9,l:15,fiber:6,goodFat:true,defaultG:60},
+        {name:"tortilla chips",aliases:["tortilla chips","nachos","chips tortilla"],category:"junk",kcal:460,p:7,g:50,l:23,defaultG:50},
+        {name:"quiche",aliases:["quiche","quiche lorraine"],category:"junk",kcal:280,p:10,g:20,l:18,defaultG:150},
+        {name:"croque-monsieur",aliases:["croque monsieur","croque"],category:"junk",kcal:320,p:14,g:28,l:18,defaultG:200},
+        {name:"panini",aliases:["panini"],category:"junk",kcal:280,p:12,g:30,l:12,defaultG:200},
+        {name:"baguette complète",aliases:["baguette complete","baguette cereales"],category:"carb_fiber",kcal:250,p:9,g:45,l:2,fiber:5,defaultG:60},
+        {name:"pain aux graines",aliases:["pain aux graines","pain multigraines"],category:"carb_fiber",kcal:240,p:10,g:42,l:3,fiber:7,defaultG:50},
+        {name:"brioche",aliases:["brioche"],category:"sugar_fat",kcal:350,p:8,g:45,l:16,defaultG:60},
+        {name:"pain au lait",aliases:["pain au lait"],category:"sugar_fat",kcal:300,p:8,g:40,l:12,defaultG:60},
+        {name:"madeleine",aliases:["madeleine","madeleines"],category:"sugar_fat",kcal:400,p:6,g:50,l:18,defaultG:30},
+        {name:"brownie",aliases:["brownie","brownies"],category:"sugar_fat",kcal:450,p:5,g:55,l:25,defaultG:50},
+        {name:"cheesecake",aliases:["cheesecake","tarte au fromage"],category:"sugar_fat",kcal:350,p:6,g:30,l:22,defaultG:100},
+        {name:"tarte aux fruits",aliases:["tarte aux fruits","tarte pomme","tarte citron"],category:"sugar_fat",kcal:280,p:3,g:35,l:12,defaultG:100},
+        {name:"crêpe",aliases:["crepe","crêpe","crepe sucre","crêpe sucrée"],category:"sugar_fat",kcal:220,p:5,g:25,l:10,defaultG:100},
+        {name:"galette",aliases:["galette","galette sarrasin","crepe sarrasin"],category:"carb",kcal:180,p:6,g:25,l:6,defaultG:150},
+        {name:"blé dur",aliases:["ble dur","semoule ble dur","couscous ble dur"],category:"carb_fiber",kcal:120,p:13,g:65,l:2,fiber:6,defaultG:200},
+        {name:"épeautre",aliases:["epeautre","ble epeautre"],category:"carb_fiber",kcal:340,p:13,g:70,l:2,fiber:10,defaultG:200},
+        {name:"kamut",aliases:["kamut"],category:"carb_fiber",kcal:330,p:14,g:68,l:2,fiber:8,defaultG:200},
+        {name:"sarrasin",aliases:["sarrasin","buckwheat"],category:"carb_fiber",kcal:340,p:13,g:72,l:3,fiber:10,defaultG:200},
+        {name:"millet",aliases:["millet"],category:"carb_fiber",kcal:370,p:10,g:73,l:4,fiber:8,defaultG:200},
+        {name:"orge",aliases:["orge","orge perlé"],category:"carb_fiber",kcal:350,p:12,g:75,l:2,fiber:15,defaultG:200},
+        {name:"seigle",aliases:["seigle","pain seigle"],category:"carb_fiber",kcal:340,p:10,g:70,l:2,fiber:14,defaultG:200},
+        {name:"champignons de paris",aliases:["champignon de paris","champignon paris"],category:"legume",kcal:22,p:3,g:3,l:.3,fiber:1,defaultG:100},
+        {name:"pleurotes",aliases:["pleurote","pleurotes"],category:"legume",kcal:33,p:3,g:5,l:1,fiber:2,defaultG:100},
+        {name:"shiitake",aliases:["shiitake","champignon shiitake"],category:"legume",kcal:34,p:2,g:7,l:.5,fiber:2,defaultG:100},
+        {name:"cèpes",aliases:["cepe","cepes","bolet"],category:"legume",kcal:27,p:3,g:4,l:1,fiber:3,defaultG:100},
+        {name:"germe de blé",aliases:["germe de ble","germe ble"],category:"lipid_good",kcal:360,p:23,g:40,l:10,fiber:13,defaultG:15},
+        {name:"levure de bière",aliases:["levure de biere","levure biere"],category:"protein",kcal:340,p:45,g:30,l:5,defaultG:10},
+        {name:"spiruline",aliases:["spiruline","spirulina"],category:"protein",kcal:290,p:60,g:20,l:8,defaultG:5},
+        {name:"lupin",aliases:["lupin","graines lupin"],category:"protein",kcal:370,p:40,g:10,l:10,defaultG:30},
+        {name:"graines de courge",aliases:["graines de courge","pepites de courge"],category:"lipid_good",kcal:560,p:30,g:10,l:49,fiber:6,goodFat:true,defaultG:15},
+        {name:"graines de tournesol",aliases:["graines de tournesol","tournesol"],category:"lipid_good",kcal:580,p:21,g:20,l:51,fiber:9,goodFat:true,defaultG:15},
+        {name:"graines de sésame",aliases:["graines de sesame","sesame"],category:"lipid_good",kcal:570,p:18,g:23,l:49,fiber:12,goodFat:true,defaultG:15},
+        {name:"tahini",aliases:["tahini","pate de sesame","pâte de sésame"],category:"lipid_good",kcal:595,p:17,g:21,l:54,fiber:9,goodFat:true,defaultG:20},
+        {name:"miso",aliases:["miso","pate miso","pâte miso"],category:"protein",kcal:200,p:12,g:20,l:6,defaultG:30},
+        {name:"nori",aliases:["nori","algue nori","algue"],category:"protein",kcal:35,p:8,g:5,l:1,fiber:1,defaultG:5},
+        {name:"wakame",aliases:["wakame","algue wakame"],category:"legume",kcal:45,p:3,g:9,l:1,fiber:1,defaultG:10},
+        {name:"chou kale",aliases:["chou kale","kale","chou frise"],category:"legume",kcal:35,p:3,g:5,l:1,fiber:2,defaultG:100},
+        {name:"chou romanesco",aliases:["chou romanesco","romanesco"],category:"legume",kcal:30,p:2,g:5,l:1,fiber:2,defaultG:100},
+        {name:"chou de bruxelles",aliases:["chou de bruxelles","choux de bruxelles"],category:"legume",kcal:43,p:4,g:9,l:1,fiber:4,defaultG:100},
+        {name:"roquette",aliases:["roquette","roquette"],category:"legume",kcal:25,p:3,g:4,l:1,fiber:2,defaultG:80},
+        {unitG:5,hint:"1 pruneau = 5 g · poignée = 30 g"},
+        {name:"abricot sec",aliases:["abricot sec","abricots secs"],category:"fruit",kcal:241,p:3.4,g:63,l:.5,fiber:7,defaultG:30},
+        {name:"ananas sec",aliases:["ananas sec","ananas seché"],category:"fruit",kcal:320,p:2,g:75,l:1,fiber:8,defaultG:30},
+        {name:"mangue séchée",aliases:["mangue sechee","mangue sechée"],category:"fruit",kcal:300,p:2,g:70,l:1,fiber:6,defaultG:30},
+        {name:"papaye",aliases:["papaye"],category:"fruit",kcal:43,p:.5,g:11,l:.3,fiber:2,defaultG:150},
+        {name:"grenade",aliases:["grenade","graines grenade"],category:"fruit",kcal:83,p:1.7,g:19,l:1.2,fiber:4,defaultG:150},
+        {name:"litchi",aliases:["litchi","lychee"],category:"fruit",kcal:66,p:1,g:16,l:.4,fiber:1.5,defaultG:100},
+        {name:"kaki",aliases:["kaki","persimmon"],category:"fruit",kcal:70,p:.6,g:18,l:.3,fiber:3,defaultG:150},
+        {name:"coconut",aliases:["noix de coco","coco","coconut"],category:"lipid_good",kcal:354,p:3,g:15,l:33,fiber:9,goodFat:true,defaultG:30},
+        {name:"lait de coco",aliases:["lait de coco","lait coco"],category:"lipid_good",kcal:230,p:2,g:5,l:24,goodFat:true,defaultG:100},
+        {name:"crème de coco",aliases:["creme de coco","creme coco"],category:"lipid_good",kcal:330,p:3,g:10,l:35,goodFat:true,defaultG:50},
+        {name:"sauce soja",aliases:["sauce soja","sauce soja","soy sauce"],category:"lipid_neutral",kcal:70,p:10,g:5,l:0,defaultG:15},
+        {name:"sauce teriyaki",aliases:["sauce teriyaki","teriyaki"],category:"sugar",kcal:150,p:2,g:30,l:0,defaultG:30},
+        {name:"sirrop d'érable",aliases:["sirop d erable","sirop erable","maple syrup"],category:"sugar",kcal:260,p:0,g:67,l:0,defaultG:20},
+        {name:"agave",aliases:["sirop d agave","sirop agave","agave syrup"],category:"sugar",kcal:310,p:0,g:76,l:0,defaultG:20},
+        {name:"stevia",aliases:["stevia","edulcorant stevia"],category:"sugar",kcal:0,p:0,g:1,l:0,defaultG:5},
+        {name:"xylitol",aliases:["xylitol","sucre de bouleau"],category:"sugar",kcal:240,p:0,g:60,l:0,defaultG:5},
+        {name:"erythritol",aliases:["erythritol","sucre alcool"],category:"sugar",kcal:0,p:0,g:5,l:0,defaultG:5},
+        {name:"monk fruit",aliases:["monk fruit","monkfruit","luo han guo"],category:"sugar",kcal:0,p:0,g:1,l:0,defaultG:5},
+        {name:"protéine végétale",aliases:["proteine vegetale","proteine vegetale poudre","poudre proteine vegetale"],category:"protein",kcal:370,p:70,g:15,l:5,defaultG:30},
+        {name:"bcaa",aliases:["bcaa","acides amines ramifies"],category:"protein",kcal:0,p:0,g:0,l:0,defaultG:10},
+        {name:"créatine",aliases:["creatine","creatine monohydrate"],category:"protein",kcal:0,p:0,g:0,l:0,defaultG:5},
+        {name:"glutamine",aliases:["glutamine","l-glutamine"],category:"protein",kcal:0,p:0,g:0,l:0,defaultG:5},
+        {name:"zinc",aliases:["zinc","complement zinc"],category:"protein",kcal:0,p:0,g:0,l:0,defaultG:0},
+        {name:"magnésium",aliases:["magnesium","complement magnesium","bisglycinate"],category:"protein",kcal:0,p:0,g:0,l:0,defaultG:0},
+        {name:"vitamine d",aliases:["vitamine d","vit d","vit d3"],category:"protein",kcal:0,p:0,g:0,l:0,defaultG:0},
+        {name:"omega 3",aliases:["omega 3","huile poisson","fish oil","epa dha"],category:"lipid_good",kcal:900,p:0,g:0,l:100,goodFat:true,omega3:true,defaultG:5},
+        {name:"cla",aliases:["cla","acide linoleique conjugue"],category:"lipid_good",kcal:900,p:0,g:0,l:100,goodFat:true,defaultG:5},
+        {name:"mct oil",aliases:["mct oil","huile mct","huile coco mct"],category:"lipid_good",kcal:900,p:0,g:0,l:100,goodFat:true,defaultG:15},
+        {name:"collagène",aliases:["collagene","peptides collagene","collagen"],category:"protein",kcal:380,p:90,g:0,l:0,defaultG:10},
+        {name:"gelée royale",aliases:["gelee royale","gelée royale"],category:"protein",kcal:300,p:15,g:30,l:5,defaultG:10},
+        {name:"propolis",aliases:["propolis"],category:"protein",kcal:280,p:10,g:50,l:5,defaultG:5},
+        {name:"pollen",aliases:["pollen","pollen d abeille"],category:"protein",kcal:240,p:20,g:30,l:5,defaultG:10},
+        {name:"miel de manuka",aliases:["miel de manuka","manuka honey"],category:"sugar",kcal:320,p:1,g:80,l:0,defaultG:20},
+        {name:"cannelle",aliases:["cannelle","cannelle"],category:"sugar",kcal:250,p:4,g:55,l:1,defaultG:5},
+        {name:"gingembre",aliases:["gingembre","gingembre frais"],category:"legume",kcal:80,p:2,g:18,l:1,fiber:2,defaultG:10},
+        {name:"curcuma",aliases:["curcuma","curcuma","turmeric"],category:"legume",kcal:350,p:8,g:65,l:10,fiber:21,defaultG:5},
+        {name:"poivre noir",aliases:["poivre noir","poivre"],category:"legume",kcal:250,p:10,g:64,l:3,defaultG:2},
+        {name:"piment",aliases:["piment","piment fort","chili"],category:"legume",kcal:40,p:2,g:9,l:1,defaultG:5},
+        {name:"wasabi",aliases:["wasabi"],category:"legume",kcal:140,p:4,g:23,l:1,defaultG:5},
+        {name:"moutarde",aliases:["moutarde","moutarde dijon"],category:"legume",kcal:140,p:6,g:10,l:10,defaultG:10},
+        {name:"ketchup",aliases:["ketchup","catsup"],category:"sugar",kcal:100,p:1,g:25,l:0,defaultG:20},
+        {name:"mayonnaise light",aliases:["mayonnaise light","mayo light"],category:"lipid_neutral",kcal:320,p:1,g:1,l:35,defaultG:15},
+        {name:"sauce barbecue",aliases:["sauce barbecue","bbq sauce"],category:"sugar",kcal:150,p:0,g:35,l:0,defaultG:30},
+        {name:"sauce ranch",aliases:["sauce ranch","ranch"],category:"lipid_neutral",kcal:450,p:2,g:5,l:45,defaultG:30},
+        {name:"sauce caesar",aliases:["sauce caesar","caesar"],category:"lipid_neutral",kcal:480,p:2,g:5,l:48,defaultG:30},
+        {name:"vinaigrette",aliases:["vinaigrette","sauce vinaigrette"],category:"lipid_good",kcal:450,p:0,g:5,l:45,goodFat:true,defaultG:15},
+        {name:"huile de colza",aliases:["huile de colza","huile colza","huile canola"],category:"lipid_good",kcal:884,p:0,g:0,l:100,goodFat:true,defaultG:10},
+        {name:"huile de tournesol",aliases:["huile de tournesol","huile tournesol"],category:"lipid_neutral",kcal:884,p:0,g:0,l:100,defaultG:10},
+        {name:"huile de coco",aliases:["huile de coco","huile coco","coconut oil"],category:"lipid_good",kcal:884,p:0,g:0,l:100,goodFat:true,defaultG:10},
+        {name:"huile d'avocat",aliases:["huile d avocat","huile avocat","avocado oil"],category:"lipid_good",kcal:884,p:0,g:0,l:100,goodFat:true,defaultG:10},
+        {name:"huile de noix",aliases:["huile de noix","huile noix","walnut oil"],category:"lipid_good",kcal:884,p:0,g:0,l:100,goodFat:true,omega3:true,defaultG:10},
+        {name:"huile de lin",aliases:["huile de lin","huile lin","flaxseed oil"],category:"lipid_good",kcal:884,p:0,g:0,l:100,goodFat:true,omega3:true,defaultG:10},
+        {name:"huile de chanvre",aliases:["huile de chanvre","huile chanvre","hemp oil"],category:"lipid_good",kcal:884,p:0,g:0,l:100,goodFat:true,omega3:true,defaultG:10},
+        {name:"beurre de cacao",aliases:["beurre de cacao","cocoa butter"],category:"lipid_neutral",kcal:884,p:0,g:0,l:100,defaultG:10},
+        {name:"beurre clarifié",aliases:["beurre clarifie","ghee"],category:"lipid_neutral",kcal:900,p:0,g:0,l:100,defaultG:10},
+        {name:"crème liquide",aliases:["creme liquide","crème liquide","cream"],category:"lipid_neutral",kcal:340,p:2,g:3,l:36,defaultG:30},
+        {name:"crème allégée",aliases:["creme allégée","crème allégée","light cream"],category:"lipid_neutral",kcal:180,p:3,g:5,l:18,defaultG:30},
+        {name:"lait concentré",aliases:["lait concentre","lait concentré sucré","condensed milk"],category:"sugar_fat",kcal:320,p:8,g:54,l:10,defaultG:30},
+        {name:"lait en poudre",aliases:["lait en poudre","milk powder"],category:"protein",kcal:496,p:26,g:38,l:27,defaultG:30},
+        {name:"yaourt à boire",aliases:["yaourt a boire","drink yogurt","yogurt drink"],category:"protein",kcal:70,p:3,g:10,l:2,defaultG:200},
+        {name:"kéfir de fruits",aliases:["kefir de fruits","fruit kefir"],category:"sugar",kcal:60,p:1,g:12,l:0,defaultG:200},
+        {name:"lait de soja",aliases:["lait de soja","lait soja","soy milk"],category:"protein",kcal:45,p:3,g:3,l:2,defaultG:200},
+        {name:"lait de coco",aliases:["lait de coco","lait coco","coconut milk"],category:"lipid_good",kcal:150,p:2,g:2,l:15,goodFat:true,defaultG:200},
+        {name:"lait de riz",aliases:["lait de riz","lait riz","rice milk"],category:"sugar",kcal:60,p:0,g:12,l:1,defaultG:200},
+        {name:"lait de noisette",aliases:["lait de noisette","lait noisette","hazelnut milk"],category:"lipid_good",kcal:50,p:1,g:6,l:2,goodFat:true,defaultG:200},
+        {name:"lait de noix",aliases:["lait de noix","lait noix","walnut milk"],category:"lipid_good",kcal:50,p:1,g:6,l:2,goodFat:true,defaultG:200},
+        {name:"lait de chanvre",aliases:["lait de chanvre","lait chanvre","hemp milk"],category:"protein",kcal:35,p:2,g:2,l:1,defaultG:200},
+        {name:"jus de pomme",aliases:["jus de pomme","apple juice"],category:"sugar",kcal:46,p:0,g:11,l:0,defaultG:200},
+        {name:"jus de raisin",aliases:["jus de raisin","grape juice"],category:"sugar",kcal:60,p:0,g:15,l:0,defaultG:200},
+        {name:"jus d'ananas",aliases:["jus d ananas","pineapple juice"],category:"sugar",kcal:50,p:0,g:12,l:0,defaultG:200},
+        {name:"jus de pamplemousse",aliases:["jus de pamplemousse","grapefruit juice"],category:"sugar",kcal:40,p:0,g:9,l:0,defaultG:200},
+        {name:"smoothie",aliases:["smoothie","fruit smoothie"],category:"sugar",kcal:80,p:1,g:18,l:1,defaultG:300},
+        {name:"milkshake",aliases:["milkshake","shake"],category:"sugar_fat",kcal:150,p:4,g:20,l:5,defaultG:300},
+        {name:"thé glacé",aliases:["the glace","ice tea","iced tea"],category:"sugar",kcal:30,p:0,g:7,l:0,defaultG:300},
+        {name:"limonade",aliases:["limonade","lemonade"],category:"sugar",kcal:40,p:0,g:10,l:0,defaultG:300},
+        {name:"cocktail",aliases:["cocktail","alcool mix"],category:"alcohol",kcal:200,p:0,g:20,l:0,alcoholG:15,defaultG:200},
+        {name:"champagne",aliases:["champagne","sparkling wine"],category:"alcohol",kcal:90,p:0,g:2,l:0,alcoholG:12,defaultG:150},
+        {name:"cognac",aliases:["cognac","brandy"],category:"alcohol",kcal:240,p:0,g:0,l:0,alcoholG:40,defaultG:40},
+        {name:"liqueur",aliases:["liqueur","apéritif"],category:"alcohol_sugar",kcal:300,p:0,g:30,l:0,alcoholG:20,defaultG:50},
+        {name:"pastis",aliases:["pastis","ricard"],category:"alcohol",kcal:110,p:0,g:0,l:0,alcoholG:45,defaultG:50},
+        {name:"cidre",aliases:["cidre","cider"],category:"alcohol",kcal:50,p:0,g:5,l:0,alcoholG:5,defaultG:330},
+        {name:"bière sans alcool",aliases:["biere sans alcool","non alcoholic beer"],category:"sugar",kcal:25,p:0,g:5,l:0,defaultG:330},
+        {name:"vin sans alcool",aliases:["vin sans alcool","non alcoholic wine"],category:"sugar",kcal:30,p:0,g:6,l:0,defaultG:130},
+        {name:"eau gazeuse",aliases:["eau gazeuse","eau petillante","sparkling water"],category:"beverage_drink",kcal:0,p:0,g:0,l:0,defaultG:330},
+        {name:"eau aromatisée",aliases:["eau aromatisee","flavored water"],category:"sugar",kcal:5,p:0,g:1,l:0,defaultG:500},
+        {name:"tisane",aliases:["tisane","infusion","herbal tea"],category:"beverage_drink",kcal:0,p:0,g:0,l:0,defaultG:200},
+        {name="matcha",aliases:["matcha","the vert matcha"],category:"beverage_drink",kcal:3,p:1,g:0,l:0,defaultG:50},
+        {name:"yerba mate",aliases:["yerba mate","mate"],category:"beverage_drink",kcal:30,p:1,g:5,l:0,defaultG:200},
+        {name:"kombucha",aliases:["kombucha","kombucha tea"],category:"sugar",kcal:30,p:0,g:7,l:0,defaultG:330},
+        {name:"café décaféiné",aliases:["cafe decafeine","decaf","deca"],category:"beverage_drink",kcal:2,p:0,g:0,l:0,defaultG:50},
+        {name:"café glacé",aliases:["cafe glace","iced coffee","iced latte"],category:"sugar_fat",kcal:60,p:2,g:8,l:2,defaultG:300},
+        {name:"frappuccino",aliases:["frappuccino","frappe"],category:"sugar_fat",kcal:120,p:3,g:20,l:4,defaultG:400},
+        {name:"chai latte",aliases:["chai latte","chai tea latte"],category:"sugar_fat",kcal:100,p:2,g:15,l:3,defaultG:350},
+        {name:"bubble tea",aliases:["bubble tea","boba tea"],category:"sugar_fat",kcal:150,p:2,g:25,l:3,defaultG:400},
+        {name:"thé au lait",aliases:["the au lait","milk tea"],category:"sugar_fat",kcal:70,p:2,g:10,l:2,defaultG:300},
+        {name:"cacao chaud",aliases:["cacao chaud","chocolat chaud","hot chocolate"],category:"sugar_fat",kcal:80,p:2,g:12,l:3,defaultG:250},
+        {name:"verrine",aliases:["verrine","dessert verrine"],category:"sugar_fat",kcal:250,p:4,g:30,l:12,defaultG:150},
+        {name:"tiramisu",aliases:["tiramisu"],category:"sugar_fat",kcal:300,p:5,g:30,l:18,defaultG:120},
+        {name:"mousse au chocolat",aliases:["mousse au chocolat","chocolate mousse"],category:"sugar_fat",kcal:280,p:5,g:28,l:18,defaultG:100},
+        {name:"panna cotta",aliases:["panna cotta"],category:"sugar_fat",kcal:250,p:4,g:25,l:15,defaultG:120},
+        {name:"crème brûlée",aliases:["creme brulee","creme brulée"],category:"sugar_fat",kcal:320,p:4,g:30,l:20,defaultG:100},
+        {name:"profiteroles",aliases:["profiteroles","choux a la creme"],category:"sugar_fat",kcal:280,p:5,g:28,l:16,defaultG:100},
+        {name:"éclair",aliases:["eclair","eclair au chocolat"],category:"sugar_fat",kcal:300,p:5,g:30,l:18,defaultG:80},
+        {name:"opera",aliases:["opera","gateau opera"],category:"sugar_fat",kcal:350,p:5,g:35,l:20,defaultG:80},
+        {name:"mille-feuille",aliases:["mille feuille","millefeuille"],category:"sugar_fat",kcal:340,p:4,g:35,l:22,defaultG:80},
+        {name:"paris-brest",aliases:["paris brest","paris-brest"],category:"sugar_fat",kcal:360,p:5,g:35,l:24,defaultG:100},
+        {name:"saint-honoré",aliases:["saint honore","saint-honoré"],category:"sugar_fat",kcal:350,p:5,g:35,l:22,defaultG:100},
+        {name:"kouglof",aliases:["kouglof","kougelhopf"],category:"sugar_fat",kcal:320,p:6,g:35,l:16,defaultG:80},
+        {name:"baba au rhum",aliases:["baba au rhum","baba"],category:"alcohol_sugar",kcal:350,p:4,g:40,l:15,alcoholG:5,defaultG:80},
+        {name:"forêt noire",aliases:["foret noire","schwarzwälder kirschtorte"],category:"sugar_fat",kcal:340,p:4,g:35,l:20,defaultG:100},
+        {name:"macaron",aliases:["macaron","macarons"],category:"sugar_fat",kcal:400,p:5,g:50,l:22,defaultG:30},
+        {name:"cannelé",aliases:["canele","canelé"],category:"sugar_fat",kcal:380,p:5,g:45,l:18,defaultG:40},
+        {name:"calisson",aliases:["calisson","calissons"],category:"sugar_fat",kcal:350,p:3,g:50,l:15,defaultG:30},
+        {name:"nougat",aliases:["nougat","nougat blanc"],category:"sugar_fat",kcal:400,p:8,g:55,l:20,defaultG:30},
+        {name:"palet",aliases:["palet","palet d or"],category:"sugar_fat",kcal:380,p:5,g:50,l:18,defaultG:30},
+        {name:"dragée",aliases:["dragee","dragee","dragée"],category:"sugar_fat",kcal:450,p:8,g:60,l:18,defaultG:20},
+        {name:"praline",aliases:["praline","praliné"],category:"sugar_fat",kcal:420,p:5,g:55,l:22,defaultG:20},
+        {name:"caramel",aliases:["caramel","sauce caramel"],category:"sugar_fat",kcal:450,p:3,g:65,l:18,defaultG:20},
+        {name:"toffee",aliases:["toffee","caramel beurre sale"],category:"sugar_fat",kcal:480,p:2,g:70,l:22,defaultG:20},
+        {name:"fudge",aliases:["fudge","chocolate fudge"],category:"sugar_fat",kcal:460,p:3,g:68,l:20,defaultG:20},
+        {name:"guimauve",aliases:["guimauve","marshmallow"],category:"sugar",kcal:320,p:2,g:80,l:0,defaultG:20},
+        {name:"réglisse",aliases:["reglisse","licorice"],category:"sugar",kcal:380,p:2,g:75,l:0,defaultG:15},
+        {name:"berlingot",aliases:["berlingot","bonbon berlingot"],category:"sugar",kcal:400,p:0,g:100,l:0,defaultG:15},
+        {name:"chamallow",aliases:["chamallow","chamallows"],category:"sugar",kcal:320,p:2,g:78,l:0,defaultG:20},
+        {name:"pâte de fruits",aliases:["pate de fruits","pates de fruits"],category:"sugar",kcal:300,p:1,g:75,l:0,defaultG:20},
+        {name:"fruit confit",aliases:["fruit confit","fruits confits"],category:"sugar",kcal:280,p:1,g:70,l:0,defaultG:20},
+        {name:"angélique",aliases:["angelique","angelique confite"],category:"sugar",kcal:290,p:1,g:72,l:0,defaultG:20},
+        {name:"gingembre confit",aliases:["gingembre confit","candied ginger"],category:"sugar_fat",kcal:320,p:1,g:75,l:1,defaultG:20},
+        {name:"orange confite",aliases:["orange confite","candied orange"],category:"sugar",kcal:300,p:1,g:73,l:0,defaultG:20},
+        {name:"citron confit",aliases:["citron confit","candied lemon"],category:"sugar",kcal:290,p:1,g:72,l:0,defaultG:20},
+        {name:"bigorneau",aliases:["bigorneau","bigorneaux","whelk"],category:"protein",kcal:100,p:18,g:5,l:1,defaultG:100},
+        {name:"bulot",aliases:["bulot","bulots"],category:"protein",kcal:95,p:16,g:4,l:1,defaultG:100},
+        {name:"coquille saint-jacques",aliases:["coquille saint jacques","coquille st jacques","scallop"],category:"protein",kcal:110,p:20,g:5,l:1,defaultG:100},
+        {name:"huître",aliases:["huitre","huitre","oyster"],category:"protein",kcal:70,p:9,g:4,l:2,defaultG:80},
+        {name:"moule",aliases:["moule","moules","mussel"],category:"protein",kcal:86,p:12,g:4,l:3,defaultG:100},
+        {name:"palourde",aliases:["palourde","palourdes","clam"],category:"protein",kcal:74,p:12,g:4,l:1,defaultG:100},
+        {name:"crevette grise",aliases:["crevette grise","crevette rose","shrimp"],category:"protein",kcal:90,p:18,g:1,l:1,defaultG:100},
+        {name:"langoustine",aliases:["langoustine","langoustines","scampi"],category:"protein",kcal:90,p:19,g:1,l:1,defaultG:80},
+        {name:"homard",aliases:["homard","lobster"],category:"protein",kcal:95,p:19,g:1,l:1,defaultG:150},
+        {name:"crabe",aliases:["crabe","crab"],category:"protein",kcal:97,p:19,g:0,l:1,defaultG:120},
+        {name:"tourteau",aliases:["tourteau","crabe tourteau"],category:"protein",kcal:95,p:18,g:0,l:1,defaultG:120},
+        {name:"araignée de mer",aliases:["araignee de mer","spider crab"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:120},
+        {name:"langouste",aliases:["langouste","spiny lobster"],category:"protein",kcal:100,p:20,g:0,l:1,defaultG:150},
+        {name:"caviar",aliases:["caviar","oeufs de saumon"],category:"protein",kcal:130,p:25,g:4,l:5,defaultG:30},
+        {name:"tarama",aliases:["tarama","oeufs de cabillaud"],category:"protein_fatty",kcal:180,p:12,g:5,l:14,defaultG:30},
+        {name:"rillettes",aliases:["rillettes","rillettes de saumon","rillettes de thon"],category:"protein_fatty",kcal:250,p:12,g:2,l:22,defaultG:60},
+        {name:"pâté",aliases:["pate","pate de campagne","pate de foie"],category:"protein_cured",kcal:320,p:12,g:3,l:28,defaultG:60},
+        {name:"boudin",aliases:["boudin noir","boudin blanc"],category:"protein_cured",kcal:280,p:12,g:15,l:20,defaultG:100},
+        {name:"andouille",aliases:["andouille","andouillette"],category:"protein_cured",kcal:250,p:15,g:5,l:18,defaultG:100},
+        {name:"rosette",aliases:["rosette","saucisson sec"],category:"protein_cured",kcal:380,p:22,g:2,l:32,defaultG:40},
+        {name:"chorizo",aliases:["chorizo","chorizo espagnol"],category:"protein_cured",kcal:350,p:20,g:3,l:28,defaultG:40},
+        {name:"salami",aliases:["salami","saucisson sec italien"],category:"protein_cured",kcal:340,p:22,g:3,l:26,defaultG:40},
+        {name:"mortadelle",aliases:["mortadelle"],category:"protein_cured",kcal:320,p:16,g:2,l:28,defaultG:40},
+        {name:"pancetta",aliases:["pancetta","poitrine salee"],category:"protein_cured",kcal:450,p:15,g:0,l:42,defaultG:30},
+        {name:"bacon",aliases:["bacon","lard fumé"],category:"protein_cured",kcal:540,p:15,g:0,l:50,defaultG:30},
+        {name:"lardons",aliases:["lardons","lard"],category:"protein_cured",kcal:500,p:12,g:0,l:50,defaultG:30},
+        {name:"grillades",aliases:["grillades","barbecue","bbq"],category:"protein_red",kcal:280,p:22,g:0,l:20,defaultG:150},
+        {name:"côte de bœuf",aliases:["cote de boeuf","cote boeuf","ribeye"],category:"protein_red",kcal:280,p:25,g:0,l:20,defaultG:200},
+        {name:"entrecôte",aliases:["entrecote","entrecote boeuf"],category:"protein_red",kcal:270,p:24,g:0,l:19,defaultG:180},
+        {name:"filet mignon",aliases:["filet mignon","tenderloin"],category:"protein",kcal:180,p:28,g:0,l:8,defaultG:150},
+        {name:"faux-filet",aliases:["faux filet","sirloin"],category:"protein_red",kcal:200,p:26,g:0,l:12,defaultG:180},
+        {name:"onglet",aliases:["onglet","hanger steak"],category:"protein_red",kcal:190,p:26,g:0,l:10,defaultG:150},
+        {name:"bavette",aliases:["bavette","flank steak"],category:"protein_red",kcal:180,p:24,g:0,l:10,defaultG:150},
+        {name:"merlan",aliases:["merlan","merlan fume"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name:"lieu",aliases:["lieu","lieu noir","pollock"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name="églefin",aliases:["eglefin","haddock"],category:"protein",kcal:95,p:18,g:0,l:1,defaultG:150},
+        {name:"limande",aliases:["limande","sole","limande sole"],category:"protein",kcal:85,p:17,g:0,l:1,defaultG:150},
+        {name:"raie",aliases:["raie","skate"],category:"protein",kcal:95,p:18,g:0,l:1,defaultG:150},
+        {name:"bar",aliases:["bar","bar commun","sea bass"],category:"protein",kcal:110,p:18,g:0,l:4,defaultG:150},
+        {name:"dorade",aliases:["dorade","dorade royale","sea bream"],category:"protein",kcal:100,p:18,g:0,l:3,defaultG:150},
+        {name:"loups",aliases:["loup","bar loup","wolf fish"],category:"protein",kcal:95,p:18,g:0,l:2,defaultG:150},
+        {name="maquereau",aliases:["maquereau","mackerel"],category:"protein_fatty",kcal:200,p:20,g:0,l:13,omega3:true,defaultG:150},
+        {name:"hareng",aliases:["hareng","herring"],category:"protein_fatty",kcal:210,p:20,g:0,l:14,omega3:true,defaultG:150},
+        {name:"anchois",aliases:["anchois","anchovy"],category:"protein_fatty",kcal:130,p:20,g:0,l:5,omega3:true,defaultG:50},
+        {name:"sardine",aliases:["sardine","sardines"],category:"protein_fatty",kcal:200,p:25,g:0,l:11,omega3:true,defaultG:120},
+        {name:"sprat",aliases:["sprat","sprats"],category:"protein_fatty",kcal:180,p:22,g:0,l:10,omega3:true,defaultG:100},
+        {name:"capelan",aliases:["capelan","capelan"],category:"protein_fatty",kcal:150,p:18,g:0,l:8,omega3:true,defaultG:100},
+        {name:"éperlan",aliases:["eperlan","smelt"],category:"protein",kcal:100,p:18,g:0,l:2,defaultG:100},
+        {name="ablette",aliases:["ablette","blette"],category:"protein",kcal:95,p:17,g:0,l:2,defaultG:100},
+        {name="goujon",aliases:["goujon","goujons"],category:"protein",kcal:110,p:18,g:0,l:4,defaultG:100},
+        {name="carpe",aliases:["carpe","carpe commune"],category:"protein",kcal:130,p:18,g:0,l:5,defaultG:150},
+        {name:"tanche",aliases:["tanche","tench"],category:"protein",kcal:100,p:17,g:0,l:3,defaultG:150},
+        {name="brème",aliases:["breme","breme commune"],category:"protein",kcal:95,p:17,g:0,l:3,defaultG:150},
+        {name="gardon",aliases:["gardon","roach"],category:"protein",kcal:90,p:16,g:0,l:3,defaultG:150},
+        {name="rotengle",aliases:["rotengle","rudd"],category:"protein",kcal:95,p:17,g:0,l:3,defaultG:150},
+        {name="chevaine",aliases:["chevaine","chub"],category:"protein",kcal:100,p:18,g:0,l:3,defaultG:150},
+        {name="vandoise",aliases:["vandoise","dace"],category:"protein",kcal:90,p:16,g:0,l:3,defaultG:150},
+        {name="spirlin",aliases:["spirlin","spirlin"],category:"protein",kcal:95,p:17,g:0,l:3,defaultG:100},
+        {name="blageon",aliases:["blageon","minnow"],category:"protein",kcal:85,p:16,g:0,l:2,defaultG:80},
+        {name="gobie",aliases:["gobie","goby"],category:"protein",kcal:90,p:16,g:0,l:2,defaultG:80},
+        {name="perche",aliases:["perche","perche commune"],category:"protein",kcal:95,p:18,g:0,l:2,defaultG:150},
+        {name="sandre",aliases:["sandre","zander"],category:"protein",kcal:95,p:18,g:0,l:2,defaultG:150},
+        {name="brochet",aliases:["brochet","pike"],category:"protein",kcal:88,p:19,g:0,l:1,defaultG:150},
+        {name="silure",aliases:["silure","catfish"],category:"protein",kcal:120,p:17,g:0,l:4,defaultG:150},
+        {name="black-bass",aliases:["black bass","black-bass"],category:"protein",kcal:97,p:18,g:0,l:2,defaultG:150},
+        {name="omble",aliases:["omble","omble chevalier"],category:"protein_fatty",kcal:140,p:20,g:0,l:6,omega3:true,defaultG:150},
+        {name="truite arc-en-ciel",aliases:["truite arc en ciel","rainbow trout"],category:"protein_fatty",kcal:148,p:21,g:0,l:6.5,omega3:true,defaultG:150},
+        {name="truite de lac",aliases:["truite de lac","lake trout"],category:"protein_fatty",kcal:160,p:20,g:0,l:8,omega3:true,defaultG:150},
+        {name="saumon atlantique",aliases:["saumon atlantique","atlantic salmon"],category:"protein_fatty",kcal:208,p:20,g:0,l:13,omega3:true,defaultG:150},
+        {name="saumon pacifique",aliases:["saumon pacifique","pacific salmon"],category:"protein_fatty",kcal:180,p:22,g:0,l:10,omega3:true,defaultG:150},
+        {name="saumon rose",aliases:["saumon rose","pink salmon"],category:"protein_fatty",kcal:150,p:22,g:0,l:6,omega3:true,defaultG:150},
+        {name="saumon rouge",aliases:["saumon rouge","sockeye salmon"],category:"protein_fatty",kcal:160,p:22,g:0,l:7,omega3:true,defaultG:150},
+        {name="thon rouge",aliases:["thon rouge","bluefin tuna"],category:"protein_fatty",kcal:230,p:24,g:0,l:15,omega3:true,defaultG:150},
+        {name="thon albacore",aliases:["thon albacore","albacore tuna"],category:"protein_fatty",kcal:140,p:28,g:0,l:5,omega3:true,defaultG:150},
+        {name="thon germon",aliases:["thon germon","albacore"],category:"protein_fatty",kcal:130,p:26,g:0,l:4,omega3:true,defaultG:150},
+        {name="thon listao",aliases:["thon listao","skipjack tuna"],category:"protein",kcal:120,p:26,g:0,l:2,defaultG:150},
+        {name="thon obèse",aliases:["thon obese","obese tuna"],category:"protein_fatty",kcal:180,p:22,g:0,l:10,omega3:true,defaultG:150},
+        {name="espadon",aliases:["espadon","swordfish"],category:"protein_fatty",kcal:130,p:20,g:0,l:6,omega3:true,defaultG:150},
+        {name="empereur",aliases:["empereur","emperor fish"],category:"protein",kcal:100,p:20,g:0,l:1,defaultG:150},
+        {name="flétan",aliases:["fletan","halibut"],category:"protein",kcal:110,p:20,g:0,l:2,defaultG:150},
+        {name="morue",aliases:["morue","cod"],category:"protein",kcal:82,p:18,g:0,l:0.7,defaultG:180},
+        {name="aiglefin",aliases:["aiglefin","haddock"],category:"protein",kcal:95,p:18,g:0,l:1,defaultG:150},
+        {name="lieu jaune",aliases:["lieu jaune","pollock"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name="lieu noir",aliases:["lieu noir","saithe"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name="merlu",aliases:["merlu","hake"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name="colin",aliases:["colin","colin d alaska","alaska pollock"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name="cabillaud",aliases:["cabillaud","cod"],category:"protein",kcal:82,p:18,g:0,l:0.7,defaultG:180},
+        {name="églefin",aliases:["eglefin","haddock"],category:"protein",kcal:95,p:18,g:0,l:1,defaultG:150},
+        {name="merlan",aliases:["merlan","whiting"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name="tacaud",aliases:["tacaud","pouting"],category:"protein",kcal:95,p:18,g:0,l:1,defaultG:150},
+        {name="chinchard",aliases:["chinchard","horse mackerel"],category:"protein_fatty",kcal:150,p:18,g:0,l:8,omega3:true,defaultG:150},
+        {name="maquereau",aliases:["maquereau","mackerel"],category:"protein_fatty",kcal:200,p:20,g:0,l:13,omega3:true,defaultG:150},
+        {name="sardine",aliases:["sardine","sardines"],category:"protein_fatty",kcal:200,p:25,g:0,l:11,omega3:true,defaultG:120},
+        {name="anchois",aliases:["anchois","anchovy"],category:"protein_fatty",kcal:130,p:20,g:0,l:5,omega3:true,defaultG:50},
+        {name="sprat",aliases:["sprat","brisling"],category:"protein_fatty",kcal:180,p:22,g:0,l:10,omega3:true,defaultG:100},
+        {name="capelan",aliases:["capelan","capelin"],category:"protein_fatty",kcal:150,p:18,g:0,l:8,omega3:true,defaultG:100},
+        {name="lançon",aliases:["lancon","sand lance"],category:"protein",kcal:100,p:18,g:0,l:2,defaultG:100},
+        {name="éperlans",aliases:["eperlans","smelt"],category:"protein",kcal:100,p:18,g:0,l:2,defaultG:100},
+        {name="ablette",aliases:["ablette","blette"],category:"protein",kcal:95,p:17,g:0,l:2,defaultG:100},
+        {name="goujon",aliases:["goujon","gudgeon"],category:"protein",kcal:110,p:18,g:0,l:4,defaultG:100},
+        {name="vairon",aliases:["vairon","minnow"],category:"protein",kcal:85,p:16,g:0,l:2,defaultG:80},
+        {name="gardon",aliases:["gardon","roach"],category:"protein",kcal:90,p:16,g:0,l:3,defaultG:150},
+        {name="brème",aliases:["breme","bream"],category:"protein",kcal:95,p:17,g:0,l:3,defaultG:150},
+        {name="carpe",aliases:["carpe","carp"],category:"protein",kcal:130,p:18,g:0,l:5,defaultG:150},
+        {name="tanche",aliases:["tanche","tench"],category:"protein",kcal:100,p:17,g:0,l:3,defaultG:150},
+        {name="chevaine",aliases:["chevaine","chub"],category:"protein",kcal:100,p:18,g:0,l:3,defaultG:150},
+        {name="vandoise",aliases:["vandoise","dace"],category:"protein",kcal:90,p:16,g:0,l:3,defaultG:150},
+        {name="rotengle",aliases:["rotengle","rudd"],category:"protein",kcal:95,p:17,g:0,l:3,defaultG:150},
+        {name="spirlin",aliases:["spirlin","spirlin"],category:"protein",kcal:95,p:17,g:0,l:3,defaultG:100},
+        {name="blageon",aliases:["blageon","minnow"],category:"protein",kcal:85,p:16,g:0,l:2,defaultG:80},
+        {name="gobie",aliases:["gobie","goby"],category:"protein",kcal:90,p:16,g:0,l:2,defaultG:80},
+        {name="perche",aliases:["perche","perch"],category:"protein",kcal:95,p:18,g:0,l:2,defaultG:150},
+        {name="sandre",aliases:["sandre","pike-perch"],category:"protein",kcal:95,p:18,g:0,l:2,defaultG:150},
+        {name="brochet",aliases:["brochet","pike"],category:"protein",kcal:88,p:19,g:0,l:1.5,defaultG:150},
+        {name="black-bass",aliases:["black bass","largemouth bass"],category:"protein",kcal:97,p:18,g:0,l:2,defaultG:150},
+        {name="silure",aliases:["silure","wels catfish"],category:"protein",kcal:120,p:17,g:0,l:4,defaultG:150},
+        {name="omble",aliases:["omble","char"],category:"protein_fatty",kcal:140,p:20,g:0,l:6,omega3:true,defaultG:150},
+        {name="truite",aliases:["truite","trout"],category:"protein_fatty",kcal:148,p:21,g:0,l:6.5,omega3:true,defaultG:150},
+        {name="saumon",aliases:["saumon","salmon"],category:"protein_fatty",kcal:208,p:20,g:0,l:13,omega3:true,defaultG:150},
+        {name="thon",aliases:["thon","tuna"],category:"protein_fatty",kcal:140,p:28,g:0,l:5,omega3:true,defaultG:150},
+        {name="espadon",aliases:["espadon","swordfish"],category:"protein_fatty",kcal:130,p:20,g:0,l:6,omega3:true,defaultG:150},
+        {name="empereur",aliases:["empereur","emperor"],category:"protein",kcal:100,p:20,g:0,l:1,defaultG:150},
+        {name="flétan",aliases:["fletan","halibut"],category:"protein",kcal:110,p:20,g:0,l:2,defaultG:150},
+        {name="morue",aliases:["morue","cod"],category:"protein",kcal:82,p:18,g:0,l:0.7,defaultG:180},
+        {name="cabillaud",aliases:["cabillaud","cod"],category:"protein",kcal:82,p:18,g:0,l:0.7,defaultG:180},
+        {name="lieu",aliases:["lieu","pollock"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name="merlu",aliases:["merlu","hake"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name="colin",aliases:["colin","pollock"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name="églefin",aliases:["eglefin","haddock"],category:"protein",kcal:95,p:18,g:0,l:1,defaultG:150},
+        {name="merlan",aliases:["merlan","whiting"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name="tacaud",aliases:["tacaud","pouting"],category:"protein",kcal:95,p:18,g:0,l:1,defaultG:150},
+        {name="chinchard",aliases:["chinchard","horse mackerel"],category:"protein_fatty",kcal:150,p:18,g:0,l:8,omega3:true,defaultG:150},
+        {name="maquereau",aliases:["maquereau","mackerel"],category:"protein_fatty",kcal:200,p:20,g:0,l:13,omega3:true,defaultG:150},
+        {name="sardine",aliases:["sardine","sardines"],category:"protein_fatty",kcal:200,p:25,g:0,l:11,omega3:true,defaultG:120},
+        {name="anchois",aliases:["anchois","anchovy"],category:"protein_fatty",kcal:130,p:20,g:0,l:5,omega3:true,defaultG:50},
+        {name="sprat",aliases:["sprat","brisling"],category:"protein_fatty",kcal:180,p:22,g:0,l:10,omega3:true,defaultG:100},
+        {name="capelan",aliases:["capelan","capelin"],category:"protein_fatty",kcal:150,p:18,g:0,l:8,omega3:true,defaultG:100},
+        {name="lançon",aliases:["lancon","sand lance"],category:"protein",kcal:100,p:18,g:0,l:2,defaultG:100},
+        {name="éperlans",aliases:["eperlans","smelt"],category:"protein",kcal:100,p:18,g:0,l:2,defaultG:100},
+        {name="ablette",aliases:["ablette","blette"],category:"protein",kcal:95,p:17,g:0,l:2,defaultG:100},
+        {name="goujon",aliases:["goujon","gudgeon"],category:"protein",kcal:110,p:18,g:0,l:4,defaultG:100},
+        {name="vairon",aliases:["vairon","minnow"],category:"protein",kcal:85,p:16,g:0,l:2,defaultG:80},
+        {name="gardon",aliases:["gardon","roach"],category:"protein",kcal:90,p:16,g:0,l:3,defaultG:150},
+        {name="brème",aliases:["breme","bream"],category:"protein",kcal:95,p:17,g:0,l:3,defaultG:150},
+        {name="carpe",aliases:["carpe","carp"],category:"protein",kcal:130,p:18,g:0,l:5,defaultG:150},
+        {name="tanche",aliases:["tanche","tench"],category:"protein",kcal:100,p:17,g:0,l:3,defaultG:150},
+        {name="chevaine",aliases:["chevaine","chub"],category:"protein",kcal:100,p:18,g:0,l:3,defaultG:150},
+        {name="vandoise",aliases:["vandoise","dace"],category:"protein",kcal:90,p:16,g:0,l:3,defaultG:150},
+        {name="rotengle",aliases:["rotengle","rudd"],category:"protein",kcal:95,p:17,g:0,l:3,defaultG:150},
+        {name="spirlin",aliases:["spirlin","spirlin"],category:"protein",kcal:95,p:17,g:0,l:3,defaultG:100},
+        {name="blageon",aliases:["blageon","minnow"],category:"protein",kcal:85,p:16,g:0,l:2,defaultG:80},
+        {name="gobie",aliases:["gobie","goby"],category:"protein",kcal:90,p:16,g:0,l:2,defaultG:80},
+        {name="perche",aliases:["perche","perch"],category:"protein",kcal:95,p:18,g:0,l:2,defaultG:150},
+        {name="sandre",aliases:["sandre","pike-perch"],category:"protein",kcal:95,p:18,g:0,l:2,defaultG:150},
+        {name="brochet",aliases:["brochet","pike"],category:"protein",kcal:88,p:19,g:0,l:1.5,defaultG:150},
+        {name="black-bass",aliases:["black bass","largemouth bass"],category:"protein",kcal:97,p:18,g:0,l:2,defaultG:150},
+        {name="silure",aliases:["silure","wels catfish"],category:"protein",kcal:120,p:17,g:0,l:4,defaultG:150},
+        {name="omble",aliases:["omble","char"],category:"protein_fatty",kcal:140,p:20,g:0,l:6,omega3:true,defaultG:150},
+        {name="truite",aliases:["truite","trout"],category:"protein_fatty",kcal:148,p:21,g:0,l:6.5,omega3:true,defaultG:150},
+        {name="saumon",aliases:["saumon","salmon"],category:"protein_fatty",kcal:208,p:20,g:0,l:13,omega3:true,defaultG:150},
+        {name="thon",aliases:["thon","tuna"],category:"protein_fatty",kcal:140,p:28,g:0,l:5,omega3:true,defaultG:150},
+        {name="espadon",aliases:["espadon","swordfish"],category:"protein_fatty",kcal:130,p:20,g:0,l:6,omega3:true,defaultG:150},
+        {name="empereur",aliases:["empereur","emperor"],category:"protein",kcal:100,p:20,g:0,l:1,defaultG:150},
+        {name="flétan",aliases:["fletan","halibut"],category:"protein",kcal:110,p:20,g:0,l:2,defaultG:150},
+        {name="morue",aliases:["morue","cod"],category:"protein",kcal:82,p:18,g:0,l:0.7,defaultG:180},
+        {name="cabillaud",aliases:["cabillaud","cod"],category:"protein",kcal:82,p:18,g:0,l:0.7,defaultG:180},
+        {name="lieu",aliases:["lieu","pollock"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name="merlu",aliases:["merlu","hake"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name="colin",aliases:["colin","pollock"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name="églefin",aliases:["eglefin","haddock"],category:"protein",kcal:95,p:18,g:0,l:1,defaultG:150},
+        {name="merlan",aliases:["merlan","whiting"],category:"protein",kcal:90,p:18,g:0,l:1,defaultG:150},
+        {name="tacaud",aliases:["tacaud","pouting"],category:"protein",kcal:95,p:18,g:0,l:1,defaultG:150},
+        {name="chinchard",aliases:["chinchard","horse mackerel"],category:"protein_fatty",kcal:150,p:18,g:0,l:8,omega3:true,defaultG:150},
+        {name="maquereau",aliases:["maquereau","mackerel"],category:"protein_fatty",kcal:200,p:20,g:0,l:13,omega3:true,defaultG:150},
+        {name="sardine",aliases:["sardine","sardines"],category:"protein_fatty",kcal:200,p:25,g:0,l:11,omega3:true,defaultG:120},
+        {name="anchois",aliases:["anchois","anchovy"],category:"protein_fatty",kcal:130,p:20,g:0,l:5,omega3:true,defaultG:50},
+        {name="sprat",aliases:["sprat","brisling"],category:"protein_fatty",kcal:180,p:22,g:0,l:10,omega3:true,defaultG:100},
+        {name="capelan",aliases:["capelan","capelin"],category:"protein_fatty",kcal:150,p:18,g:0,l:8,omega3:true,defaultG:100},
+        {name="lançon",aliases:["lancon","sand lance"],category:"protein",kcal:100,p:18,g:0,l:2,defaultG:100},
+        {name="éperlans",aliases:["eperlans","smelt"],category:"protein",kcal:100,p:18,g:0,l:2,defaultG:100},
+        {name="ablette",aliases:["ablette","blette"],category:"protein",kcal:95,p:17,g:0,l:2,defaultG:100},
+        {name="goujon",aliases:["goujon","gudgeon"],category:"protein",kcal:110,p:18,g:0,l:4,defaultG:100},
+        {name="vairon",aliases:["vairon","minnow"],category:"protein",kcal:85,p:16,g:0,l:2,defaultG:80},
+        {name="gardon",aliases:["gardon","roach"],category:"protein",kcal:90,p:16,g:0,l:3,defaultG:150},
+        {name="brème",aliases:["breme","bream"],category:"protein",kcal:95,p:17,g:0,l:3,defaultG:150},
+        {name="carpe",aliases:["carpe","carp"],category:"protein",kcal:130,p:18,g:0,l:5,defaultG:150},
+        {name="tanche",aliases:["tanche","tench"],category:"protein",kcal:100,p:17,g:0,l:3,defaultG:150},
+        {name="chevaine",aliases:["chevaine","chub"],category:"protein",kcal:100,p:18,g:0,l:3,defaultG:150},
+        {name="vandoise",aliases:["vandoise","dace"],category:"protein",kcal:90,p:16,g:0,l:3,defaultG:150},
+        {name="rotengle",aliases:["rotengle","rudd"],category:"protein",kcal:95,p:17,g:0,l:3,defaultG:150},
+        {name="spirlin",aliases:["spirlin","spirlin"],category:"protein",kcal:95,p:17,g:0,l:3,defaultG:100},
+        {name="blageon",aliases:["blageon","minnow"],category:"protein",kcal:85,p:16,g:0,l:2,defaultG:80},
+        {name="gobie",aliases:["gobie","goby"],category:"protein",kcal:90,p:16,g:0,l:2,defaultG:80},
+        {name="perche",aliases:["perche","perch"],category:"protein",kcal:95,p:18,g:0,l:2,defaultG:150},
+        {name="sandre",aliases:["sandre","pike-perch"],category:"protein",kcal:95,p:18,g:0,l:2,defaultG:150},
+        {name="brochet",aliases:["brochet","pike"],category:"protein",kcal:88,p:19,g:0,l:1.5,defaultG:150},
+        {name="black-bass",aliases:["black bass","largemouth bass"],category:"protein",kcal:97,p:18,g:0,l:2,defaultG:150},
+        {name="silure",aliases:["silure","wels catfish"],category:"protein",kcal:120,p:17,g:0,l:4,defaultG:150},
+        {name="omble",aliases:["omble","char"],category:"protein_fatty",kcal:140,p:20,g:0,l:6,omega3:true,defaultG:150},
+        {name="truite",aliases:["truite","trout"],category:"protein_fatty",kcal:148,p:21,g:0,l:6.5,omega3:true,defaultG:150},
+        {name="saumon",aliases:["saumon","salmon"],category:"protein_fatty",kcal:208,p:20,g:0,l:13,omega3:true,defaultG:150},
+        {name="thon",aliases:["thon","tuna"],category:"protein_fatty",kcal:140,p:28,g:0,l:5,omega3:true,defaultG:150},
+        {name="espadon",aliases:["espadon","swordfish"],category:"protein_fatty",kcal:130,p:20,g:0,l:6,omega3:true,defaultG:150},
+        {name="empereur",aliases:["empereur","emperor"],category:"protein",kcal:100,p:20,g:0,l:1,defaultG:150},
+        {name="flétan",aliases:["fletan","halibut"],category:"protein",kcal:110,p:20,g:0,l:2,defaultG:150},
+        {name="morue",aliases:["morue","cod"],category:"protein",kcal:82,p:18,g:0,l:0.7,defaultG:180},
+        {name="cabillaud",aliases:["cabillaud","cod"],category:"protein",kcal:82,p:18,g:0,l:0.7,defaultG:180}
     ]);
 
     // ============================================================
@@ -251,6 +633,35 @@
         return Array.isArray(foods) ? foods.filter(function(f){ return f && f.name && isFinite(f.kcal); }) : [];
     }
     function foodDatabase(){ return ALL_FOODS.concat(getCustomFoods()); }
+
+    // ============================================================
+    // INDEX DE RECHERCHE OPTIMISÉ
+    // ============================================================
+    var foodSearchIndex = null;
+    var foodSearchIndexTimestamp = 0;
+    
+    function buildFoodSearchIndex(){
+        var db = foodDatabase();
+        var index = {};
+        db.forEach(function(food){
+            (food.aliases || []).forEach(function(alias){
+                var normalized = normalize(alias);
+                if(normalized.length < 2) return;
+                if(!index[normalized]) index[normalized] = [];
+                index[normalized].push(food);
+            });
+        });
+        return index;
+    }
+    
+    function getFoodSearchIndex(){
+        var now = Date.now();
+        if(!foodSearchIndex || now - foodSearchIndexTimestamp > 60000){
+            foodSearchIndex = buildFoodSearchIndex();
+            foodSearchIndexTimestamp = now;
+        }
+        return foodSearchIndex;
+    }
 
     // ============================================================
     // ÉVALUATION DE LA SÉANCE (pour le contexte nutrition)
@@ -341,20 +752,19 @@
     function findFood(token){
         var t = normalize(token);
         if(!t || t.length < 2) return null;
-        // On parcourt dans l'ordre : alias le plus long d'abord pour
-        // éviter "riz complet" matché par "riz" tout court.
+        // Utiliser l'index de recherche optimisé
+        var index = getFoodSearchIndex();
         var matches = [];
-        var db = foodDatabase();
-        for(var i = 0; i < db.length; i++){
-            var f = db[i];
-            for(var j = 0; j < f.aliases.length; j++){
-                var a = normalize(f.aliases[j]);
-                if(a.length < 2) continue;
-                if(t.indexOf(a) !== -1){
-                    matches.push({ f:f, len:a.length });
-                }
+        
+        // Chercher dans l'index
+        for(var key in index){
+            if(t.indexOf(key) !== -1){
+                index[key].forEach(function(f){
+                    matches.push({ f:f, len:key.length });
+                });
             }
         }
+        
         if(!matches.length) return null;
         matches.sort(function(x,y){ return y.len - x.len; });
         return matches[0].f;
@@ -365,20 +775,25 @@
     // Retourne tous les aliments d'un texte, pas seulement le premier. Cela permet
     // d'analyser des saisies naturelles comme « poulet riz brocoli » sans imposer
     // des virgules ou des signes + entre chaque ingrédient.
+    // Version optimisée avec index de recherche pour éviter de scanner toute la DB
     function findFoodsInText(token){
         var t = normalize(token).replace(/[’']/g, " ").replace(/[-/]/g, " ");
+        var index = getFoodSearchIndex();
         var candidates = [];
-        foodDatabase().forEach(function(food){
-            (food.aliases || []).forEach(function(alias){
-                var a = normalize(alias).replace(/[’']/g, " ").replace(/[-/]/g, " ").trim();
-                if(a.length < 2) return;
-                var re = new RegExp("(^|[^a-z0-9])(" + escapeRegExp(a) + ")(?=$|[^a-z0-9])", "g");
-                var m;
-                while((m = re.exec(t))){
-                    candidates.push({ food:food, start:m.index + m[1].length, end:m.index + m[1].length + a.length, len:a.length });
-                }
-            });
-        });
+        
+        // Scanner le texte et chercher les correspondances dans l'index
+        // Approche : chercher chaque clé de l'index dans le texte
+        for(var key in index){
+            if(key.length < 2) continue;
+            var re = new RegExp("(^|[^a-z0-9])(" + escapeRegExp(key) + ")(?=$|[^a-z0-9])", "g");
+            var m;
+            while((m = re.exec(t))){
+                index[key].forEach(function(food){
+                    candidates.push({ food:food, start:m.index + m[1].length, end:m.index + m[1].length + key.length, len:key.length });
+                });
+            }
+        }
+        
         candidates.sort(function(a,b){ return b.len - a.len || a.start - b.start; });
         var selected = [];
         candidates.forEach(function(candidate){
@@ -573,10 +988,16 @@
             if(nProteins >= 1 && nCarb >= 1) tScore += 0.6;
             else if(nProteins >= 1) tScore += 0.3;
             if(hasJunk >= 2) tScore -= 0.4;
+            // Bonus pour les aliments anti-inflammatoires après entraînement
+            if(nLegumes >= 1 && hasLipidGood >= 1) tScore += 0.2;
         } else if(ctx.trainedYesterday){
             if(nProteins >= 2) tScore += 0.4;
+            // Récupération : bonus pour les aliments riches en nutriments
+            if(nLegumes >= 2 && nFruit >= 1) tScore += 0.3;
         } else if(ctx.daysSinceLast != null && ctx.daysSinceLast >= 3){
             if(hasLipidGood >= 1) tScore += 0.2;
+            // Période de repos : focus sur les aliments complets
+            if(nLegumes >= 2 && nFruit >= 1) tScore += 0.3;
         }
         if(tot.alcoholG > 20) tScore -= 0.3;
         if(foodCount >= 7 && nProteins >= 1 && nCarb >= 2 && nLegumes >= 1 && nFruit >= 1 && hasJunk === 0) tScore = 2;
@@ -1365,8 +1786,12 @@
     function runAnalysis(){
         var ta = document.getElementById("nutriInput");
         var out = document.getElementById("nutriResult");
-        if(!ta || !out) return;
+        if(!ta || !out) {
+            alert("DEBUG: Éléments introuvables - nutriInput: " + !!ta + ", nutriResult: " + !!out);
+            return;
+        }
         var text = ta.value || "";
+        alert("DEBUG: Texte saisi = " + text.substring(0, 100) + "... (longueur: " + text.length + ")");
 
         if(text.trim().length < 8){
             out.innerHTML = '<div class="nutri-empty">Écris au moins quelques lignes — un repas par ligne, ex :<pre style="margin:8px 0;padding:10px;background:#f7f8f5;border-radius:6px;font:11px monospace;white-space:pre-wrap;">' +
@@ -1381,26 +1806,50 @@
 
         out.innerHTML = '<div class="nutri-loading">🥗 Analyse en cours…</div>';
         setTimeout(function(){
-            var parsed = parseInput(text);
-            var ctx = detectContext();
-            var targets = computeTargets(ctx);
-            var score = scoreMeal(parsed, targets, ctx);
-            score.scope = assessInputScope(text, score);
-            patchLabels(score);
-            score.items = parsed.items.length;
-            var advice = generateAdvice(score, ctx, targets);
+            try {
+                alert("DEBUG: Début analyse - parseInput");
+                var parsed = parseInput(text);
+                alert("DEBUG: parseInput OK - items: " + parsed.items.length);
+                
+                alert("DEBUG: detectContext");
+                var ctx = detectContext();
+                alert("DEBUG: detectContext OK");
+                
+                alert("DEBUG: computeTargets");
+                var targets = computeTargets(ctx);
+                alert("DEBUG: computeTargets OK");
+                
+                alert("DEBUG: scoreMeal");
+                var score = scoreMeal(parsed, targets, ctx);
+                alert("DEBUG: scoreMeal OK - score: " + score.total);
+                
+                score.scope = assessInputScope(text, score);
+                patchLabels(score);
+                score.items = parsed.items.length;
+                
+                alert("DEBUG: generateAdvice");
+                var advice = generateAdvice(score, ctx, targets);
+                alert("DEBUG: generateAdvice OK");
 
-            try{
-                if(parsed.items.length > 0 && score.scope === "day"){
-                    // Sauvegarder l'analyse complète (date choisie par l'utilisateur via input date)
-                    var dateIn = document.getElementById("nutriDateInput");
-                    var dateKey = (dateIn && dateIn.value) ? dateIn.value : (localDateStr(new Date()));
-                    saveNutriAnalysis(text, score, targets, advice, dateKey);
-                }
-            }catch(_){}
+                try{
+                    if(parsed.items.length > 0 && score.scope === "day"){
+                        // Sauvegarder l'analyse complète (date choisie par l'utilisateur via input date)
+                        var dateIn = document.getElementById("nutriDateInput");
+                        var dateKey = (dateIn && dateIn.value) ? dateIn.value : (localDateStr(new Date()));
+                        saveNutriAnalysis(text, score, targets, advice, dateKey);
+                    }
+                }catch(_){}
 
-            renderResult(out, parsed, score, targets, advice);
-            requestNutriAi(text, score, targets);
+                alert("DEBUG: renderResult");
+                renderResult(out, parsed, score, targets, advice);
+                alert("DEBUG: renderResult OK");
+                
+                requestNutriAi(text, score, targets);
+            } catch(e) {
+                alert("DEBUG: ERREUR - " + e.message);
+                console.error("Erreur lors de l'analyse nutrition:", e);
+                out.innerHTML = '<div class="nutri-empty" style="color:#ad4238;">⚠️ Erreur lors de l\'analyse : ' + escape(e.message || 'Erreur inconnue') + '</div>';
+            }
         }, 120);
     }
 

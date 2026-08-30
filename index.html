@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carnet Muscu</title>
 
-    <link rel="stylesheet" href="styles.css?v=130">
+    <link rel="stylesheet" href="styles.css?v=131">
     
     <!-- Icône pour appli web -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -25,7 +25,7 @@
 .stat span{color:#1c291e;font-weight:600;position:relative;z-index:1}
 .btn{transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);background:linear-gradient(135deg,var(--lime) 0%,#4caf50 100%);border-radius:12px;box-shadow:0 4px 20px rgba(76,175,80,0.3);position:relative;overflow:hidden}.btn::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.3);border-radius:50%;transform:translate(-50%,-50%);transition:width 0.5s,height 0.5s}.btn:hover::after{width:400px;height:400px}.btn:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(76,175,80,0.4),0 0 15px rgba(76,175,80,0.3)}.btn:active{transform:translateY(-1px) scale(0.98)}
 .day-button{transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);position:relative;overflow:hidden}.day-button::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.4);border-radius:50%;transform:translate(-50%,-50%);transition:width 0.4s,height 0.4s}.day-button:hover::before{width:200px;height:200px}.day-button:hover{background:linear-gradient(135deg,var(--lime) 0%,#4caf50 100%);color:#1c291e;transform:scale(1.08);box-shadow:0 4px 15px rgba(76,175,80,0.3)}.day-button:active{transform:scale(0.97)}
-.nutri-indicator{position:absolute;bottom:2px;right:2px;font-size:12px;animation:bounce 2s ease-in-out infinite}
+.day-emoji.multi{max-width:none;width:auto;min-width:34px;padding:0 4px;border-radius:14px}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .calendar-card{background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);box-shadow:0 8px 30px rgba(0,0,0,0.1);border-radius:20px}
 .history .card{transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);border-left:4px solid var(--lime);background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);box-shadow:0 4px 20px rgba(0,0,0,0.08)}.history .card:hover{transform:translateX(8px) scale(1.01);box-shadow:0 8px 30px rgba(0,0,0,0.12),0 0 15px rgba(76,175,80,0.15);border-left-width:5px}
@@ -38,11 +38,27 @@ dialog .card{background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);border-r
 aside nav a{transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);border-radius:12px;padding:12px 16px;margin:4px 0;font-weight:600;position:relative;overflow:hidden}aside nav a::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--lime) 0%,#4caf50 100%);transform:translateX(-100%);transition:transform 0.3s ease;border-radius:4px 0 0 4px}aside nav a:hover::before{transform:translateX(0)}aside nav a:hover{background:linear-gradient(90deg,rgba(76,175,80,0.15) 0%,transparent 100%);transform:translateX(4px);color:var(--lime);box-shadow:0 0 15px rgba(76,175,80,0.2)}aside nav a.active{background:linear-gradient(90deg,rgba(76,175,80,0.25) 0%,transparent 100%);color:var(--lime)}aside nav a.active::before{transform:translateX(0)}
 aside .logo{background:linear-gradient(135deg,var(--lime) 0%,#4caf50 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;text-shadow:0 2px 10px rgba(76,175,80,0.3);transition:all 0.3s ease}aside .logo:hover{transform:scale(1.05);filter:brightness(1.1)}
 main{background:linear-gradient(135deg,#f5f7fa 0%,#e8ecf1 100%);min-height:100vh}
-#nutrition .card{background:linear-gradient(135deg,#ffffff 0%,#f0f8ff 100%);border:2px solid #e3f2fd;box-shadow:0 4px 20px rgba(33,150,243,0.1)}#nutrition .card:hover{box-shadow:0 8px 30px rgba(33,150,243,0.2),0 0 15px rgba(33,150,243,0.15);border-color:#bbdefb}
-.nutri-score{background:linear-gradient(135deg,#4caf50 0%,#66bb6a 100%);border-radius:16px;padding:16px 24px;color:#1c291e;font-weight:800;box-shadow:0 4px 20px rgba(76,175,80,0.3);transition:all 0.3s ease}.nutri-score:hover{transform:scale(1.05);box-shadow:0 8px 30px rgba(76,175,80,0.4),0 0 20px rgba(76,175,80,0.3)}
-.nutri-macro{background:linear-gradient(135deg,#f7f8f5 0%,#ffffff 100%);border-radius:12px;padding:12px 16px;border:1px solid #e8e8e8;transition:all 0.3s ease}.nutri-macro:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,0.08),0 0 10px rgba(76,175,80,0.15);border-color:var(--lime)}
-.nutri-advice{background:linear-gradient(135deg,#fff3e0 0%,#ffffff 100%);border-left:4px solid #ff9800;border-radius:8px;padding:12px 16px;margin:8px 0;transition:all 0.3s ease}.nutri-advice:hover{transform:translateX(4px) scale(1.01);box-shadow:0 4px 12px rgba(255,152,0,0.15),0 0 15px rgba(255,152,0,0.2);border-left-width:5px}
-.nutri-history-item{transition:all 0.3s ease;padding:12px 16px;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);border-radius:12px;margin-bottom:8px;border:1px solid #e8e8e8;cursor:pointer}.nutri-history-item:hover{transform:scale(1.02) translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08),0 0 15px rgba(76,175,80,0.2);background:linear-gradient(135deg,#f0f4f8 0%,#ffffff 100%);border-color:var(--lime)}
+#nutrition .card{background:linear-gradient(135deg,#ffffff 0%,#f0f8ff 100%);border:2px solid #e3f2fd;box-shadow:0 4px 20px rgba(33,150,243,0.1);border-radius:20px}#nutrition .card:hover{box-shadow:0 8px 30px rgba(33,150,243,0.2),0 0 15px rgba(33,150,243,0.15);border-color:#bbdefb;transform:translateY(-4px);transition:all 0.3s ease}
+#nutrition header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding:24px;background:linear-gradient(135deg,#ffffff 0%,#f0f8ff 100%);border-radius:16px;box-shadow:0 4px 20px rgba(33,150,243,0.1)}
+#nutrition .eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px}
+#nutrition h1{font-size:28px;font-weight:800;color:var(--ink);margin-bottom:8px;background:linear-gradient(135deg,#1976d2 0%,#42a5f5 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+#nutrition .sub{font-size:14px;color:var(--muted);line-height:1.5}
+.nutri-score{background:linear-gradient(135deg,#4caf50 0%,#66bb6a 100%);border-radius:20px;padding:24px 32px;color:#1c291e;font-weight:800;box-shadow:0 4px 20px rgba(76,175,80,0.3);transition:all 0.3s ease;text-align:center;position:relative;overflow:hidden}.nutri-score::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.3) 0%,transparent 70%);transition:transform 0.6s ease}.nutri-score:hover::before{transform:scale(1.5)}.nutri-score:hover{transform:scale(1.05);box-shadow:0 8px 30px rgba(76,175,80,0.4),0 0 20px rgba(76,175,80,0.3)}
+.nutri-score-value{font-size:48px;font-weight:800;color:#1c291e;text-shadow:0 2px 4px rgba(0,0,0,0.1);position:relative;z-index:1}
+.nutri-score-label{font-size:14px;color:#1c291e;font-weight:600;margin-top:8px;position:relative;z-index:1}
+.nutri-macro{background:linear-gradient(135deg,#f7f8f5 0%,#ffffff 100%);border-radius:16px;padding:16px 20px;border:1px solid #e8e8e8;transition:all 0.3s ease;position:relative;overflow:hidden}.nutri-macro::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--lime) 0%,#4caf50 100%);transform:translateX(-100%);transition:transform 0.3s ease;border-radius:4px 0 0 4px}.nutri-macro:hover::before{transform:translateX(0)}.nutri-macro:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,0.08),0 0 10px rgba(76,175,80,0.15);border-color:var(--lime)}
+.nutri-macro-value{font-size:24px;font-weight:700;color:var(--lime);margin-bottom:4px}
+.nutri-macro-label{font-size:13px;color:var(--muted);font-weight:500}
+.nutri-macro-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin:20px 0}
+.nutri-advice{background:linear-gradient(135deg,#fff3e0 0%,#ffffff 100%);border-left:4px solid #ff9800;border-radius:12px;padding:16px 20px;margin:12px 0;transition:all 0.3s ease;position:relative;overflow:hidden}.nutri-advice::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,#ff9800 0%,#ffb74d 100%);transform:translateX(-100%);transition:transform 0.3s ease;border-radius:4px 0 0 4px}.nutri-advice:hover::before{transform:translateX(0)}.nutri-advice:hover{transform:translateX(6px) scale(1.01);box-shadow:0 4px 12px rgba(255,152,0,0.15),0 0 15px rgba(255,152,0,0.2);border-left-width:5px}
+.nutri-advice-title{font-weight:700;color:#ff9800;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.nutri-advice-content{font-size:14px;color:var(--ink);line-height:1.5}
+.nutri-history-item{transition:all 0.3s ease;padding:16px 20px;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);border-radius:16px;margin-bottom:12px;border:1px solid #e8e8e8;cursor:pointer;position:relative;overflow:hidden}.nutri-history-item::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--lime) 0%,#4caf50 100%);transform:translateX(-100%);transition:transform 0.3s ease;border-radius:4px 0 0 4px}.nutri-history-item:hover::before{transform:translateX(0)}.nutri-history-item:hover{transform:scale(1.02) translateY(-4px);box-shadow:0 4px 12px rgba(0,0,0,0.08),0 0 15px rgba(76,175,80,0.2);background:linear-gradient(135deg,#f0f4f8 0%,#ffffff 100%);border-color:var(--lime)}
+.nutri-history-date{font-weight:600;color:var(--ink);margin-bottom:8px;font-size:15px}
+.nutri-history-score{display:inline-block;padding:4px 12px;background:linear-gradient(135deg,#4caf50 0%,#66bb6a 100%);border-radius:20px;font-size:13px;font-weight:700;color:#1c291e}
+.nutri-input-area{transition:all 0.3s ease;background:linear-gradient(135deg,#ffffff 0%,#f8f9fa 100%);border-radius:16px;padding:20px;border:2px solid #e8e8e8;box-shadow:0 4px 20px rgba(0,0,0,0.08)}.nutri-input-area:hover{border-color:var(--lime);box-shadow:0 4px 20px rgba(76,175,80,0.15)}
+.nutri-input-area textarea{width:100%;min-height:120px;border:2px solid #e0e0e0;border-radius:12px;padding:16px;font-family:inherit;font-size:14px;resize:vertical;transition:all 0.3s ease}.nutri-input-area textarea:focus{outline:none;border-color:var(--lime);box-shadow:0 4px 20px rgba(76,175,80,0.2),0 0 10px rgba(76,175,80,0.15)}
+.nutri-analyze-btn{transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);background:linear-gradient(135deg,var(--lime) 0%,#4caf50 100%);border-radius:12px;padding:14px 28px;font-weight:600;box-shadow:0 4px 20px rgba(76,175,80,0.3);position:relative;overflow:hidden;margin-top:16px}.nutri-analyze-btn::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.3);border-radius:50%;transform:translate(-50%,-50%);transition:width 0.5s,height 0.5s}.nutri-analyze-btn:hover::after{width:300px;height:300px}.nutri-analyze-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(76,175,80,0.4),0 0 15px rgba(76,175,80,0.3)}
 /* ================= PROGRAMME (refonte v2) ================= */
 /* Note : grille 2×2 fixe pour éviter qu'une card ne se retrouve isolée sur
    la 2e ligne quand le viewport est entre 760-1600px. Sur très grand
@@ -450,6 +466,7 @@ main{background:linear-gradient(135deg,#f5f7fa 0%,#e8ecf1 100%);min-height:100vh
         <a href="#" data-page="log">Ajouter</a>
         <a href="#" data-page="history">Historique</a>
         <a href="#" data-page="calendar">Calendrier</a>
+        <a href="#" data-page="running">Running</a>
         <a href="#" data-page="stats">Stats</a>
     </nav>
 
@@ -603,6 +620,22 @@ Records
 
 </div>
 
+</div>
+
+<div class="card run-dash-card" id="runDashCard" style="display:none;">
+<div class="run-dash-head">
+<div>
+<p class="eyebrow">🏃 COURSE À PIED</p>
+<h2 style="font-size:20px;">Ta course</h2>
+</div>
+<a href="#" data-page="running" class="btn lime" style="padding:10px 16px;">Ouvrir Running</a>
+</div>
+<div class="run-dash-stats">
+<div class="card stat"><b id="runDashWeekKm">0 km</b><span>Cette semaine</span></div>
+<div class="card stat"><b id="runDashCount">0</b><span>Sorties</span></div>
+<div class="card stat"><b id="runDashTotal">0 km</b><span>Distance totale</span></div>
+<div class="card stat"><b id="runDashBestPace">—</b><span>Meilleure allure</span></div>
+</div>
 </div>
 
 <section class="dashboard-records" aria-labelledby="recordsSpotlightTitle">
@@ -781,13 +814,13 @@ D
 
 <div style="display:flex;gap:8px;">
 
-<input type="text" id="quickAccessCode" placeholder="Entre le code NUTRI, 1RM, MAP, GHOST, BLESSURE ou TIMEMACHINE" style="flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font:13px Manrope;color:var(--ink);background:#fff;-webkit-text-fill-color:var(--ink);" autocomplete="off">
+<input type="text" id="quickAccessCode" placeholder="Entre le code NUTRI, 1RM, MAP, GHOST, BLESSURE, TIMEMACHINE ou RUNNING" style="flex:1;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font:13px Manrope;color:var(--ink);background:#fff;-webkit-text-fill-color:var(--ink);" autocomplete="off">
 
 <button class="btn lime" id="openQuickAccess" style="padding:10px 14px;">Ouvrir</button>
 
 </div>
 
-<p class="sub" style="margin:9px 0 0;font-size:12px;">Codes disponibles : <b>1RM</b>, <b>MAP</b>, <b>GHOST</b>, <b>NUTRI</b>, <b>BLESSURE</b>, <b>TIMEMACHINE</b>.</p>
+<p class="sub" style="margin:9px 0 0;font-size:12px;">Codes disponibles : <b>1RM</b>, <b>MAP</b>, <b>GHOST</b>, <b>NUTRI</b>, <b>BLESSURE</b>, <b>TIMEMACHINE</b>, <b>RUNNING</b>.</p>
 
 </div>
 
@@ -1119,8 +1152,92 @@ Clique sur un jour pour voir ta séance et l’emoji muscle.
 
 <span>🛡️ Épaules + Abdos</span>
 
+<span>🏃 Running</span>
+
 </div>
 
+</div>
+
+</section>
+
+<!-- ================= RUNNING ================= -->
+
+<section id="running" class="hidden">
+
+<header>
+<div>
+<p class="eyebrow">COURSE À PIED</p>
+<h1>🏃 Running</h1>
+<p class="sub">Enregistre tes sorties course à pied, suis ta distance, ton allure et tes progrès.</p>
+</div>
+<button class="btn lime" id="quickAddRun">＋ Ajouter une sortie</button>
+</header>
+
+<!-- ====== Stats ====== -->
+<div class="stats">
+<div class="card stat"><b id="runTotalDistance">0 km</b><span>Distance totale</span></div>
+<div class="card stat"><b id="runTotalCount">0</b><span>Sorties</span></div>
+<div class="card stat"><b id="runAvgPace">—</b><span>Allure moyenne</span></div>
+<div class="card stat"><b id="runBestPace">—</b><span>Meilleure allure</span></div>
+</div>
+
+<div class="stats">
+<div class="card stat"><b id="runWeekDistance">0 km</b><span>Cette semaine</span></div>
+<div class="card stat"><b id="runMonthDistance">0 km</b><span>Ce mois</span></div>
+<div class="card stat"><b id="runTotalTime">0 min</b><span>Temps total</span></div>
+<div class="card stat"><b id="runLongest">—</b><span>Plus longue sortie</span></div>
+</div>
+
+<!-- ====== Formulaire ====== -->
+<div class="card form run-form" id="runFormCard" style="margin-top:16px;">
+<h2 style="margin:0 0 14px;">Ajouter une sortie</h2>
+<div class="row">
+<label>
+Date
+<input type="date" id="runDate">
+</label>
+<label>
+Distance (km)
+<input type="number" id="runDistance" step="0.01" min="0" placeholder="Ex : 5.00">
+</label>
+</div>
+<div class="row" style="margin-top:12px;">
+<label>
+Durée (min)
+<input type="number" id="runDuration" step="0.5" min="0" placeholder="Ex : 30">
+</label>
+<label>
+Note
+<input type="text" id="runNote" placeholder="Sensations, parcours...">
+</label>
+</div>
+<div class="footer">
+<button class="btn" id="cancelRun">Annuler</button>
+<button class="btn lime" id="saveRun">Enregistrer la sortie</button>
+</div>
+</div>
+
+<!-- ====== Historique + graphique ====== -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:16px;">
+<div class="card">
+<h2 style="margin-bottom:14px;">📈 Distance par semaine</h2>
+<div id="runWeekChart" class="run-week-chart">
+<div class="empty">Ajoute des sorties pour voir ta progression.</div>
+</div>
+</div>
+<div class="card history">
+<h2 style="margin-bottom:14px;">🗂 Historique des sorties</h2>
+<div id="runHistory" class="run-history">
+<div class="empty">Aucune sortie enregistrée.</div>
+</div>
+</div>
+</div>
+
+<!-- ====== Ghost course ====== -->
+<div class="card" id="runGhostCard" style="margin-top:16px;display:none;">
+<h2 style="margin-bottom:4px;">👻 Fantôme course</h2>
+<p class="sub" style="font-size:11px;margin-top:4px;">Affronte ta meilleure sortie passée de distance similaire : l'allure (min/km) la plus rapide l'emporte.</p>
+<div id="runGhostContent"></div>
 </div>
 
 </section>
@@ -1790,6 +1907,7 @@ Retour au dashboard
   <a href="#" data-page="log">Ajouter</a>
   <a href="#" data-page="history">Historique</a>
   <a href="#" data-page="calendar">Calendrier</a>
+  <a href="#" data-page="running">Running</a>
   <a href="#" data-page="stats">Stats</a>
 </nav>
 
@@ -1936,12 +2054,13 @@ Enregistrer
 </dialog>
 
 <script src="stats-gallery.js?v=99"></script>
-<script src="app.js?v=133"></script>
+<script src="app.js?v=135"></script>
+<script src="quickrunning.js?v=2"></script>
 <script src="ai-improved.js?v=85"></script>
 <script src="stats-progress.js?v=85"></script>
 <script src="stats-extended.js?v=85"></script>
 <script src="quickmap.js?v=85"></script>
-<script src="quickghost.js?v=65"></script>
+<script src="quickghost.js?v=69"></script>
 <script src="quicknutrition.js?v=127"></script>
 <script src="quickinjuryprediction.js?v=108"></script>
 <script src="quicktimemachine.js?v=108"></script>

@@ -386,7 +386,9 @@ let data = {
 
     program: defaultProgram,
 
-    sessions: []
+    sessions: [],
+
+    runs: []
 
 };
 
@@ -462,7 +464,7 @@ const calendarState = {
     } catch(e){
         console.error("Erreur lors du chargement des données:", e);
         // Réinitialiser les données en cas d'erreur
-        data = { program: defaultProgram, sessions: [] };
+        data = { program: defaultProgram, sessions: [], runs: [] };
         maxData = { records: [] };
         saveData();
         saveMaxData();
@@ -473,6 +475,7 @@ const calendarState = {
 // sans casser les données stockées. Idempotent.
 function migrateDataShape(store){
     if(!store || typeof store !== "object") return;
+    if(!Array.isArray(store.runs)) store.runs = [];
 
     (store.program || []).forEach(workout => {
         if(!Object.prototype.hasOwnProperty.call(workout, "isCustom")){
@@ -770,12 +773,18 @@ function showPage(page){
 
     target.classList.remove("hidden");
 
+    // Highlight du lien actif dans la nav (sidebar + nav mobile)
+    document.querySelectorAll("aside nav a, .mobile-nav a").forEach(link => {
+        link.classList.toggle("active", link.dataset.page === page);
+    });
+
     // Mapping des pages vers leurs fonctions de rendu
     const pageRenderers = {
         stats: () => renderAdvancedStats(),
         gallery: () => renderPhotos(),
         history: () => renderHistory(),
         calendar: () => renderCalendar(),
+        running: () => renderRunning(),
         dashboard: () => renderDashboard(),
         programme: () => renderProgram(),
         log: () => { fillSessionSelect(); initSessionDateField(); },
@@ -847,34 +856,31 @@ function renderCalendar(){
         html += `<div class="day-cell empty"></div>`;
     }
 
-    // Charger les analyses nutritionnelles pour le mois
-    const nutriData = {};
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY) || "{}";
-        const data = JSON.parse(raw);
-        const nutriHistory = data.nutriHistory || [];
-        nutriHistory.forEach(analysis => {
-            if(analysis.date) nutriData[analysis.date] = analysis;
-        });
-    } catch(e){}
+    // Charger les sorties running du mois (emoji 🏃 affiché comme les emojis de séance)
+    const runDays = {};
+    (data.runs || []).forEach(run => {
+        if(run.date) runDays[String(run.date).substring(0,10)] = true;
+    });
 
     for(let day = 1; day <= daysInMonth; day++){
         const currentDate = new Date(year, month, day);
         const sessions = getSessionsForDay(currentDate);
         const session = sessions[0];
         const emoji = session ? getDayEmojiForSession(session) : "";
-        
-        // Vérifier s'il y a une analyse nutritionnelle
-        const dateKey = currentDate.toISOString().split('T')[0];
-        const hasNutri = nutriData[dateKey];
-        const nutriIndicator = hasNutri ? '<span class="nutri-indicator">🥗</span>' : '';
+
+        // Vérifier s'il y a une sortie course ce jour-là
+        const dayKey = localDateStr(currentDate);
+        const hasRun = runDays[dayKey];
+        const emojis = [];
+        if(emoji) emojis.push(emoji);
+        if(hasRun) emojis.push("🏃");
+        const emojiHtml = emojis.length ? `<span class="day-emoji${emojis.length > 1 ? " multi" : ""}">${emojis.join("")}</span>` : "";
 
         html += `
             <div class="day-cell">
-                <button class="day-button" data-day="${day}"${sessions.length === 0 ? " data-empty=\"1\"" : ""}>
+                <button class="day-button" data-day="${day}"${sessions.length === 0 && !hasRun ? " data-empty=\"1\"" : ""}>
                     <span class="day-number">${day}</span>
-                    <span class="day-emoji">${emoji}</span>
-                    ${nutriIndicator}
+                    ${emojiHtml}
                 </button>
             </div>
         `;
@@ -1243,7 +1249,26 @@ function openCalendarModal(date, sessions){
     if(hasNutriContent && sessions.length > 0){
         html += '<div style="border-top:1px dashed var(--line);margin:6px 0 14px;opacity:0.7;"></div>';
     }
-    if(sessions.length === 0){
+
+    // Afficher les sorties running du jour
+    const dayRuns = (data.runs || []).filter(run => run && run.date && String(run.date).substring(0,10) === dateKey);
+    if(dayRuns.length > 0){
+        html += '<div class="card" style="margin-bottom:14px;border-left:4px solid #ff7a3d;padding:14px;">';
+        html += '  <h3 style="margin:0 0 10px;font-size:14px;">🏃 Course à pied</h3>';
+        dayRuns.forEach(run => {
+            const km = Number(run.distanceKm) || 0;
+            const min = Number(run.durationMin) || 0;
+            const pace = (km > 0 && min > 0 && typeof formatRunPace === "function") ? formatRunPace(min / km) : "—";
+            html += '  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:13px;">';
+            html += '    <b>' + formatNumber(km) + ' km</b>';
+            html += '    <span style="color:var(--muted);">' + (min > 0 ? min + ' min' : '') + ' · ' + pace + '</span>';
+            if(run.note) html += '    <span style="color:var(--muted);font-size:12px;text-align:right;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(run.note) + '</span>';
+            html += '  </div>';
+        });
+        html += '</div>';
+    }
+
+    if(sessions.length === 0 && dayRuns.length === 0){
         html += '<p>Aucune séance enregistrée.</p>';
     } else {
         sessions.forEach(session => {
@@ -2292,6 +2317,7 @@ function renderDashboard(){
 
     renderAiAssistant();
     renderWeeklyBars();
+    if(typeof renderRunDashboard === "function") renderRunDashboard();
 
 }
 
@@ -4858,7 +4884,13 @@ function openQuickAccess(){
         "goal": "timemachine",
         "objectif": "timemachine",
         "future": "timemachine",
-        "projectionfuture": "timemachine"
+        "projectionfuture": "timemachine",
+        // Running
+        "running": "running",
+        "run": "running",
+        "course": "running",
+        "cap": "running",
+        "jogging": "running"
     };
     const page = pages[code];
     if(page){
@@ -4869,10 +4901,10 @@ function openQuickAccess(){
     }
     input.style.borderColor = "#ad4238";
     input.value = "";
-    input.placeholder = "Code inconnu — essaie NUTRI, BLESSURE, TIMEMACHINE, 1RM, MAP ou GHOST";
+    input.placeholder = "Code inconnu — essaie NUTRI, BLESSURE, TIMEMACHINE, 1RM, MAP, GHOST ou RUNNING";
     setTimeout(() => {
         input.style.borderColor = "";
-        input.placeholder = "Entre le code NUTRI, 1RM, MAP, GHOST, BLESSURE ou TIMEMACHINE";
+        input.placeholder = "Entre le code NUTRI, 1RM, MAP, GHOST, BLESSURE, TIMEMACHINE ou RUNNING";
     }, 2500);
 }
 
