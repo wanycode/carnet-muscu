@@ -758,9 +758,45 @@ function initNavigation(){
             const page = link.dataset.page;
             if(!page) return;
             showPage(page);
+            closeMobileDrawer();
         });
     });
 }
+
+
+
+// ============= MENU HAMBURGER MOBILE (tiroir) =============
+
+function toggleMobileDrawer(force){
+    const drawer = document.getElementById("mobileDrawer");
+    const overlay = document.getElementById("drawerOverlay");
+    const btn = document.getElementById("hamburgerBtn");
+    if(!drawer || !overlay) return;
+    const willOpen = typeof force === "boolean" ? force : !drawer.classList.contains("open");
+    drawer.classList.toggle("open", willOpen);
+    overlay.classList.toggle("open", willOpen);
+    if(btn){
+        btn.classList.toggle("open", willOpen);
+        btn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+    }
+    if(willOpen) drawer.focus && drawer.focus();
+}
+
+function closeMobileDrawer(){
+    toggleMobileDrawer(false);
+}
+
+(function initHamburger(){
+    const btn = document.getElementById("hamburgerBtn");
+    const overlay = document.getElementById("drawerOverlay");
+    const closeBtn = document.getElementById("drawerClose");
+    if(btn) btn.addEventListener("click", () => toggleMobileDrawer());
+    if(closeBtn) closeBtn.addEventListener("click", closeMobileDrawer);
+    if(overlay) overlay.addEventListener("click", closeMobileDrawer);
+    document.addEventListener("keydown", e => {
+        if(e.key === "Escape") closeMobileDrawer();
+    });
+})();
 
 
 
@@ -773,8 +809,8 @@ function showPage(page){
 
     target.classList.remove("hidden");
 
-    // Highlight du lien actif dans la nav (sidebar + nav mobile)
-    document.querySelectorAll("aside nav a, .mobile-nav a").forEach(link => {
+    // Highlight du lien actif dans la nav (sidebar + nav mobile + tiroir)
+    document.querySelectorAll("aside nav a, .mobile-nav a, .mobile-drawer a").forEach(link => {
         link.classList.toggle("active", link.dataset.page === page);
     });
 

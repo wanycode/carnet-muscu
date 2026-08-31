@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carnet Muscu</title>
 
-    <link rel="stylesheet" href="styles.css?v=131">
+    <link rel="stylesheet" href="styles.css?v=132">
     
     <!-- Icône pour appli web -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -453,6 +453,53 @@ main{background:linear-gradient(135deg,#f5f7fa 0%,#e8ecf1 100%);min-height:100vh
 </head>
 
 <body>
+
+<!-- ================= TOP BAR MOBILE (hamburger) ================= -->
+
+<header class="mobile-topbar">
+
+    <a href="#" data-page="dashboard" class="mobile-topbar-logo">
+        Carnet Muscu
+    </a>
+
+    <button class="hamburger" id="hamburgerBtn" aria-label="Ouvrir le menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+</header>
+
+<!-- ================= TIROIR DE NAVIGATION MOBILE ================= -->
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+
+<nav class="mobile-drawer" id="mobileDrawer" aria-label="Menu principal" tabindex="-1">
+
+    <div class="drawer-head">
+        <span class="drawer-title">Navigation</span>
+        <button class="drawer-close" id="drawerClose" aria-label="Fermer le menu">×</button>
+    </div>
+
+    <a href="#" data-page="dashboard">🏠 Dashboard</a>
+    <a href="#" data-page="programme">🗓️ Programme</a>
+    <a href="#" data-page="log">➕ Ajouter</a>
+    <a href="#" data-page="history">🕘 Historique</a>
+    <a href="#" data-page="calendar">📅 Calendrier</a>
+    <a href="#" data-page="running">🏃 Running</a>
+    <a href="#" data-page="stats">📊 Stats</a>
+
+    <span class="drawer-sep">Outils</span>
+
+    <a href="#" data-page="progress">📈 Progression</a>
+    <a href="#" data-page="map">🗺️ Carte</a>
+    <a href="#" data-page="calculator">🧮 Calculateur</a>
+    <a href="#" data-page="nutrition">🥗 Nutrition</a>
+    <a href="#" data-page="ghost">👻 Ghost</a>
+    <a href="#" data-page="blessure">🩹 Blessure</a>
+    <a href="#" data-page="timemachine">⏰ Time Machine</a>
+
+</nav>
 
 <aside>
 
@@ -1902,13 +1949,11 @@ Retour au dashboard
 </main>
 
 <nav class="mobile-nav">
-  <a href="#" data-page="dashboard">Dashboard</a>
-  <a href="#" data-page="programme">Programme</a>
-  <a href="#" data-page="log">Ajouter</a>
-  <a href="#" data-page="history">Historique</a>
-  <a href="#" data-page="calendar">Calendrier</a>
-  <a href="#" data-page="running">Running</a>
-  <a href="#" data-page="stats">Stats</a>
+  <a href="#" data-page="dashboard">🏠 Dashboard</a>
+  <a href="#" data-page="log">➕ Ajouter</a>
+  <a href="#" data-page="calendar">📅 Calendrier</a>
+  <a href="#" data-page="running">🏃 Running</a>
+  <a href="#" data-page="stats">📊 Stats</a>
 </nav>
 
 <!-- ================= MODAL PROGRAMME ================= -->
@@ -2054,7 +2099,7 @@ Enregistrer
 </dialog>
 
 <script src="stats-gallery.js?v=99"></script>
-<script src="app.js?v=135"></script>
+<script src="app.js?v=136"></script>
 <script src="quickrunning.js?v=2"></script>
 <script src="ai-improved.js?v=85"></script>
 <script src="stats-progress.js?v=85"></script>
