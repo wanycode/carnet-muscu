@@ -725,45 +725,40 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
         top:0;left:0;right:0;
         z-index:44;
         align-items:center;
-        justify-content:space-between;
-        gap:10px;
-        padding:10px 14px;
-        background:var(--green);
-        box-shadow:0 6px 24px rgba(0,0,0,.28);
-    }
-    .mobile-topbar-logo{
-        color:#fff;
-        font-weight:800;
-        font-size:15px;
-        text-decoration:none;
-        letter-spacing:-.02em;
-        line-height:1.1;
+        justify-content:flex-start;
+        padding:8px 12px;
+        background:transparent;
+        box-shadow:none;
+        pointer-events:none;
     }
     .hamburger{
         display:flex;
         flex-direction:column;
         justify-content:center;
-        gap:5px;
-        width:46px;height:44px;
-        padding:11px 10px;
-        background:rgba(255,255,255,.08);
-        border:1px solid rgba(255,255,255,.14);
-        border-radius:12px;
+        gap:4px;
+        width:34px;height:30px;
+        padding:7px 8px;
+        background:rgba(28,41,30,.5);
+        border:1px solid rgba(255,255,255,.28);
+        border-radius:10px;
         cursor:pointer;
         transition:background .2s ease;
+        pointer-events:auto;
+        backdrop-filter:blur(6px);
+        -webkit-backdrop-filter:blur(6px);
     }
-    .hamburger:hover{background:rgba(255,255,255,.16)}
+    .hamburger:hover{background:rgba(28,41,30,.7)}
     .hamburger span{
         display:block;
-        height:3px;
-        border-radius:3px;
+        height:2px;
+        border-radius:2px;
         background:var(--lime);
         transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s ease;
     }
-    .hamburger.open span:nth-child(1){transform:translateY(8px) rotate(45deg)}
+    .hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
     .hamburger.open span:nth-child(2){opacity:0}
-    .hamburger.open span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
+    .hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
     .mobile-drawer{display:flex}
     .drawer-overlay{display:block}
-    main{padding-top:64px}
+    main{padding-top:44px}
 }
