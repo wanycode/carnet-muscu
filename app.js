@@ -521,6 +521,10 @@ function saveData(){
         JSON.stringify(data)
     );
 
+    if(typeof renderDailyCheck === "function"){
+        try { renderDailyCheck(); } catch(e){}
+    }
+
 }
 
 function saveMaxData(){
@@ -825,6 +829,7 @@ function showPage(page){
         programme: () => renderProgram(),
         log: () => { fillSessionSelect(); initSessionDateField(); },
         progress: () => fillProgressExercises(),
+        dailycheck: () => { if(typeof renderDailyCheck === "function") renderDailyCheck(); },
         calculator: () => {}, // Pas de rendu spécifique
         nutrition: () => {
             if(window.__nutriTargetDate){
@@ -2354,6 +2359,7 @@ function renderDashboard(){
     renderAiAssistant();
     renderWeeklyBars();
     if(typeof renderRunDashboard === "function") renderRunDashboard();
+    if(typeof renderDailyCheck === "function") renderDailyCheck();
 
 }
 

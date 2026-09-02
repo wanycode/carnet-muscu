@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carnet Muscu</title>
 
-    <link rel="stylesheet" href="styles.css?v=134">
+    <link rel="stylesheet" href="styles.css?v=136">
     
     <!-- Icône pour appli web -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -478,6 +478,7 @@ main{background:linear-gradient(135deg,#f5f7fa 0%,#e8ecf1 100%);min-height:100vh
     </div>
 
     <a href="#" data-page="dashboard">🏠 Dashboard</a>
+    <a href="#" data-page="dailycheck">⚡ Daily Check</a>
     <a href="#" data-page="programme">🗓️ Programme</a>
     <a href="#" data-page="log">➕ Ajouter</a>
     <a href="#" data-page="history">🕘 Historique</a>
@@ -505,6 +506,7 @@ main{background:linear-gradient(135deg,#f5f7fa 0%,#e8ecf1 100%);min-height:100vh
 
     <nav>
         <a href="#" data-page="dashboard">Dashboard</a>
+        <a href="#" data-page="dailycheck">Daily Check</a>
         <a href="#" data-page="programme">Programme</a>
         <a href="#" data-page="log">Ajouter</a>
         <a href="#" data-page="history">Historique</a>
@@ -560,6 +562,8 @@ Ajouter une séance
 </button>
 
 </header>
+
+<div class="dc-dash-widget-card" id="dashboardDailyCheckWidget" style="display:none;"></div>
 
 <div class="next">
 
@@ -866,6 +870,38 @@ D
 <p class="sub" style="margin:9px 0 0;font-size:12px;">Codes disponibles : <b>1RM</b>, <b>MAP</b>, <b>GHOST</b>, <b>NUTRI</b>, <b>BLESSURE</b>, <b>TIMEMACHINE</b>, <b>RUNNING</b>.</p>
 
 </div>
+
+</section>
+
+<!-- ================= DAILY CHECK & EMPLOI DU TEMPS ================= -->
+
+<section id="dailycheck" class="hidden">
+
+<header>
+
+<div>
+
+<p class="eyebrow">
+DISCIPLINE & ORGANISATION
+</p>
+
+<h1>
+Daily Check ⚡
+</h1>
+
+<p class="sub">
+Ton emploi du temps de lycée, la planification de tes 4 séances + running et ton suivi de survie sur toute l'année scolaire.
+</p>
+
+</div>
+
+<button class="btn lime" onclick="window.__setDcTab('timetable')">
+🗓️ Gérer mon planning
+</button>
+
+</header>
+
+<div id="dailycheckContainer"></div>
 
 </section>
 
@@ -2105,6 +2141,7 @@ Enregistrer
 <script src="quicknutrition.js?v=127"></script>
 <script src="quickinjuryprediction.js?v=108"></script>
 <script src="quicktimemachine.js?v=108"></script>
+<script src="quickdailycheck.js?v=2"></script>
 
 </body>
 
